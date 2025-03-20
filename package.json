@@ -1,0 +1,35 @@
+{
+  "name": "hono-idempotent-request",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Hono middleware for idempotent request",
+  "keywords": [
+    "hono",
+    "middleware",
+    "Idempotency-Key"
+  ],
+  "author": "sushichan044 <mail@sushichan.live> (https://github.com/sushichan044)",
+  "license": "MIT",
+  "packageManager": "pnpm@10.6.5",
+  "peerDependencies": {
+    "hono": "^4.0.0"
+  },
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest --run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.10",
+    "@virtual-live-lab/eslint-config": "2.2.18",
+    "@virtual-live-lab/prettier-config": "2.0.17",
+    "@virtual-live-lab/tsconfig": "2.1.18",
+    "eslint": "9.22.0",
+    "hono": "4.7.4",
+    "jiti": "2.4.2",
+    "prettier": "3.5.3",
+    "typescript": "5.8.2",
+    "typescript-eslint": "8.27.0",
+    "vitest": "3.0.9"
+  }
+}

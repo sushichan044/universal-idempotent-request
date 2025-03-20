@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Testing
+
+- 必ず Vitest を使ってください。
+- すべての Vitest API は `vitest` から明示的に import してください
+- テストケースは必ず英語で書いてください
+
+## Execution
+
+- `pnpm run test:run` を利用してください。
+
+## Matcher
+
+- オブジェクトや配列の比較には必ず `toStrictEqual` を使ってください
