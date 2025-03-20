@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Git
+
+- コミットメッセージは常に英語で作成してください。
+- conventional commit に厳格に従ってください。
+- 破壊的変更を含む場合は `!` を必ずつけてください。
+  - 破壊的変更を含む機能追加: `feat!: {DETAIL MESSAGE}`
