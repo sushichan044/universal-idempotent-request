@@ -13,7 +13,9 @@ type IdempotentRequestBase = {
   /** Request fingerprint */
   fingerprint: IdempotencyFingerprint;
 
-  /** Stored response (null on initial execution) */
+  /** Stored response
+   * (null until server completes processing request)
+   */
   response: SerializedResponse | null;
 };
 
