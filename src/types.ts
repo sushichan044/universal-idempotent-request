@@ -1,5 +1,5 @@
 import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
-import { SerializedResponse } from "./utils/response";
+import type { SerializedResponse } from "./utils/response";
 
 type IdempotentRequestBase = {
   /** Cache lookup key */
@@ -16,8 +16,8 @@ type IdempotentRequestBase = {
 };
 
 export type StoredIdempotentRequest =
-  | NonLockedIdempotentRequest
-  | LockedIdempotentRequest;
+  | LockedIdempotentRequest
+  | NonLockedIdempotentRequest;
 
 export type NonLockedIdempotentRequest = IdempotentRequestBase & {
   /**

@@ -1,5 +1,5 @@
 import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
-import {
+import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,
   StoredIdempotentRequest,
@@ -8,7 +8,7 @@ import type { SerializedResponse } from "./utils/response";
 
 type NewIdempotentRequest = Pick<
   NonLockedIdempotentRequest,
-  "fingerprint" | "cacheLookupKey"
+  "cacheLookupKey" | "fingerprint"
 >;
 
 /**
