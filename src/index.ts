@@ -103,9 +103,11 @@ export const idempotentRequest = ({
       nonLockedRequest = cachedRequest;
     }
 
-    // Execute the original request processing
     const lockedRequest = await storage.lock(nonLockedRequest);
+
+    // Execute hono route handler
     await next();
+
     await storage.setResponse(lockedRequest, await serializeResponse(c.res));
     await storage.unlock(lockedRequest);
 
