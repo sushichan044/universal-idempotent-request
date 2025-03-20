@@ -1,31 +1,14 @@
 import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
+import {
+  LockedIdempotentRequest,
+  NonLockedIdempotentRequest,
+  StoredIdempotentRequest,
+} from "./types";
 import type { SerializedResponse } from "./utils/response";
 
-export interface IdempotentRequestRecord {
-  /** Time when the request was first processed */
-  createdAt: Date;
-
-  /** Request fingerprint */
-  fingerprint: string;
-
-  /** Idempotency-Key */
-  idempotencyKey: string;
-
-  /**
-   * Time when the request was locked for processing
-   *
-   * This is used to prevent race conditions when multiple requests are
-   * trying to process the same request concurrently.
-   */
-  lockedAt: Date | null;
-
-  /** Stored response (null on initial execution) */
-  response: SerializedResponse | null;
-}
-
 type NewIdempotentRequest = Pick<
-  IdempotentRequestRecord,
-  "fingerprint" | "idempotencyKey"
+  NonLockedIdempotentRequest,
+  "fingerprint" | "cacheLookupKey"
 >;
 
 /**
@@ -38,37 +21,41 @@ export interface IdempotentRequestCacheStorage {
    * Create a new request
    * @param request - The request information to store
    */
-  create(request: NewIdempotentRequest): Promise<IdempotentRequestRecord>;
+  create(request: NewIdempotentRequest): Promise<NonLockedIdempotentRequest>;
 
   /**
    * Retrieve a stored request associated with the given key.
    *
    * @param lookupKey - Cache lookup key
-   * @returns The stored request information if found, null otherwise
+   * @returns The stored request information. It should be null if the request is not found.
    */
   get(
     lookupKey: IdempotentCacheLookupKey,
-  ): Promise<IdempotentRequestRecord | null>;
+  ): Promise<StoredIdempotentRequest | null>;
 
   /**
    * Lock a request to begin processing
-   * @param lookupKey - Cache lookup key
+   * @param nonLockedRequest - Non-locked stored request
    */
-  lock(lookupKey: IdempotentCacheLookupKey): Promise<void>;
+  lock(
+    nonLockedRequest: NonLockedIdempotentRequest,
+  ): Promise<LockedIdempotentRequest>;
 
   /**
    * Unlock a request and store the response
-   * @param lookupKey - Cache lookup key
+   * @param lockedRequest - Locked request
    * @param response - The response to store
    */
   setResponse(
-    lookupKey: IdempotentCacheLookupKey,
+    lockedRequest: LockedIdempotentRequest,
     response: SerializedResponse,
   ): Promise<void>;
 
   /**
    * Unlock a request
-   * @param lookupKey - Cache lookup key
+   * @param lockedRequest - Locked request
    */
-  unlock(lookupKey: IdempotentCacheLookupKey): Promise<void>;
+  unlock(
+    lockedRequest: LockedIdempotentRequest,
+  ): Promise<NonLockedIdempotentRequest>;
 }
