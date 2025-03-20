@@ -3,6 +3,19 @@
   "type": "module",
   "version": "0.0.1",
   "description": "Hono middleware for idempotent request",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    }
+  },
   "keywords": [
     "hono",
     "middleware",
@@ -15,6 +28,7 @@
     "hono": "^4.0.0"
   },
   "scripts": {
+    "build": "unbuild",
     "test": "vitest",
     "test:run": "vitest --run",
     "typecheck": "tsc --noEmit"
@@ -30,6 +44,7 @@
     "prettier": "3.5.3",
     "typescript": "5.8.2",
     "typescript-eslint": "8.27.0",
+    "unbuild": "3.5.0",
     "vitest": "3.0.9"
   }
 }
