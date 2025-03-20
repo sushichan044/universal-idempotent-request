@@ -1,3 +1,4 @@
+import type { IdempotencyFingerprint } from "./brand/idempotency-fingerprint";
 import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
 import type { SerializedResponse } from "./utils/response";
 
@@ -5,11 +6,12 @@ type IdempotentRequestBase = {
   /** Cache lookup key */
   cacheLookupKey: IdempotentCacheLookupKey;
 
-  /** Time when the request was first processed */
   createdAt: Date;
 
+  updatedAt: Date;
+
   /** Request fingerprint */
-  fingerprint: string;
+  fingerprint: IdempotencyFingerprint;
 
   /** Stored response (null on initial execution) */
   response: SerializedResponse | null;
