@@ -47,7 +47,7 @@ export const idempotentRequest = ({
   const idempotencyStrategyFn = prepareActivationStrategy(activationStrategy);
 
   return createMiddleware(async (c, next) => {
-    const isIdempotencyEnabled = await idempotencyStrategyFn(c.req.raw);
+    const isIdempotencyEnabled = await idempotencyStrategyFn(c.req.raw.clone());
 
     if (!isIdempotencyEnabled) {
       return await next();
@@ -69,8 +69,10 @@ export const idempotentRequest = ({
       });
     }
 
-    const fingerprint = await specification.getFingerprint(c.req);
-    const cacheLookupKey = await specification.getCacheLookupKey(c.req);
+    const fingerprint = await specification.getFingerprint(c.req.raw.clone());
+    const cacheLookupKey = await specification.getCacheLookupKey(
+      c.req.raw.clone(),
+    );
     const cachedRequest = await storage.get(cacheLookupKey);
 
     let nonLockedRequest: NonLockedIdempotentRequest | null = null;

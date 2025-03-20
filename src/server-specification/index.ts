@@ -1,5 +1,3 @@
-import type { HonoRequest } from "hono";
-
 import type { IdempotencyFingerprint } from "../brand/idempotency-fingerprint";
 import type { IdempotentCacheLookupKey } from "../brand/idempotent-cache-lookup-key";
 import type { MaybePromise } from "../utils/types";
@@ -17,9 +15,7 @@ export interface IdempotentRequestServerSpecification {
    *
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
    */
-  getCacheLookupKey(
-    request: HonoRequest,
-  ): MaybePromise<IdempotentCacheLookupKey>;
+  getCacheLookupKey(request: Request): MaybePromise<IdempotentCacheLookupKey>;
 
   /**
    * Get a fingerprint for the request
@@ -28,7 +24,7 @@ export interface IdempotentRequestServerSpecification {
    *
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.4 Idempotency Fingerprint}
    */
-  getFingerprint(request: HonoRequest): MaybePromise<IdempotencyFingerprint>;
+  getFingerprint(request: Request): MaybePromise<IdempotencyFingerprint>;
 
   /**
    * Check if the idempotency key satisfies the server-defined specifications
