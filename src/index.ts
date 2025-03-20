@@ -11,7 +11,7 @@ import {
 } from "./strategy";
 import { deserializeResponse, serializeResponse } from "./utils/response";
 
-export interface IdempotentRequestOptions {
+export interface IdempotentRequestImplementation {
   /**
    * Strategy for activating idempotency processing
    *
@@ -39,12 +39,10 @@ export interface IdempotentRequestOptions {
  * Create a Hono middleware for handling idempotent requests
  * @param options - Middleware configuration options
  */
-export const idempotentRequest = ({
-  activationStrategy,
-  specification,
-  storage,
-}: IdempotentRequestOptions) => {
-  const idempotencyStrategyFn = prepareActivationStrategy(activationStrategy);
+export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
+  const idempotencyStrategyFn = prepareActivationStrategy(
+    impl.activationStrategy,
+  );
 
   return createMiddleware(async (c, next) => {
     const isIdempotencyEnabled = await idempotencyStrategyFn(c.req.raw.clone());
@@ -62,23 +60,28 @@ export const idempotentRequest = ({
 
     // Validate key satisfies server-defined specifications
     // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7
-    if (!specification.isValidKey(idempotencyKey)) {
+    if (!impl.specification.isValidKey(idempotencyKey)) {
       throw new HTTPException(400, {
         message:
           "Idempotency-Key format did not satisfy server-defined specifications.",
       });
     }
 
-    const fingerprint = await specification.getFingerprint(c.req.raw.clone());
-    const cacheLookupKey = await specification.getCacheLookupKey(
+    const fingerprint = await impl.specification.getFingerprint(
       c.req.raw.clone(),
     );
-    const cachedRequest = await storage.get(cacheLookupKey);
+    const cacheLookupKey = await impl.specification.getCacheLookupKey(
+      c.req.raw.clone(),
+    );
+    const cachedRequest = await impl.storage.get(cacheLookupKey);
 
     let nonLockedRequest: NonLockedIdempotentRequest | null = null;
     if (!cachedRequest) {
       // New request - prepare for processing
-      nonLockedRequest = await storage.create({ cacheLookupKey, fingerprint });
+      nonLockedRequest = await impl.storage.create({
+        cacheLookupKey,
+        fingerprint,
+      });
     } else {
       // Retried request - compare with the cached request
       if (cachedRequest.fingerprint !== fingerprint) {
@@ -104,13 +107,16 @@ export const idempotentRequest = ({
       nonLockedRequest = cachedRequest;
     }
 
-    const lockedRequest = await storage.lock(nonLockedRequest);
+    const lockedRequest = await impl.storage.lock(nonLockedRequest);
 
     // Execute hono route handler
     await next();
 
-    await storage.setResponse(lockedRequest, await serializeResponse(c.res));
-    await storage.unlock(lockedRequest);
+    await impl.storage.setResponse(
+      lockedRequest,
+      await serializeResponse(c.res),
+    );
+    await impl.storage.unlock(lockedRequest);
 
     return c.res;
   });
