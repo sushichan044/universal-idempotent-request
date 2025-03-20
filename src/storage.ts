@@ -1,4 +1,4 @@
-import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
+import type { IdempotentCacheLookupKey } from "./brand";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,

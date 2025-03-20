@@ -1,5 +1,4 @@
-import type { IdempotencyFingerprint } from "./brand/idempotency-fingerprint";
-import type { IdempotentCacheLookupKey } from "./brand/idempotent-cache-lookup-key";
+import type { IdempotencyFingerprint, IdempotentCacheLookupKey } from "./brand";
 import type { SerializedResponse } from "./utils/response";
 
 type IdempotentRequestBase = {
