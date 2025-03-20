@@ -1,8 +1,4 @@
-import type { HonoRequest } from "hono";
-
 import type { MaybePromise } from "./utils/types";
-
-import { isNonEmptyString } from "./utils/string";
 
 /**
  * Function type for defining the condition for activating idempotency processing
@@ -12,7 +8,7 @@ import { isNonEmptyString } from "./utils/string";
  * Return `true` to activate idempotency processing, `false` otherwise
  */
 type IdempotencyActivationStrategyFunction = (
-  request: HonoRequest,
+  request: Request,
 ) => MaybePromise<boolean>;
 
 /**
@@ -30,6 +26,8 @@ export type IdempotencyActivationStrategy =
  *
  * If specified as a string, convert to the corresponding function,
  * and if specified as a function, return it as is
+ *
+ * @returns Function that returns a boolean indicating whether to apply idempotency processing.
  */
 export const prepareActivationStrategy = (
   strategy: IdempotencyActivationStrategy = "always",
@@ -42,7 +40,13 @@ export const prepareActivationStrategy = (
     return OPT_IN_WITH_KEY;
   }
 
-  return ALWAYS_ACTIVE;
+  if (strategy === "always") {
+    return ALWAYS_ACTIVE;
+  }
+
+  throw new Error(
+    `Invalid activation strategy: ${String(strategy satisfies never)}`,
+  );
 };
 
 /**
@@ -55,4 +59,4 @@ const ALWAYS_ACTIVE = (() =>
  * Strategy for applying idempotency processing only if the Idempotency-Key header exists
  */
 const OPT_IN_WITH_KEY: IdempotencyActivationStrategyFunction = (request) =>
-  isNonEmptyString(request.header("Idempotency-Key"));
+  typeof request.headers.get("Idempotency-Key") === "string";

@@ -35,5 +35,5 @@ export interface IdempotentRequestServerSpecification {
    * @param idempotencyKey - The `Idempotency-Key` header from the request
    * @returns Whether the key conforms to the server-defined specifications
    */
-  isValidKey(idempotencyKey: string | undefined): boolean;
+  isValidKey(idempotencyKey: string): boolean;
 }

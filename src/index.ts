@@ -1,16 +1,15 @@
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 
-import type { IdempotentRequestCacheStorage } from "./storage";
 import type { IdempotentRequestServerSpecification } from "./server-specification";
+import type { IdempotentRequestCacheStorage } from "./storage";
+import type { NonLockedIdempotentRequest } from "./types";
 
 import {
   type IdempotencyActivationStrategy,
   prepareActivationStrategy,
 } from "./strategy";
 import { deserializeResponse, serializeResponse } from "./utils/response";
-import { isNonEmptyString } from "./utils/string";
-import type { NonLockedIdempotentRequest } from "./types";
 
 export interface IdempotentRequestOptions {
   /**
@@ -48,14 +47,14 @@ export const idempotentRequest = ({
   const idempotencyStrategyFn = prepareActivationStrategy(activationStrategy);
 
   return createMiddleware(async (c, next) => {
-    const isIdempotencyEnabled = await idempotencyStrategyFn(c.req);
+    const isIdempotencyEnabled = await idempotencyStrategyFn(c.req.raw);
 
     if (!isIdempotencyEnabled) {
       return await next();
     }
 
     const idempotencyKey = c.req.header("Idempotency-Key");
-    if (!isNonEmptyString(idempotencyKey)) {
+    if (idempotencyKey == null) {
       throw new HTTPException(400, {
         message: "Idempotency-Key is missing",
       });
