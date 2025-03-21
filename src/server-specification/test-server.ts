@@ -36,8 +36,13 @@ export class TestServerSpecification
     try {
       const version = uuidVersion(idempotencyKey);
       return version === 4;
-    } catch {
-      return false;
+    } catch (error) {
+      if (error instanceof TypeError) {
+        // https://github.com/uuidjs/uuid?tab=readme-ov-file#uuidversionstr
+        return false;
+      }
+
+      throw error;
     }
   }
 
