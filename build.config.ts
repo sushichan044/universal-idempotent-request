@@ -9,4 +9,9 @@ export default defineBuildConfig({
     "src/storage/index.ts",
   ],
   outDir: "dist",
+  rollup: {
+    esbuild: {
+      minifySyntax: true,
+    },
+  },
 });
