@@ -27,6 +27,7 @@ export type IdempotencyActivationStrategy =
  * If specified as a string, convert to the corresponding function,
  * and if specified as a function, return it as is
  *
+ * @param strategy The strategy. defaults to `"always"`.
  * @returns Function that returns a boolean indicating whether to apply idempotency processing.
  */
 export const prepareActivationStrategy = (
