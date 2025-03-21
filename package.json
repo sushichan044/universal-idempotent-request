@@ -18,6 +18,14 @@
     "./brand": {
       "types": "./dist/brand/index.d.ts",
       "default": "./dist/brand/index.mjs"
+    },
+    "./server-specification": {
+      "types": "./dist/server-specification/index.d.ts",
+      "default": "./dist/server-specification/index.mjs"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "default": "./dist/storage/index.mjs"
     }
   },
   "keywords": [
