@@ -15,7 +15,7 @@ import type { MaybePromise } from "../utils/types";
  * It is only meant to be used for testing purposes.
  */
 export const createInMemoryIdempotentRequestCacheStorage = (
-  args: Partial<{
+  options: Partial<{
     createDelay: number;
     lockDelay: number;
     setResponseDelay: number;
@@ -23,10 +23,10 @@ export const createInMemoryIdempotentRequestCacheStorage = (
   }> = {},
 ): IdempotentRequestCacheStorage => {
   const requests = new Map<IdempotentCacheLookupKey, StoredIdempotentRequest>();
-  const createDelay = args.createDelay ?? 0;
-  const lockDelay = args.lockDelay ?? 0;
-  const setResponseDelay = args.setResponseDelay ?? 0;
-  const unlockDelay = args.unlockDelay ?? 0;
+  const createDelay = options.createDelay ?? 0;
+  const lockDelay = options.lockDelay ?? 0;
+  const setResponseDelay = options.setResponseDelay ?? 0;
+  const unlockDelay = options.unlockDelay ?? 0;
 
   return {
     async create(

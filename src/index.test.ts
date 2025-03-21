@@ -10,18 +10,14 @@ import idempotentRequest from "./index";
 import { createTestServerSpecification } from "./server-specification/test-server";
 import { createInMemoryIdempotentRequestCacheStorage } from "./storage/in-memory";
 
-type SetupApp = {
-  storageOptions: Parameters<
-    typeof createInMemoryIdempotentRequestCacheStorage
-  >[0];
+type SetupAppOptions = {
+  storage: Parameters<typeof createInMemoryIdempotentRequestCacheStorage>[0];
   strategy: IdempotencyActivationStrategy;
 };
 
-const setupApp = (args: Partial<SetupApp> = {}) => {
-  const activationStrategy = args.strategy;
-  const storage = createInMemoryIdempotentRequestCacheStorage(
-    args.storageOptions,
-  );
+const setupApp = (options: Partial<SetupAppOptions> = {}) => {
+  const activationStrategy = options.strategy;
+  const storage = createInMemoryIdempotentRequestCacheStorage(options.storage);
   const specification = createTestServerSpecification();
 
   const app = new Hono()
@@ -238,7 +234,7 @@ describe("idempotentRequest middleware", () => {
         // Simulate slow storage
         const createDelay = 200;
         const { app } = setupApp({
-          storageOptions: {
+          storage: {
             createDelay,
           },
         });
