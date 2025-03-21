@@ -1,5 +1,8 @@
-import type { IdempotentRequestCacheStorage, NewIdempotentRequest } from ".";
 import type { IdempotentCacheLookupKey } from "../brand";
+import type {
+  IdempotentRequestCacheStorage,
+  NewIdempotentRequest,
+} from "../storage";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,

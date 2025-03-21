@@ -5,8 +5,8 @@ import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
 import idempotentRequest from "./index";
-import { createTestServerSpecification } from "./server-specification/test-server";
-import { createInMemoryIdempotentRequestCacheStorage } from "./storage/in-memory";
+import { createInMemoryIdempotentRequestCacheStorage } from "./test/in-memory-storage";
+import { createTestServerSpecification } from "./test/server-specification";
 
 /**
  * Utility for simulating race condition

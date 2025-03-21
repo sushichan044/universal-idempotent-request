@@ -2,7 +2,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { version as uuidVersion } from "uuid";
 
-import type { IdempotentRequestServerSpecification } from "./index";
+import type { IdempotentRequestServerSpecification } from "../server-specification/index";
 
 import {
   createIdempotencyFingerprint,
