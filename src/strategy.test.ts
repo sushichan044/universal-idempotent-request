@@ -47,10 +47,9 @@ describe("prepareActivationStrategy", () => {
   });
 
   it("should return the function as is when strategy is a function", async () => {
-    const customStrategy = (request: Request) => {
-      return request.headers.get("X-Enable-Idempotency") === "true";
-    };
-    const strategy = prepareActivationStrategy(customStrategy);
+    const strategy = prepareActivationStrategy(
+      (req) => req.headers.get("X-Enable-Idempotency") === "true",
+    );
 
     const mockRequestWithHeader = createMockRequest({
       "x-enable-idempotency": "true",

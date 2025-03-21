@@ -26,6 +26,10 @@
     "./storage": {
       "types": "./dist/storage/index.d.ts",
       "default": "./dist/storage/index.mjs"
+    },
+    "./strategy": {
+      "types": "./dist/strategy.d.ts",
+      "default": "./dist/strategy.mjs"
     }
   },
   "keywords": [
@@ -59,6 +63,8 @@
     "@virtual-live-lab/tsconfig": "2.1.18",
     "@vitest/coverage-v8": "3.0.9",
     "eslint": "9.22.0",
+    "eslint-plugin-unicorn": "57.0.0",
+    "globals": "16.0.0",
     "hono": "4.7.4",
     "jiti": "2.4.2",
     "prettier": "3.5.3",

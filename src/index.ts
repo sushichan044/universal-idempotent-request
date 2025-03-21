@@ -40,12 +40,14 @@ export interface IdempotentRequestImplementation {
  * @param options - Middleware configuration options
  */
 export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
-  const idempotencyStrategyFn = prepareActivationStrategy(
+  const idempotencyStrategyFunction = prepareActivationStrategy(
     impl.activationStrategy,
   );
 
   return createMiddleware(async (c, next) => {
-    const isIdempotencyEnabled = await idempotencyStrategyFn(c.req.raw.clone());
+    const isIdempotencyEnabled = await idempotencyStrategyFunction(
+      c.req.raw.clone(),
+    );
 
     if (!isIdempotencyEnabled) {
       return await next();
@@ -76,13 +78,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
     const cachedRequest = await impl.storage.get(cacheLookupKey);
 
     let nonLockedRequest: NonLockedIdempotentRequest | null = null;
-    if (!cachedRequest) {
-      // New request - prepare for processing
-      nonLockedRequest = await impl.storage.create({
-        cacheLookupKey,
-        fingerprint,
-      });
-    } else {
+    if (cachedRequest) {
       // Retried request - compare with the cached request
       if (cachedRequest.fingerprint !== fingerprint) {
         // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5:~:text=If%20there%20is%20an%20attempt%20to%20reuse%20an%20idempotency%20key%20with%20a%20different%0A%20%20%20request%20payload
@@ -105,6 +101,12 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
 
       // Previous request was not processed - maybe failed
       nonLockedRequest = cachedRequest;
+    } else {
+      // New request - prepare for processing
+      nonLockedRequest = await impl.storage.create({
+        cacheLookupKey,
+        fingerprint,
+      });
     }
 
     const lockedRequest = await impl.storage.lock(nonLockedRequest);
@@ -121,9 +123,5 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
     return c.res;
   });
 };
-
-export type { IdempotencyActivationStrategy };
-export type { IdempotentRequestServerSpecification };
-export type { IdempotentRequestCacheStorage };
 
 export default idempotentRequest;

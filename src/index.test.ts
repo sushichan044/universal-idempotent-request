@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
-import type { IdempotencyActivationStrategy } from "./index";
+import type { IdempotencyActivationStrategy } from "./strategy";
 
 import idempotentRequest from "./index";
 import { createTestServerSpecification } from "./server-specification/test-server";
