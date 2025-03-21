@@ -149,5 +149,3 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
     }
   });
 };
-
-export default idempotentRequest;

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
-import idempotentRequest from "./index";
+import { idempotentRequest } from "./index";
 import { createInMemoryIdempotentRequestCacheStorage } from "./test/in-memory-storage";
 import { createTestServerSpecification } from "./test/server-specification";
 
