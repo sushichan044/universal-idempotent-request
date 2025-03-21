@@ -7,6 +7,7 @@ export default defineBuildConfig({
     "src/brand/index.ts",
     "src/server-specification/index.ts",
     "src/storage/index.ts",
+    "src/strategy.ts",
   ],
   outDir: "dist",
 });
