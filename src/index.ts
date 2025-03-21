@@ -43,7 +43,7 @@ export interface IdempotentRequestImplementation {
 
 /**
  * Create a Hono middleware for handling idempotent requests
- * @param options - Middleware configuration options
+ * @param impl - Injectable implementation
  */
 export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
   const idempotencyStrategyFunction = prepareActivationStrategy(
