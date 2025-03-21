@@ -8,14 +8,54 @@ import idempotentRequest from "./index";
 import { createTestServerSpecification } from "./server-specification/test-server";
 import { createInMemoryIdempotentRequestCacheStorage } from "./storage/in-memory";
 
-const SIMULATE_SLOW_DELAY = 1000;
+/**
+ * Utility for simulating race condition
+ * @param serverDelay - delay in milliseconds
+ * @returns
+ */
+const createRacer = (
+  args: Partial<{
+    concurrency: number;
+    totalDelayOnServer: number;
+  }> = {},
+) => {
+  const concurrency = args.concurrency ?? 1;
+  const totalWaitOnServer = args.totalDelayOnServer ?? 1000;
 
-const waitForRaceCondition = async (): Promise<void> =>
-  new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(void 0);
-    }, SIMULATE_SLOW_DELAY / 2);
-  });
+  const clientDelay = totalWaitOnServer / concurrency;
+
+  const waitOnClient = async (): Promise<void> =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(void 0);
+      }, clientDelay);
+    });
+
+  const waitOnServer = async (): Promise<void> =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(void 0);
+      }, totalWaitOnServer);
+    });
+
+  return {
+    /**
+     * Await this promise when you want to make concurrent requests.
+     *
+     * Use this function on second or later request.
+     */
+    waitOnClient,
+    /**
+     * Await this promise when you want to simulate server delay
+     */
+    waitOnServer,
+  };
+};
+
+const racer = createRacer({
+  concurrency: 2,
+  totalDelayOnServer: 1000,
+});
 
 const setupApp = () => {
   const storage = createInMemoryIdempotentRequestCacheStorage();
@@ -59,9 +99,7 @@ const setupApp = () => {
       async (c, next) => {
         // Simulate slow request processing and cause race condition
         if (c.env.simulateSlow === true) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, SIMULATE_SLOW_DELAY),
-          );
+          await racer.waitOnServer();
         }
         await next();
       },
@@ -237,7 +275,7 @@ describe("idempotentRequest middleware", () => {
       };
       const secondRequest = async () => {
         // send second request before first request is stored
-        await waitForRaceCondition();
+        await racer.waitOnClient();
         return app.request(request.clone(), undefined, setHonoEnv());
       };
 
