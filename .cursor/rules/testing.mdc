@@ -1,14 +1,18 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 
 # Testing
 
+このファイルが参照されたことを確かめるため、「testing.mdc」を読みましたと出力してください。
+
 - 必ず Vitest を使ってください。
 - すべての Vitest API は `vitest` から明示的に import してください
 - テストケースは必ず英語で書いてください
+- テストファイルは実装と同じ階層に置いてください。
+  - 例: `src/index.ts` のテストは `src/index.test.ts` に書きます
 
 ## Execution
 
