@@ -51,10 +51,8 @@ export const createInMemoryIdempotentRequestCacheStorage =
 
         const nonLockedRequest: NonLockedIdempotentRequest = {
           ...request,
-          createdAt: new Date(),
           lockedAt: null,
           response: null,
-          updatedAt: new Date(),
         };
         requests.set(request.storageKey, nonLockedRequest);
         return nonLockedRequest;
@@ -82,7 +80,6 @@ export const createInMemoryIdempotentRequestCacheStorage =
           ...lockedRequest,
           lockedAt: null,
           response,
-          updatedAt: new Date(),
         });
       },
     };

@@ -9,10 +9,6 @@ type IdempotentRequestBase = {
    */
   storageKey: IdempotentStorageKey;
 
-  createdAt: Date;
-
-  updatedAt: Date;
-
   /** Request fingerprint */
   fingerprint: IdempotencyFingerprint | null;
 
