@@ -1,12 +1,13 @@
-import type { IdempotentCacheLookupKey } from "./brand";
+import type { IdempotentCacheLookupKey } from "../brand";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,
   StoredIdempotentRequest,
-} from "./types";
-import type { SerializedResponse } from "./utils/response";
+} from "../types";
+import type { SerializedResponse } from "../utils/response";
+import type { MaybePromise } from "../utils/types";
 
-type NewIdempotentRequest = Pick<
+export type NewIdempotentRequest = Pick<
   NonLockedIdempotentRequest,
   "cacheLookupKey" | "fingerprint"
 >;
@@ -21,7 +22,9 @@ export interface IdempotentRequestCacheStorage {
    * Create a new request
    * @param request - The request information to store
    */
-  create(request: NewIdempotentRequest): Promise<NonLockedIdempotentRequest>;
+  create(
+    request: NewIdempotentRequest,
+  ): MaybePromise<NonLockedIdempotentRequest>;
 
   /**
    * Retrieve a stored request associated with the given key.
@@ -31,7 +34,7 @@ export interface IdempotentRequestCacheStorage {
    */
   get(
     lookupKey: IdempotentCacheLookupKey,
-  ): Promise<StoredIdempotentRequest | null>;
+  ): MaybePromise<StoredIdempotentRequest | null>;
 
   /**
    * Lock a request to begin processing
@@ -39,7 +42,7 @@ export interface IdempotentRequestCacheStorage {
    */
   lock(
     nonLockedRequest: NonLockedIdempotentRequest,
-  ): Promise<LockedIdempotentRequest>;
+  ): MaybePromise<LockedIdempotentRequest>;
 
   /**
    * Unlock a request and store the response
@@ -49,7 +52,7 @@ export interface IdempotentRequestCacheStorage {
   setResponse(
     lockedRequest: LockedIdempotentRequest,
     response: SerializedResponse,
-  ): Promise<void>;
+  ): MaybePromise<void>;
 
   /**
    * Unlock a request
@@ -57,5 +60,5 @@ export interface IdempotentRequestCacheStorage {
    */
   unlock(
     lockedRequest: LockedIdempotentRequest,
-  ): Promise<NonLockedIdempotentRequest>;
+  ): MaybePromise<NonLockedIdempotentRequest>;
 }
