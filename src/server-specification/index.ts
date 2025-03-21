@@ -1,7 +1,4 @@
-import type {
-  IdempotencyFingerprint,
-  IdempotentCacheLookupKey,
-} from "../brand";
+import type { IdempotencyFingerprint, IdempotentStorageKey } from "../brand";
 import type { MaybePromise } from "../utils/types";
 
 /**
@@ -11,27 +8,48 @@ import type { MaybePromise } from "../utils/types";
  */
 export interface IdempotentRequestServerSpecification {
   /**
-   * Get a cache lookup key for the request
-   * @param request - The Hono request to process
-   * @returns A cache lookup key that is used to retrieve the request from the storage.
+   * Get a fingerprint for the request.
    *
-   * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
-   */
-  getCacheLookupKey(request: Request): MaybePromise<IdempotentCacheLookupKey>;
-
-  /**
-   * Get a fingerprint for the request
-   * @param request - The Hono request to process
-   * @returns A fingerprint string representing the uniqueness of the request.
+   * Just return `null` if you don't use fingerprint for identifying the request.
    *
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.4 Idempotency Fingerprint}
+   *
+   * @param request
+   * Web-standard request object
+   * @returns
+   * A fingerprint string representing the uniqueness of the request.
+   * Returning `null` means this server specification does not use fingerprint.
    */
-  getFingerprint(request: Request): MaybePromise<IdempotencyFingerprint>;
+  getFingerprint(request: Request): MaybePromise<IdempotencyFingerprint | null>;
+
+  /**
+   * Get a key for searching the request in the storage.
+   * This key should be unique in the storage.
+   *
+   * If there are no special considerations, just return the value of the `Idempotency-Key` header.
+   *
+   * Existence of `Idempotency-Key` header is already guaranteed by the middleware.
+   *
+   * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
+   *
+   * @param request
+   * Web-standard request object
+   * @returns
+   * A key that is used to retrieve the request from the storage.
+   */
+  getStorageKey(request: Request): MaybePromise<IdempotentStorageKey>;
 
   /**
    * Check if the idempotency key satisfies the server-defined specifications
-   * @param idempotencyKey - The `Idempotency-Key` header from the request
-   * @returns Whether the key conforms to the server-defined specifications
+   *
+   * If the key does not satisfy the specifications, the request will be processed without idempotency.
+   *
+   * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.5.2 Responsibilities - Resource}
+   *
+   * @param idempotencyKey
+   * The `Idempotency-Key` header from the request
+   * @returns
+   * Whether the key satisfies the server-defined specifications
    */
-  isValidKey(idempotencyKey: string): boolean;
+  satisfiesKeySpec(idempotencyKey: string): boolean;
 }

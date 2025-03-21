@@ -1,4 +1,4 @@
-import type { IdempotentCacheLookupKey } from "../brand";
+import type { IdempotentStorageKey } from "../brand";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,
@@ -9,7 +9,7 @@ import type { MaybePromise } from "../utils/types";
 
 export type NewIdempotentRequest = Pick<
   NonLockedIdempotentRequest,
-  "cacheLookupKey" | "fingerprint"
+  "fingerprint" | "storageKey"
 >;
 
 /**
@@ -17,10 +17,14 @@ export type NewIdempotentRequest = Pick<
  *
  * You should implement features like TTL, cleanup, etc. at this layer.
  */
-export interface IdempotentRequestCacheStorage {
+export interface IdempotentRequestStorage {
   /**
-   * Create a new request
-   * @param request - The request information to store
+   * Store a new request.
+   *
+   * @param request
+   * The request information to store.
+   * @returns
+   * The stored, non-locked request information.
    */
   create(
     request: NewIdempotentRequest,
@@ -29,36 +33,37 @@ export interface IdempotentRequestCacheStorage {
   /**
    * Retrieve a stored request associated with the given key.
    *
-   * @param lookupKey - Cache lookup key
-   * @returns The stored request information. It should be null if the request is not found.
+   * @param storageKey
+   * The key to retrieve the request from the storage.
+   * @returns
+   * The stored request information. It should be `null` if the request is not found.
    */
   get(
-    lookupKey: IdempotentCacheLookupKey,
+    storageKey: IdempotentStorageKey,
   ): MaybePromise<StoredIdempotentRequest | null>;
 
   /**
    * Lock a request to begin processing
-   * @param nonLockedRequest - Non-locked stored request
+   *
+   * @param nonLockedRequest
+   * The non-locked stored request.
+   * @returns
+   * The locked request information.
    */
   lock(
     nonLockedRequest: NonLockedIdempotentRequest,
   ): MaybePromise<LockedIdempotentRequest>;
 
   /**
-   * Unlock a request and store the response
-   * @param lockedRequest - Locked request
-   * @param response - The response to store
+   * Unlock a request and store the response.
+   *
+   * @param lockedRequest
+   * The locked request.
+   * @param response
+   * The response to store.
    */
-  setResponse(
+  setResponseAndUnlock(
     lockedRequest: LockedIdempotentRequest,
     response: SerializedResponse,
   ): MaybePromise<void>;
-
-  /**
-   * Unlock a request
-   * @param lockedRequest - Locked request
-   */
-  unlock(
-    lockedRequest: LockedIdempotentRequest,
-  ): MaybePromise<NonLockedIdempotentRequest>;
 }

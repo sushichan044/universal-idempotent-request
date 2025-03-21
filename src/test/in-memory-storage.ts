@@ -1,6 +1,6 @@
-import type { IdempotentCacheLookupKey } from "../brand";
+import type { IdempotentStorageKey } from "../brand";
 import type {
-  IdempotentRequestCacheStorage,
+  IdempotentRequestStorage,
   NewIdempotentRequest,
 } from "../storage";
 import type {
@@ -10,8 +10,10 @@ import type {
 } from "../types";
 import type { SerializedResponse } from "../utils/response";
 
-import { IdempotencyKeyConflictError } from "../error";
-import { IdempotencyKeyFingerprintMismatchError } from "../error";
+import {
+  IdempotencyKeyConflictError,
+  IdempotencyKeyFingerprintMismatchError,
+} from "../error";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.
@@ -20,21 +22,18 @@ import { IdempotencyKeyFingerprintMismatchError } from "../error";
  * It is only meant to be used for testing purposes.
  */
 export const createInMemoryIdempotentRequestCacheStorage =
-  (): IdempotentRequestCacheStorage => {
-    const requests = new Map<
-      IdempotentCacheLookupKey,
-      StoredIdempotentRequest
-    >();
+  (): IdempotentRequestStorage => {
+    const requests = new Map<IdempotentStorageKey, StoredIdempotentRequest>();
 
     const getImpl = (
-      lookupKey: IdempotentCacheLookupKey,
+      lookupKey: IdempotentStorageKey,
     ): StoredIdempotentRequest | null => {
       return requests.get(lookupKey) ?? null;
     };
 
     return {
       create(request: NewIdempotentRequest): NonLockedIdempotentRequest {
-        const existingRequest = getImpl(request.cacheLookupKey);
+        const existingRequest = getImpl(request.storageKey);
 
         if (existingRequest != null) {
           if (existingRequest.fingerprint !== request.fingerprint) {
@@ -57,7 +56,7 @@ export const createInMemoryIdempotentRequestCacheStorage =
           response: null,
           updatedAt: new Date(),
         };
-        requests.set(request.cacheLookupKey, nonLockedRequest);
+        requests.set(request.storageKey, nonLockedRequest);
         return nonLockedRequest;
       },
 
@@ -70,32 +69,21 @@ export const createInMemoryIdempotentRequestCacheStorage =
           ...nonLockedRequest,
           lockedAt: new Date(),
         };
-        requests.set(nonLockedRequest.cacheLookupKey, lockedRequest);
+        requests.set(nonLockedRequest.storageKey, lockedRequest);
 
         return lockedRequest;
       },
 
-      setResponse(
+      setResponseAndUnlock(
         lockedRequest: LockedIdempotentRequest,
         response: SerializedResponse,
       ): void {
-        requests.set(lockedRequest.cacheLookupKey, {
+        requests.set(lockedRequest.storageKey, {
           ...lockedRequest,
+          lockedAt: null,
           response,
           updatedAt: new Date(),
         });
-      },
-
-      unlock(
-        lockedRequest: LockedIdempotentRequest,
-      ): NonLockedIdempotentRequest {
-        const nonLockedRequest: NonLockedIdempotentRequest = {
-          ...lockedRequest,
-          lockedAt: null,
-        };
-        requests.set(lockedRequest.cacheLookupKey, nonLockedRequest);
-
-        return nonLockedRequest;
       },
     };
   };

@@ -5,13 +5,6 @@ export class IdempotencyKeyMissingError extends Error {
   }
 }
 
-export class IdempotencyKeyInvalidError extends Error {
-  constructor() {
-    super();
-    this.name = "IdempotencyKeyInvalidError";
-  }
-}
-
 export class IdempotencyKeyConflictError extends Error {
   constructor() {
     super();
@@ -23,5 +16,12 @@ export class IdempotencyKeyFingerprintMismatchError extends Error {
   constructor() {
     super();
     this.name = "IdempotencyKeyFingerprintMismatchError";
+  }
+}
+
+export class IdempotencyKeyStorageError extends Error {
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "IdempotencyKeyStorageError";
   }
 }

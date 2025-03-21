@@ -6,9 +6,9 @@ import type { IdempotentRequestServerSpecification } from "../server-specificati
 
 import {
   createIdempotencyFingerprint,
-  createIdempotentCacheLookupKey,
+  createIdempotentStorageKey,
   type IdempotencyFingerprint,
-  type IdempotentCacheLookupKey,
+  type IdempotentStorageKey,
 } from "../brand";
 
 /**
@@ -22,26 +22,21 @@ import {
 export const createTestServerSpecification =
   (): IdempotentRequestServerSpecification => {
     return {
-      getCacheLookupKey(request: Request): IdempotentCacheLookupKey {
-        const key = `${request.method}-${request.url}-${request.headers.get("Idempotency-Key")}`;
-        return createIdempotentCacheLookupKey(key);
+      getStorageKey(request: Request): IdempotentStorageKey {
+        const path = new URL(request.url).pathname;
+        const idempotencyKey = request.headers.get("Idempotency-Key");
+
+        return createIdempotentStorageKey(
+          `${request.method}-${path}-${idempotencyKey}`,
+        );
       },
 
       async getFingerprint(request: Request): Promise<IdempotencyFingerprint> {
         return createIdempotencyFingerprint(await generateHash(request));
       },
 
-      isValidKey(idempotencyKey: string): boolean {
-        try {
-          return uuidVersion(idempotencyKey) === 4;
-        } catch (error) {
-          if (error instanceof TypeError) {
-            // https://github.com/uuidjs/uuid?tab=readme-ov-file#uuidversionstr
-            return false;
-          }
-
-          throw error;
-        }
+      satisfiesKeySpec(idempotencyKey: string): boolean {
+        return uuidVersion(idempotencyKey) === 4;
       },
     };
   };
@@ -50,6 +45,11 @@ export const createTestServerSpecification =
  * Hash function - Generate a hash from the request content
  */
 const generateHash = async (request: Request): Promise<string> => {
+  // For JSON requests, we should ideally sort keys alphabetically before hashing
+  // to ensure semantic equivalence regardless of key order.
+  // However, in practice, when a client retries a request, the key order typically
+  // remains the same, so this simple implementation is sufficient for testing purposes.
+
   const body = await request.text();
 
   const digestBase = {

@@ -14,16 +14,14 @@ export function createIdempotencyFingerprint(
   return p as IdempotencyFingerprint;
 }
 
-// Idempotent Cache Lookup Key
+// Idempotent Storage Key
 
-const IdempotentCacheLookupKeyBrand = Symbol();
+const IdempotentStorageKeyBrand = Symbol();
 
-export type IdempotentCacheLookupKey = string & {
-  [IdempotentCacheLookupKeyBrand]: unknown;
+export type IdempotentStorageKey = string & {
+  [IdempotentStorageKeyBrand]: unknown;
 };
 
-export function createIdempotentCacheLookupKey(
-  p: string,
-): IdempotentCacheLookupKey {
-  return p as IdempotentCacheLookupKey;
+export function createIdempotentStorageKey(p: string): IdempotentStorageKey {
+  return p as IdempotentStorageKey;
 }

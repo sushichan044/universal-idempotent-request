@@ -178,6 +178,32 @@ describe("idempotentRequest middleware", () => {
     });
   });
 
+  describe("Negative Scenarios", () => {
+    it("should omit idempotency processing if Idempotency-Key is invalid", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
+      const createSpy = vi.spyOn(storage, "create");
+
+      const response = await app.request(
+        "/api/hello",
+        {
+          body: JSON.stringify({
+            name: "John",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "invalid-key",
+          },
+          method: "POST",
+        },
+        setHonoEnv(),
+      );
+
+      expect(createSpy).not.toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(await response.json()).toStrictEqual({ message: "Hello, John!" });
+    });
+  });
+
   describe("Error Scenarios", () => {
     it("should return 400 if Idempotency-Key header is missing", async () => {
       const { app, setHonoEnv } = setupApp();
@@ -198,30 +224,6 @@ describe("idempotentRequest middleware", () => {
 
       expect(response.status).toBe(400);
       expect(await response.text()).toBe("Idempotency-Key is missing");
-    });
-
-    it("should return 400 if Idempotency-Key is invalid", async () => {
-      const { app, setHonoEnv } = setupApp();
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          body: JSON.stringify({
-            name: "John",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": "invalid-key",
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(400);
-      expect(await response.text()).toBe(
-        "Idempotency-Key format did not satisfy server-defined specifications.",
-      );
     });
 
     it("should return 422 if Idempotency-Key is reused with different request payload", async () => {
@@ -315,30 +317,27 @@ describe("idempotentRequest middleware", () => {
       expect(response.status).toBe(500);
       expect(await response.text()).toBe("Only for testing");
     });
-  });
 
-  it("should rethrow errors from cache storage", async () => {
-    const { app, setHonoEnv, storage } = setupApp();
-    vi.spyOn(storage, "create").mockImplementation(() => {
-      // Only for testing! cache storage should not throw HTTPException
-      throw new HTTPException(500, {
-        message: "Only for testing",
+    it("should wrap errors from cache storage with IdempotencyKeyCacheStorageError", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
+      vi.spyOn(storage, "create").mockImplementation(() => {
+        throw new Error("Connection error");
       });
-    });
 
-    const response = await app.request(
-      "/api/hello",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": uuidv4(),
+      const response = await app.request(
+        "/api/hello",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": uuidv4(),
+          },
+          method: "POST",
         },
-        method: "POST",
-      },
-      setHonoEnv(),
-    );
+        setHonoEnv(),
+      );
 
-    expect(response.status).toBe(500);
-    expect(await response.text()).toBe("Only for testing");
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe("Internal Server Error");
+    });
   });
 });

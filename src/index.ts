@@ -2,19 +2,17 @@ import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 
 import type { IdempotentRequestServerSpecification } from "./server-specification";
-import type { IdempotentRequestCacheStorage } from "./storage";
+import type { IdempotentRequestStorage } from "./storage";
+import type { IdempotencyActivationStrategy } from "./strategy";
 import type { NonLockedIdempotentRequest } from "./types";
 
 import {
   IdempotencyKeyConflictError,
   IdempotencyKeyFingerprintMismatchError,
-  IdempotencyKeyInvalidError,
   IdempotencyKeyMissingError,
+  IdempotencyKeyStorageError,
 } from "./error";
-import {
-  type IdempotencyActivationStrategy,
-  prepareActivationStrategy,
-} from "./strategy";
+import { prepareActivationStrategy } from "./strategy";
 import { deserializeResponse, serializeResponse } from "./utils/response";
 
 export interface IdempotentRequestImplementation {
@@ -34,11 +32,17 @@ export interface IdempotentRequestImplementation {
    */
   activationStrategy?: IdempotencyActivationStrategy;
 
-  /** Specification - defines key validation and request digest generation */
+  /**
+   * Server specification
+   */
   specification: IdempotentRequestServerSpecification;
 
-  /** Storage - for storing and retrieving idempotent request information */
-  storage: IdempotentRequestCacheStorage;
+  /**
+   * Storage implementation
+   *
+   * You should implement features like TTL, cleanup, etc. at this layer.
+   */
+  storage: IdempotentRequestStorage;
 }
 
 /**
@@ -61,75 +65,96 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
 
     try {
       const idempotencyKey = c.req.header("Idempotency-Key");
-      if (idempotencyKey == null) {
+      if (idempotencyKey === undefined) {
         throw new IdempotencyKeyMissingError();
       }
 
-      // Validate key satisfies server-defined specifications
-      // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7
-      if (!impl.specification.isValidKey(idempotencyKey)) {
-        throw new IdempotencyKeyInvalidError();
+      if (!impl.specification.satisfiesKeySpec(idempotencyKey)) {
+        // Omit idempotency processing because the key does not satisfy the server-defined specifications
+        return await next();
       }
 
       const fingerprint = await impl.specification.getFingerprint(
         c.req.raw.clone(),
       );
-      const cacheLookupKey = await impl.specification.getCacheLookupKey(
+
+      const storageKey = await impl.specification.getStorageKey(
         c.req.raw.clone(),
       );
-      const cachedRequest = await impl.storage.get(cacheLookupKey);
+      const storedRequest = await impl.storage.get(storageKey);
 
       let nonLockedRequest: NonLockedIdempotentRequest | null = null;
-      if (cachedRequest) {
-        // Retried request - compare with the cached request
-        if (cachedRequest.fingerprint !== fingerprint) {
+      if (storedRequest) {
+        // Retried request - compare with the stored request
+        if (storedRequest.fingerprint !== fingerprint) {
           // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5:~:text=If%20there%20is%20an%20attempt%20to%20reuse%20an%20idempotency%20key%20with%20a%20different%0A%20%20%20request%20payload
           throw new IdempotencyKeyFingerprintMismatchError();
         }
 
-        if (cachedRequest.lockedAt != null) {
+        if (storedRequest.lockedAt != null) {
           // the request is locked, still being processed
           throw new IdempotencyKeyConflictError();
         }
 
-        if (cachedRequest.response) {
+        if (storedRequest.response) {
           // Successfully processed - return the cached response
-          return deserializeResponse(cachedRequest.response);
+          return deserializeResponse(storedRequest.response);
         }
 
         // Previous request was not processed - maybe failed
-        nonLockedRequest = cachedRequest;
+        nonLockedRequest = storedRequest;
       } else {
         // New request - prepare for processing
-        nonLockedRequest = await impl.storage.create({
-          cacheLookupKey,
-          fingerprint,
-        });
+        try {
+          nonLockedRequest = await impl.storage.create({
+            fingerprint,
+            storageKey: storageKey,
+          });
+        } catch (error) {
+          throw new IdempotencyKeyStorageError(
+            "Failed to create a new idempotent request",
+            {
+              cause: error,
+            },
+          );
+        }
       }
 
-      const lockedRequest = await impl.storage.lock(nonLockedRequest);
+      const lockedRequest = await (async () => {
+        try {
+          return await impl.storage.lock(nonLockedRequest);
+        } catch (error) {
+          throw new IdempotencyKeyStorageError(
+            "Failed to lock the idempotent request",
+            {
+              cause: error,
+            },
+          );
+        }
+      })();
 
       // Execute hono route handler
       await next();
 
-      await impl.storage.setResponse(
-        lockedRequest,
-        await serializeResponse(c.res),
-      );
-      await impl.storage.unlock(lockedRequest);
+      try {
+        await impl.storage.setResponseAndUnlock(
+          lockedRequest,
+          await serializeResponse(c.res),
+        );
+      } catch (error) {
+        throw new IdempotencyKeyStorageError(
+          "Failed to save the response of an idempotent request. You should unlock the request manually.",
+          {
+            cause: error,
+          },
+        );
+      }
 
       return c.res;
     } catch (error) {
       if (error instanceof IdempotencyKeyMissingError) {
         throw new HTTPException(400, {
           message: "Idempotency-Key is missing",
-        });
-      }
-
-      if (error instanceof IdempotencyKeyInvalidError) {
-        throw new HTTPException(400, {
-          message:
-            "Idempotency-Key format did not satisfy server-defined specifications.",
         });
       }
 
