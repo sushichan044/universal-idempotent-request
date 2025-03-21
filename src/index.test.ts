@@ -1,5 +1,6 @@
 import { sValidator } from "@hono/standard-validator";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
@@ -109,7 +110,9 @@ const setupApp = () => {
       },
     )
     .post("/api/trigger-error", () => {
-      throw new Error("test");
+      throw new HTTPException(500, {
+        message: "Only for testing",
+      });
     });
 
   return { app, setHonoEnv, specification, storage };
@@ -158,6 +161,10 @@ describe("idempotentRequest middleware", () => {
         undefined,
         setHonoEnv(),
       );
+
+      // ensure cache storage is updated
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       const cachedResponse = await app.request(
         request.clone(),
         undefined,
@@ -171,7 +178,7 @@ describe("idempotentRequest middleware", () => {
     });
   });
 
-  describe("Error handling", () => {
+  describe("Error Scenarios", () => {
     it("should return 400 if Idempotency-Key header is missing", async () => {
       const { app, setHonoEnv } = setupApp();
 
@@ -292,5 +299,46 @@ describe("idempotentRequest middleware", () => {
         "A request is outstanding for this Idempotency-Key",
       );
     });
+  });
+
+  describe("Error handling", () => {
+    it("should rethrow errors from the route handler", async () => {
+      const { app } = setupApp();
+
+      const response = await app.request("/api/trigger-error", {
+        headers: {
+          "Idempotency-Key": uuidv4(),
+        },
+        method: "POST",
+      });
+
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe("Only for testing");
+    });
+  });
+
+  it("should rethrow errors from cache storage", async () => {
+    const { app, setHonoEnv, storage } = setupApp();
+    vi.spyOn(storage, "create").mockImplementation(() => {
+      // Only for testing! cache storage should not throw HTTPException
+      throw new HTTPException(500, {
+        message: "Only for testing",
+      });
+    });
+
+    const response = await app.request(
+      "/api/hello",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": uuidv4(),
+        },
+        method: "POST",
+      },
+      setHonoEnv(),
+    );
+
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe("Only for testing");
   });
 });
