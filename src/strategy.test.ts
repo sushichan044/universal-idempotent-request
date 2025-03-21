@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import type { IdempotencyActivationStrategy } from "./strategy";
+
 import { prepareActivationStrategy } from "./strategy";
 
 const createMockRequest = (
@@ -57,5 +59,14 @@ describe("prepareActivationStrategy", () => {
 
     expect(await strategy(mockRequestWithHeader)).toBe(true);
     expect(await strategy(mockRequestWithoutHeader)).toBe(false);
+  });
+
+  it("should throw an error when strategy is invalid", () => {
+    const invalidStrategy = "invalid-strategy";
+    expect(() =>
+      prepareActivationStrategy(
+        invalidStrategy as IdempotencyActivationStrategy,
+      ),
+    ).toThrow(`Invalid activation strategy: ${invalidStrategy}`);
   });
 });
