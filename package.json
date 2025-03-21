@@ -42,9 +42,12 @@
   "scripts": {
     "build": "unbuild",
     "lint": "eslint --max-warnings 0",
+    "format": "prettier --write .",
+    "format:ci": "prettier --check .",
     "test": "vitest",
     "test:run": "vitest --run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run && pnpm run build"
   },
   "devDependencies": {
     "@hono/standard-validator": "0.1.2",

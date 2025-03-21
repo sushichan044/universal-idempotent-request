@@ -9,7 +9,6 @@ export default defineConfig({
       reportOnFailure: true,
     },
     reporters:
-       
       process.env["GITHUB_ACTIONS"] == null
         ? "default"
         : ["default", "github-actions"],

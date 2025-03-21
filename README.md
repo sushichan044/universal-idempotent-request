@@ -1,4 +1,3 @@
-
 # hono-idempotent-request
 
 > [!CAUTION]
