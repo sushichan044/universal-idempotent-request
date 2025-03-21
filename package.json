@@ -26,10 +26,6 @@
     "./storage": {
       "types": "./dist/storage/index.d.ts",
       "default": "./dist/storage/index.mjs"
-    },
-    "./strategy": {
-      "types": "./dist/strategy.d.ts",
-      "default": "./dist/strategy.mjs"
     }
   },
   "keywords": [
