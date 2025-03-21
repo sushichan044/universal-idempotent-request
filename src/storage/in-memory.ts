@@ -9,106 +9,92 @@ import type { SerializedResponse } from "../utils/response";
 import type { MaybePromise } from "../utils/types";
 
 /**
- * In-memory implementation of the idempotent request cache storage.
+ * In-memory implementation of idempotent request cache storage by function.
  *
  * This is a simple implementation that is not suitable for production use.
  * It is only meant to be used for testing purposes.
  */
-export class InMemoryIdempotentRequestCacheStorage
-  implements IdempotentRequestCacheStorage
-{
-  #createDelay = 0;
-  #lockDelay = 0;
-  #requests: Map<IdempotentCacheLookupKey, StoredIdempotentRequest>;
-  #setResponseDelay = 0;
-  #unlockDelay = 0;
+export const createInMemoryIdempotentRequestCacheStorage = (
+  args: Partial<{
+    createDelay: number;
+    lockDelay: number;
+    setResponseDelay: number;
+    unlockDelay: number;
+  }> = {},
+): IdempotentRequestCacheStorage => {
+  const requests = new Map<IdempotentCacheLookupKey, StoredIdempotentRequest>();
+  const createDelay = args.createDelay ?? 0;
+  const lockDelay = args.lockDelay ?? 0;
+  const setResponseDelay = args.setResponseDelay ?? 0;
+  const unlockDelay = args.unlockDelay ?? 0;
 
-  /**
-   * @param createDelay
-   * Delay in milliseconds before the request is created.
-   * This is to simulate a slow database.
-   */
-  constructor(
-    args: Partial<{
-      createDelay: number;
-      lockDelay: number;
-      setResponseDelay: number;
-      unlockDelay: number;
-    }> = {},
-  ) {
-    this.#requests = new Map();
+  return {
+    async create(
+      request: NewIdempotentRequest,
+    ): Promise<NonLockedIdempotentRequest> {
+      await new Promise((resolve) => setTimeout(resolve, createDelay));
 
-    this.#createDelay = args.createDelay ?? 0;
-    this.#lockDelay = args.lockDelay ?? 0;
-    this.#setResponseDelay = args.setResponseDelay ?? 0;
-    this.#unlockDelay = args.unlockDelay ?? 0;
-  }
+      const existingRequest = requests.get(request.cacheLookupKey);
+      if (existingRequest) {
+        throw new Error("Request already exists");
+      }
 
-  async create(
-    request: NewIdempotentRequest,
-  ): Promise<NonLockedIdempotentRequest> {
-    await new Promise((resolve) => setTimeout(resolve, this.#createDelay));
+      const nonLockedRequest: NonLockedIdempotentRequest = {
+        ...request,
+        createdAt: new Date(),
+        lockedAt: null,
+        response: null,
+        updatedAt: new Date(),
+      };
+      requests.set(request.cacheLookupKey, nonLockedRequest);
+      return nonLockedRequest;
+    },
 
-    const existingRequest = this.#requests.get(request.cacheLookupKey);
-    if (existingRequest) {
-      throw new Error("Request already exists");
-    }
+    get(
+      lookupKey: IdempotentCacheLookupKey,
+    ): MaybePromise<StoredIdempotentRequest | null> {
+      return requests.get(lookupKey) ?? null;
+    },
 
-    const nonLockedRequest: NonLockedIdempotentRequest = {
-      ...request,
-      createdAt: new Date(),
-      lockedAt: null,
-      response: null,
-      updatedAt: new Date(),
-    };
-    this.#requests.set(request.cacheLookupKey, nonLockedRequest);
-    return nonLockedRequest;
-  }
+    async lock(
+      nonLockedRequest: NonLockedIdempotentRequest,
+    ): Promise<LockedIdempotentRequest> {
+      await new Promise((resolve) => setTimeout(resolve, lockDelay));
 
-  get(
-    lookupKey: IdempotentCacheLookupKey,
-  ): MaybePromise<StoredIdempotentRequest | null> {
-    return this.#requests.get(lookupKey) ?? null;
-  }
+      const lockedRequest: LockedIdempotentRequest = {
+        ...nonLockedRequest,
+        lockedAt: new Date(),
+      };
+      requests.set(nonLockedRequest.cacheLookupKey, lockedRequest);
 
-  async lock(
-    nonLockedRequest: NonLockedIdempotentRequest,
-  ): Promise<LockedIdempotentRequest> {
-    await new Promise((resolve) => setTimeout(resolve, this.#lockDelay));
+      return lockedRequest;
+    },
 
-    const lockedRequest: LockedIdempotentRequest = {
-      ...nonLockedRequest,
-      lockedAt: new Date(),
-    };
-    this.#requests.set(nonLockedRequest.cacheLookupKey, lockedRequest);
+    async setResponse(
+      lockedRequest: LockedIdempotentRequest,
+      response: SerializedResponse,
+    ): Promise<void> {
+      await new Promise((resolve) => setTimeout(resolve, setResponseDelay));
 
-    return lockedRequest;
-  }
+      requests.set(lockedRequest.cacheLookupKey, {
+        ...lockedRequest,
+        response,
+        updatedAt: new Date(),
+      });
+    },
 
-  async setResponse(
-    lockedRequest: LockedIdempotentRequest,
-    response: SerializedResponse,
-  ): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, this.#setResponseDelay));
+    async unlock(
+      lockedRequest: LockedIdempotentRequest,
+    ): Promise<NonLockedIdempotentRequest> {
+      await new Promise((resolve) => setTimeout(resolve, unlockDelay));
 
-    this.#requests.set(lockedRequest.cacheLookupKey, {
-      ...lockedRequest,
-      response,
-      updatedAt: new Date(),
-    });
-  }
+      const nonLockedRequest: NonLockedIdempotentRequest = {
+        ...lockedRequest,
+        lockedAt: null,
+      };
+      requests.set(lockedRequest.cacheLookupKey, nonLockedRequest);
 
-  async unlock(
-    lockedRequest: LockedIdempotentRequest,
-  ): Promise<NonLockedIdempotentRequest> {
-    await new Promise((resolve) => setTimeout(resolve, this.#unlockDelay));
-
-    const nonLockedRequest: NonLockedIdempotentRequest = {
-      ...lockedRequest,
-      lockedAt: null,
-    };
-    this.#requests.set(lockedRequest.cacheLookupKey, nonLockedRequest);
-
-    return nonLockedRequest;
-  }
-}
+      return nonLockedRequest;
+    },
+  };
+};

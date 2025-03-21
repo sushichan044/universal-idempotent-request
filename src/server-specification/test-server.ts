@@ -19,46 +19,52 @@ import {
  *
  * - Idempotency-Key format: `uuidv4`
  */
-export class TestServerSpecification
-  implements IdempotentRequestServerSpecification
-{
-  getCacheLookupKey(request: Request): IdempotentCacheLookupKey {
-    const key = `${request.method}-${request.url}-${request.headers.get("Idempotency-Key")}`;
+export const createTestServerSpecification =
+  (): IdempotentRequestServerSpecification => {
+    return {
+      getCacheLookupKey(request: Request): IdempotentCacheLookupKey {
+        const key = `${request.method}-${request.url}-${request.headers.get("Idempotency-Key")}`;
+        return createIdempotentCacheLookupKey(key);
+      },
 
-    return createIdempotentCacheLookupKey(key);
-  }
+      async getFingerprint(request: Request): Promise<IdempotencyFingerprint> {
+        return createIdempotencyFingerprint(await generateHash(request));
+      },
 
-  async getFingerprint(request: Request): Promise<IdempotencyFingerprint> {
-    return createIdempotencyFingerprint(await this.#generateHash(request));
-  }
+      isValidKey(idempotencyKey: string): boolean {
+        try {
+          return uuidVersion(idempotencyKey) === 4;
+        } catch (error) {
+          if (error instanceof TypeError) {
+            // https://github.com/uuidjs/uuid?tab=readme-ov-file#uuidversionstr
+            return false;
+          }
 
-  isValidKey(idempotencyKey: string): boolean {
-    try {
-      return uuidVersion(idempotencyKey) === 4;
-    } catch (error) {
-      if (error instanceof TypeError) {
-        // https://github.com/uuidjs/uuid?tab=readme-ov-file#uuidversionstr
-        return false;
-      }
-
-      throw error;
-    }
-  }
-
-  async #generateHash(request: Request): Promise<string> {
-    const body = await request.text();
-
-    const digestBase = {
-      body,
-      headers: Object.fromEntries(request.headers.entries()),
-      method: request.method,
-      url: request.url,
+          throw error;
+        }
+      },
     };
+  };
 
-    return hashWithSha256(JSON.stringify(digestBase));
-  }
-}
+/**
+ * Hash function - Generate a hash from the request content
+ */
+const generateHash = async (request: Request): Promise<string> => {
+  const body = await request.text();
 
+  const digestBase = {
+    body,
+    headers: Object.fromEntries(request.headers.entries()),
+    method: request.method,
+    url: request.url,
+  };
+
+  return hashWithSha256(JSON.stringify(digestBase));
+};
+
+/**
+ * Calculate SHA-256 hash
+ */
 const hashWithSha256 = (data: string): string => {
   return encodeHexLowerCase(sha256(new TextEncoder().encode(data)));
 };

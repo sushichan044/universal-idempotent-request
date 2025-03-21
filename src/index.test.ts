@@ -7,22 +7,22 @@ import { describe, expect, it, vi } from "vitest";
 import type { IdempotencyActivationStrategy } from "./index";
 
 import idempotentRequest from "./index";
-import { TestServerSpecification } from "./server-specification/test-server";
-import { InMemoryIdempotentRequestCacheStorage } from "./storage/in-memory";
+import { createTestServerSpecification } from "./server-specification/test-server";
+import { createInMemoryIdempotentRequestCacheStorage } from "./storage/in-memory";
 
 type SetupApp = {
-  storageOptions: ConstructorParameters<
-    typeof InMemoryIdempotentRequestCacheStorage
+  storageOptions: Parameters<
+    typeof createInMemoryIdempotentRequestCacheStorage
   >[0];
   strategy: IdempotencyActivationStrategy;
 };
 
 const setupApp = (args: Partial<SetupApp> = {}) => {
-  const storage = new InMemoryIdempotentRequestCacheStorage(
+  const activationStrategy = args.strategy;
+  const storage = createInMemoryIdempotentRequestCacheStorage(
     args.storageOptions,
   );
-  const activationStrategy = args.strategy ?? "always";
-  const specification = new TestServerSpecification();
+  const specification = createTestServerSpecification();
 
   const app = new Hono()
     .on(
