@@ -9,7 +9,11 @@ type IdempotentRequestBase = {
    */
   storageKey: IdempotentStorageKey;
 
-  /** Request fingerprint */
+  /**
+   * Request fingerprint
+   *
+   * This is used to identify the request in the storage.
+   */
   fingerprint: IdempotencyFingerprint | null;
 
   /** Stored response

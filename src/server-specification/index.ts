@@ -8,7 +8,7 @@ import type { MaybePromise } from "../utils/types";
  */
 export interface IdempotentRequestServerSpecification {
   /**
-   * Get a fingerprint for the request.
+   * Get a fingerprint from the request's payload.
    *
    * Just return `null` if you don't use fingerprint for identifying the request.
    *

@@ -8,8 +8,8 @@ import type { NonLockedIdempotentRequest } from "./types";
 
 import {
   IdempotencyKeyConflictError,
-  IdempotencyKeyFingerprintMismatchError,
   IdempotencyKeyMissingError,
+  IdempotencyKeyPayloadMismatchError,
   IdempotencyKeyStorageError,
 } from "./error";
 import { prepareActivationStrategy } from "./strategy";
@@ -88,7 +88,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
         // Retried request - compare with the stored request
         if (storedRequest.fingerprint !== fingerprint) {
           // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5:~:text=If%20there%20is%20an%20attempt%20to%20reuse%20an%20idempotency%20key%20with%20a%20different%0A%20%20%20request%20payload
-          throw new IdempotencyKeyFingerprintMismatchError();
+          throw new IdempotencyKeyPayloadMismatchError();
         }
 
         if (storedRequest.lockedAt != null) {
@@ -158,7 +158,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
         });
       }
 
-      if (error instanceof IdempotencyKeyFingerprintMismatchError) {
+      if (error instanceof IdempotencyKeyPayloadMismatchError) {
         throw new HTTPException(422, {
           message: "Idempotency-Key is already used",
         });

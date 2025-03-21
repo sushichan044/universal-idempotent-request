@@ -12,7 +12,7 @@ import type { SerializedResponse } from "../utils/response";
 
 import {
   IdempotencyKeyConflictError,
-  IdempotencyKeyFingerprintMismatchError,
+  IdempotencyKeyPayloadMismatchError,
 } from "../error";
 
 /**
@@ -37,7 +37,7 @@ export const createInMemoryIdempotentRequestCacheStorage =
 
         if (existingRequest != null) {
           if (existingRequest.fingerprint !== request.fingerprint) {
-            throw new IdempotencyKeyFingerprintMismatchError();
+            throw new IdempotencyKeyPayloadMismatchError();
           }
 
           if (existingRequest.lockedAt != null) {
