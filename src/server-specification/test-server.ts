@@ -34,8 +34,7 @@ export class TestServerSpecification
 
   isValidKey(idempotencyKey: string): boolean {
     try {
-      const version = uuidVersion(idempotencyKey);
-      return version === 4;
+      return uuidVersion(idempotencyKey) === 4;
     } catch (error) {
       if (error instanceof TypeError) {
         // https://github.com/uuidjs/uuid?tab=readme-ov-file#uuidversionstr
