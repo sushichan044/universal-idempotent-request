@@ -36,7 +36,11 @@ export const createTestServerSpecification =
       },
 
       satisfiesKeySpec(idempotencyKey: string): boolean {
-        return uuidVersion(idempotencyKey) === 4;
+        try {
+          return uuidVersion(idempotencyKey) === 4;
+        } catch {
+          return false;
+        }
       },
     };
   };
