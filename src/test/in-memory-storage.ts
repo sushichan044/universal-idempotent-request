@@ -1,5 +1,6 @@
 import type { IdempotentStorageKey } from "../brand";
 import type {
+  FindOrCreateStorageResult,
   IdempotentRequestStorage,
   NewIdempotentRequest,
 } from "../storage";
@@ -9,11 +10,6 @@ import type {
   StoredIdempotentRequest,
 } from "../types";
 import type { SerializedResponse } from "../utils/response";
-
-import {
-  IdempotencyKeyConflictError,
-  IdempotencyKeyPayloadMismatchError,
-} from "../error";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.
@@ -25,28 +21,15 @@ export const createInMemoryIdempotentRequestCacheStorage =
   (): IdempotentRequestStorage => {
     const requests = new Map<IdempotentStorageKey, StoredIdempotentRequest>();
 
-    const getImpl = (
-      lookupKey: IdempotentStorageKey,
-    ): StoredIdempotentRequest | null => {
-      return requests.get(lookupKey) ?? null;
-    };
-
     return {
-      create(request: NewIdempotentRequest): NonLockedIdempotentRequest {
-        const existingRequest = getImpl(request.storageKey);
+      findOrCreate(request: NewIdempotentRequest): FindOrCreateStorageResult {
+        const existingRequest = requests.get(request.storageKey) ?? null;
 
-        if (existingRequest != null) {
-          if (existingRequest.fingerprint !== request.fingerprint) {
-            throw new IdempotencyKeyPayloadMismatchError();
-          }
-
-          if (existingRequest.lockedAt != null) {
-            throw new IdempotencyKeyConflictError();
-          }
-
-          if (existingRequest.response != null) {
-            return existingRequest;
-          }
+        if (existingRequest !== null) {
+          return {
+            created: false,
+            storedRequest: existingRequest,
+          };
         }
 
         const nonLockedRequest: NonLockedIdempotentRequest = {
@@ -55,10 +38,11 @@ export const createInMemoryIdempotentRequestCacheStorage =
           response: null,
         };
         requests.set(request.storageKey, nonLockedRequest);
-        return nonLockedRequest;
+        return {
+          created: true,
+          storedRequest: nonLockedRequest,
+        };
       },
-
-      get: getImpl,
 
       lock(
         nonLockedRequest: NonLockedIdempotentRequest,

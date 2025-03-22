@@ -12,6 +12,7 @@ import {
   IdempotencyKeyPayloadMismatchError,
   IdempotencyKeyStorageError,
 } from "./error";
+import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import { prepareActivationStrategy } from "./strategy";
 import { deserializeResponse, serializeResponse } from "./utils/response";
 
@@ -74,58 +75,51 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
         return await next();
       }
 
-      const fingerprint = await impl.specification.getFingerprint(
-        c.req.raw.clone(),
+      const requestIdentifier = await createRequestIdentifier(
+        impl.specification,
+        {
+          idempotencyKey,
+          request: c.req.raw.clone(),
+        },
       );
-
       const storageKey = await impl.specification.getStorageKey(
         c.req.raw.clone(),
       );
-      const storedRequest = await impl.storage.get(storageKey);
+      const storeResult = await impl.storage.findOrCreate({
+        ...requestIdentifier,
+        storageKey,
+      });
 
-      let nonLockedRequest: NonLockedIdempotentRequest | null = null;
-      if (storedRequest) {
+      if (!storeResult.created) {
         // Retried request - compare with the stored request
-        if (storedRequest.fingerprint !== fingerprint) {
-          // see: https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5:~:text=If%20there%20is%20an%20attempt%20to%20reuse%20an%20idempotency%20key%20with%20a%20different%0A%20%20%20request%20payload
+        if (!isIdenticalRequest(storeResult.storedRequest, requestIdentifier)) {
           throw new IdempotencyKeyPayloadMismatchError();
         }
 
-        if (storedRequest.lockedAt != null) {
-          // the request is locked, still being processed
+        if (storeResult.storedRequest.lockedAt != null) {
+          // The request is locked - still being processed
           throw new IdempotencyKeyConflictError();
         }
 
-        if (storedRequest.response) {
-          // Successfully processed - return the cached response
-          return deserializeResponse(storedRequest.response);
-        }
-
-        // Previous request was not processed - maybe failed
-        nonLockedRequest = storedRequest;
-      } else {
-        // New request - prepare for processing
-        try {
-          nonLockedRequest = await impl.storage.create({
-            fingerprint,
-            storageKey: storageKey,
-          });
-        } catch (error) {
-          throw new IdempotencyKeyStorageError(
-            "Failed to create a new idempotent request",
-            {
-              cause: error,
-            },
-          );
+        if (storeResult.storedRequest.response) {
+          //        ^?
+          // Already processed - return the stored response
+          return deserializeResponse(storeResult.storedRequest.response);
         }
       }
 
+      // Only for suppressing type error.
+      // We can assume that the request is not locked at this point.
+      // because we already threw IdempotencyKeyConflictError if { created: false, storedRequest: LockedIdempotentRequest } .
+      const nonLockedRequest =
+        storeResult.storedRequest as NonLockedIdempotentRequest;
+
       const lockedRequest = await (async () => {
         try {
-          return await impl.storage.lock(nonLockedRequest);
+          return impl.storage.lock(nonLockedRequest);
         } catch (error) {
           throw new IdempotencyKeyStorageError(
-            "Failed to lock the idempotent request",
+            "Failed to lock the stored idempotent request",
             {
               cause: error,
             },
@@ -149,8 +143,6 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
           },
         );
       }
-
-      return c.res;
     } catch (error) {
       if (error instanceof IdempotencyKeyMissingError) {
         throw new HTTPException(400, {

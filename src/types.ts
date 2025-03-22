@@ -1,7 +1,8 @@
-import type { IdempotencyFingerprint, IdempotentStorageKey } from "./brand";
+import type { IdempotentStorageKey } from "./brand";
+import type { RequestIdentifier } from "./identifier";
 import type { SerializedResponse } from "./utils/response";
 
-type IdempotentRequestBase = {
+type IdempotentRequestBase = RequestIdentifier & {
   /**
    * Storage key
    *
@@ -10,13 +11,7 @@ type IdempotentRequestBase = {
   storageKey: IdempotentStorageKey;
 
   /**
-   * Request fingerprint
-   *
-   * This is used to identify the request in the storage.
-   */
-  fingerprint: IdempotencyFingerprint | null;
-
-  /** Stored response
+   * Stored response
    * (null until server completes processing request)
    */
   response: SerializedResponse | null;

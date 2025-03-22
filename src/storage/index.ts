@@ -1,4 +1,3 @@
-import type { IdempotentStorageKey } from "../brand";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,
@@ -9,8 +8,22 @@ import type { MaybePromise } from "../utils/types";
 
 export type NewIdempotentRequest = Pick<
   NonLockedIdempotentRequest,
-  "fingerprint" | "storageKey"
+  | "fingerprint"
+  | "idempotencyKey"
+  | "requestMethod"
+  | "requestPath"
+  | "storageKey"
 >;
+
+export type FindOrCreateStorageResult =
+  | {
+      created: false;
+      storedRequest: StoredIdempotentRequest;
+    }
+  | {
+      created: true;
+      storedRequest: NonLockedIdempotentRequest;
+    };
 
 /**
  * Storage for idempotent request records.
@@ -19,28 +32,16 @@ export type NewIdempotentRequest = Pick<
  */
 export interface IdempotentRequestStorage {
   /**
-   * Store a new request.
+   * Find or create a new request.
    *
    * @param request
    * The request information to store.
    * @returns
    * The stored, non-locked request information.
    */
-  create(
+  findOrCreate(
     request: NewIdempotentRequest,
-  ): MaybePromise<NonLockedIdempotentRequest>;
-
-  /**
-   * Retrieve a stored request associated with the given key.
-   *
-   * @param storageKey
-   * The key to retrieve the request from the storage.
-   * @returns
-   * The stored request information. It should be `null` if the request is not found.
-   */
-  get(
-    storageKey: IdempotentStorageKey,
-  ): MaybePromise<StoredIdempotentRequest | null>;
+  ): MaybePromise<FindOrCreateStorageResult>;
 
   /**
    * Lock a request to begin processing

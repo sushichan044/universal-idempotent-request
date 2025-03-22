@@ -146,7 +146,7 @@ describe("idempotentRequest middleware", () => {
     it("should return cached response on subsequent requests with same Idempotency-Key", async () => {
       const { app, setHonoEnv, storage } = setupApp();
       const idempotencyKey = uuidv4();
-      const createSpy = vi.spyOn(storage, "create");
+      const createOrFindSpy = vi.spyOn(storage, "findOrCreate");
       const request = new Request("http://127.0.0.1:3000/api/hello", {
         body: JSON.stringify({ name: "Edison" }),
         headers: {
@@ -171,8 +171,23 @@ describe("idempotentRequest middleware", () => {
         setHonoEnv(),
       );
 
-      // 2nd request should return cached response
-      expect(createSpy).toHaveBeenCalledOnce();
+      // 2nd request should hit cached response
+      expect(createOrFindSpy).toHaveLastReturnedWith({
+        created: false,
+        storedRequest: {
+          idempotencyKey,
+          lockedAt: null,
+          requestMethod: "POST",
+          requestPath: "/api/hello",
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          fingerprint: expect.any(String),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          response: expect.any(Object),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          storageKey: expect.any(String),
+        },
+      });
       expect(response.status).toEqual(cachedResponse.status);
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
     });
@@ -181,7 +196,7 @@ describe("idempotentRequest middleware", () => {
   describe("Negative Scenarios", () => {
     it("should omit idempotency processing if Idempotency-Key is invalid", async () => {
       const { app, setHonoEnv, storage } = setupApp();
-      const createSpy = vi.spyOn(storage, "create");
+      const createSpy = vi.spyOn(storage, "findOrCreate");
 
       const response = await app.request(
         "/api/hello",
@@ -320,7 +335,7 @@ describe("idempotentRequest middleware", () => {
 
     it("should wrap errors from cache storage with IdempotencyKeyCacheStorageError", async () => {
       const { app, setHonoEnv, storage } = setupApp();
-      vi.spyOn(storage, "create").mockImplementation(() => {
+      vi.spyOn(storage, "findOrCreate").mockImplementation(() => {
         throw new Error("Connection error");
       });
 
