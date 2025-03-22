@@ -191,30 +191,6 @@ describe("idempotentRequest middleware", () => {
       expect(response.status).toEqual(cachedResponse.status);
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
     });
-
-    it("should omit idempotency processing if Idempotency-Key does not satisfy the server specification", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
-      const createSpy = vi.spyOn(storage, "findOrCreate");
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          body: JSON.stringify({
-            name: "John",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": "invalid-key",
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(createSpy).not.toHaveBeenCalled();
-      expect(response.status).toBe(200);
-      expect(await response.json()).toStrictEqual({ message: "Hello, John!" });
-    });
   });
 });
 
@@ -238,7 +214,39 @@ describe("Negative Scenarios", () => {
       );
 
       expect(response.status).toBe(400);
-      expect(await response.text()).toBe("Idempotency-Key is missing");
+      expect(await response.json()).toStrictEqual({
+        detail:
+          "This operation is idempotent and it requires correct usage of Idempotency Key.",
+        title: "Idempotency-Key is missing",
+      });
+    });
+
+    it("should return 400 if Idempotency-Key does not satisfy the server specification", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
+      const createSpy = vi.spyOn(storage, "findOrCreate");
+
+      const response = await app.request(
+        "/api/hello",
+        {
+          body: JSON.stringify({
+            name: "John",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "invalid-key",
+          },
+          method: "POST",
+        },
+        setHonoEnv(),
+      );
+
+      expect(createSpy).not.toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(await response.json()).toStrictEqual({
+        detail:
+          "This operation is idempotent and it requires correct usage of Idempotency Key.",
+        title: "Idempotency-Key is missing",
+      });
     });
 
     it("should return 422 if Idempotency-Key is reused with different request payload", async () => {
@@ -271,9 +279,11 @@ describe("Negative Scenarios", () => {
 
       expect(response.status).toBe(200);
       expect(abusedResponse.status).toBe(422);
-      expect(await abusedResponse.text()).toBe(
-        "Idempotency-Key is already used",
-      );
+      expect(await abusedResponse.json()).toStrictEqual({
+        detail:
+          "This operation is idempotent and it requires correct usage of Idempotency Key. Idempotency Key MUST not be reused across different payloads of this operation.",
+        title: "Idempotency-Key is already used",
+      });
     });
 
     it("should handle concurrent requests with same Idempotency-Key", async () => {
@@ -312,9 +322,11 @@ describe("Negative Scenarios", () => {
       expect(successRes.status).toBe(200);
       expect(conflictRes.status).toBe(409);
 
-      expect(await conflictRes.text()).toBe(
-        "A request is outstanding for this Idempotency-Key",
-      );
+      expect(await conflictRes.json()).toStrictEqual({
+        detail:
+          "A request with the same Idempotency-Key for the same operation is being processed or is outstanding.",
+        title: "A request is outstanding for this Idempotency-Key",
+      });
     });
   });
 

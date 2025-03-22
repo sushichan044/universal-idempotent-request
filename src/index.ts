@@ -1,5 +1,4 @@
 import { createMiddleware } from "hono/factory";
-import { HTTPException } from "hono/http-exception";
 
 import type { IdempotentRequestServerSpecification } from "./server-specification";
 import type { IdempotentRequestStorage } from "./storage";
@@ -7,9 +6,9 @@ import type { IdempotencyActivationStrategy } from "./strategy";
 import type { NonLockedIdempotentRequest } from "./types";
 
 import {
-  IdempotencyKeyConflictError,
-  IdempotencyKeyMissingError,
-  IdempotencyKeyPayloadMismatchError,
+  createIdempotencyKeyConflictErrorResponse,
+  createIdempotencyKeyMissingErrorResponse,
+  createIdempotencyKeyPayloadMismatchErrorResponse,
   IdempotencyKeyStorageError,
   UnsafeImplementationError,
 } from "./error";
@@ -68,110 +67,87 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       return await next();
     }
 
-    try {
-      const idempotencyKey = c.req.header("Idempotency-Key");
-      if (idempotencyKey === undefined) {
-        throw new IdempotencyKeyMissingError();
-      }
+    const idempotencyKey = c.req.header("Idempotency-Key");
+    if (
+      idempotencyKey === undefined ||
+      !impl.specification.satisfiesKeySpec(idempotencyKey)
+    ) {
+      return createIdempotencyKeyMissingErrorResponse();
+    }
 
-      if (!impl.specification.satisfiesKeySpec(idempotencyKey)) {
-        // Omit idempotency processing because the key does not satisfy the server-defined specifications
-        return await next();
-      }
-
-      const requestIdentifier = await createRequestIdentifier(
-        impl.specification,
-        {
-          idempotencyKey,
-          request: c.req.raw.clone(),
-        },
+    const requestIdentifier = await createRequestIdentifier(
+      impl.specification,
+      {
+        idempotencyKey,
+        request: c.req.raw.clone(),
+      },
+    );
+    const storageKey = await impl.specification.getStorageKey(
+      c.req.raw.clone(),
+    );
+    if (!storageKey.includes(idempotencyKey)) {
+      throw new UnsafeImplementationError(
+        "The storage-key must include the value of the `Idempotency-Key` header.",
       );
-      const storageKey = await impl.specification.getStorageKey(
-        c.req.raw.clone(),
-      );
-      if (!storageKey.includes(idempotencyKey)) {
-        throw new UnsafeImplementationError(
-          "The storage-key must include the value of the `Idempotency-Key` header.",
-        );
+    }
+
+    const storeResult = await impl.storage.findOrCreate({
+      ...requestIdentifier,
+      storageKey,
+    });
+
+    if (!storeResult.created) {
+      // Retried request - compare with the stored request
+      if (!isIdenticalRequest(storeResult.storedRequest, requestIdentifier)) {
+        return createIdempotencyKeyPayloadMismatchErrorResponse();
       }
 
-      const storeResult = await impl.storage.findOrCreate({
-        ...requestIdentifier,
-        storageKey,
-      });
-
-      if (!storeResult.created) {
-        // Retried request - compare with the stored request
-        if (!isIdenticalRequest(storeResult.storedRequest, requestIdentifier)) {
-          throw new IdempotencyKeyPayloadMismatchError();
-        }
-
-        if (storeResult.storedRequest.lockedAt != null) {
-          // The request is locked - still being processed
-          throw new IdempotencyKeyConflictError();
-        }
-
-        if (storeResult.storedRequest.response) {
-          //        ^?
-          // Already processed - return the stored response
-          return deserializeResponse(storeResult.storedRequest.response);
-        }
+      if (storeResult.storedRequest.lockedAt != null) {
+        // The request is locked - still being processed
+        return createIdempotencyKeyConflictErrorResponse();
       }
 
-      // Only for suppressing type error.
-      // We can assume that the request is not locked at this point.
-      // because we already threw IdempotencyKeyConflictError if { created: false, storedRequest: LockedIdempotentRequest } .
-      const nonLockedRequest =
-        storeResult.storedRequest as NonLockedIdempotentRequest;
+      if (storeResult.storedRequest.response) {
+        //        ^?
+        // Already processed - return the stored response
+        return deserializeResponse(storeResult.storedRequest.response);
+      }
+    }
 
-      const lockedRequest = await (async () => {
-        try {
-          return impl.storage.lock(nonLockedRequest);
-        } catch (error) {
-          throw new IdempotencyKeyStorageError(
-            "Failed to lock the stored idempotent request",
-            {
-              cause: error,
-            },
-          );
-        }
-      })();
+    // Only for suppressing type error.
+    // We can assume that the request is not locked at this point.
+    // because we already threw IdempotencyKeyConflictError if { created: false, storedRequest: LockedIdempotentRequest } .
+    const nonLockedRequest =
+      storeResult.storedRequest as NonLockedIdempotentRequest;
 
-      // Execute hono route handler
-      await next();
-
+    const lockedRequest = await (async () => {
       try {
-        await impl.storage.setResponseAndUnlock(
-          lockedRequest,
-          await cloneAndSerializeResponse(c.res),
-        );
+        return impl.storage.lock(nonLockedRequest);
       } catch (error) {
         throw new IdempotencyKeyStorageError(
-          "Failed to save the response of an idempotent request. You should unlock the request manually.",
+          "Failed to lock the stored idempotent request",
           {
             cause: error,
           },
         );
       }
+    })();
+
+    // Execute hono route handler
+    await next();
+
+    try {
+      await impl.storage.setResponseAndUnlock(
+        lockedRequest,
+        await cloneAndSerializeResponse(c.res),
+      );
     } catch (error) {
-      if (error instanceof IdempotencyKeyMissingError) {
-        throw new HTTPException(400, {
-          message: "Idempotency-Key is missing",
-        });
-      }
-      if (error instanceof IdempotencyKeyConflictError) {
-        throw new HTTPException(409, {
-          message: "A request is outstanding for this Idempotency-Key",
-        });
-      }
-
-      if (error instanceof IdempotencyKeyPayloadMismatchError) {
-        throw new HTTPException(422, {
-          message: "Idempotency-Key is already used",
-        });
-      }
-
-      throw error;
+      throw new IdempotencyKeyStorageError(
+        "Failed to save the response of an idempotent request. You should unlock the request manually.",
+        {
+          cause: error,
+        },
+      );
     }
   });
 };
