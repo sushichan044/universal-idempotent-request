@@ -338,21 +338,38 @@ describe("idempotentRequest middleware", () => {
   });
 
   describe("Error handling", () => {
-    it("should rethrow errors from the route handler", async () => {
-      const { app } = setupApp();
+    it("should store the error response in the cache storage", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
       app.post("/api/trigger-error", () => {
         throw new HTTPException(500, {
           message: "Only for testing",
         });
       });
+const setResponseAndUnlockSpy = vi.spyOn(storage, "setResponseAndUnlock");
+      const idempotencyKey = uuidv4();
 
-      const response = await app.request("/api/trigger-error", {
+      const response = await app.request(
+"/api/trigger-error",
+{
         headers: {
-          "Idempotency-Key": uuidv4(),
+          "Idempotency-Key": idempotencyKey,
         },
         method: "POST",
-      });
+      },
+        setHonoEnv(),
+      );
 
+      expect(setResponseAndUnlockSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          idempotencyKey,
+          requestMethod: "POST",
+          requestPath: "/api/trigger-error",
+        }),
+        expect.objectContaining({
+          body: "Only for testing",
+          status: 500,
+        }),
+      );
       expect(response.status).toBe(500);
       expect(await response.text()).toBe("Only for testing");
     });

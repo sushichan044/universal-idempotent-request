@@ -148,6 +148,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
     // Execute hono route handler
     await next();
 
+    // Even if route handler throws an error, this operation will be executed.
     try {
       await impl.storage.setResponseAndUnlock(
         lockedRequest,
