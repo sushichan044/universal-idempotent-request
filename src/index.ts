@@ -119,7 +119,8 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       }
 
       if (storeResult.storedRequest.response) {
-        //        ^?
+        //              ^?
+        // TIP: ^? above is called `Two slash query` in TypeScript. see: https://www.typescriptlang.org/dev/twoslash
         // Already processed - return the stored response
         return deserializeResponse(storeResult.storedRequest.response);
       }
