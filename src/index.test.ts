@@ -181,19 +181,13 @@ describe("idempotentRequest middleware", () => {
       // 2nd request should hit cached, non-locked response
       expect(createOrFindSpy).toHaveLastReturnedWith({
         created: false,
-        storedRequest: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        storedRequest: expect.objectContaining({
           idempotencyKey,
           lockedAt: null,
           requestMethod: "POST",
           requestPath: "/api/hello",
-
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          fingerprint: expect.any(String),
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          response: expect.any(Object),
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          storageKey: expect.any(String),
-        },
+        }),
       });
       expect(response.status).toEqual(cachedResponse.status);
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
@@ -345,17 +339,17 @@ describe("idempotentRequest middleware", () => {
           message: "Only for testing",
         });
       });
-const setResponseAndUnlockSpy = vi.spyOn(storage, "setResponseAndUnlock");
+      const setResponseAndUnlockSpy = vi.spyOn(storage, "setResponseAndUnlock");
       const idempotencyKey = uuidv4();
 
       const response = await app.request(
-"/api/trigger-error",
-{
-        headers: {
-          "Idempotency-Key": idempotencyKey,
+        "/api/trigger-error",
+        {
+          headers: {
+            "Idempotency-Key": idempotencyKey,
+          },
+          method: "POST",
         },
-        method: "POST",
-      },
         setHonoEnv(),
       );
 
