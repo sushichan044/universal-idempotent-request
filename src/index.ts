@@ -152,16 +152,15 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
           message: "Idempotency-Key is missing",
         });
       }
+      if (error instanceof IdempotencyKeyConflictError) {
+        throw new HTTPException(409, {
+          message: "A request is outstanding for this Idempotency-Key",
+        });
+      }
 
       if (error instanceof IdempotencyKeyPayloadMismatchError) {
         throw new HTTPException(422, {
           message: "Idempotency-Key is already used",
-        });
-      }
-
-      if (error instanceof IdempotencyKeyConflictError) {
-        throw new HTTPException(409, {
-          message: "A request is outstanding for this Idempotency-Key",
         });
       }
 
