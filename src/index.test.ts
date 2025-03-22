@@ -191,10 +191,8 @@ describe("idempotentRequest middleware", () => {
       expect(response.status).toEqual(cachedResponse.status);
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
     });
-  });
 
-  describe("Negative Scenarios", () => {
-    it("should omit idempotency processing if Idempotency-Key is invalid", async () => {
+    it("should omit idempotency processing if Idempotency-Key does not satisfy the server specification", async () => {
       const { app, setHonoEnv, storage } = setupApp();
       const createSpy = vi.spyOn(storage, "findOrCreate");
 
@@ -218,7 +216,9 @@ describe("idempotentRequest middleware", () => {
       expect(await response.json()).toStrictEqual({ message: "Hello, John!" });
     });
   });
+});
 
+describe("Negative Scenarios", () => {
   describe("Error Scenarios", () => {
     it("should return 400 if Idempotency-Key header is missing", async () => {
       const { app, setHonoEnv } = setupApp();
@@ -333,9 +333,53 @@ describe("idempotentRequest middleware", () => {
       expect(await response.text()).toBe("Only for testing");
     });
 
-    it("should wrap errors from cache storage with IdempotencyKeyCacheStorageError", async () => {
+    it("should wrap errors from cache storage when findOrCreate fails", async () => {
       const { app, setHonoEnv, storage } = setupApp();
       vi.spyOn(storage, "findOrCreate").mockImplementation(() => {
+        throw new Error("Connection error");
+      });
+
+      const response = await app.request(
+        "/api/hello",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": uuidv4(),
+          },
+          method: "POST",
+        },
+        setHonoEnv(),
+      );
+
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe("Internal Server Error");
+    });
+
+    it("should wrap errors from cache storage when lock fails", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
+      vi.spyOn(storage, "lock").mockImplementation(() => {
+        throw new Error("Connection error");
+      });
+
+      const response = await app.request(
+        "/api/hello",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": uuidv4(),
+          },
+          method: "POST",
+        },
+        setHonoEnv(),
+      );
+
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe("Internal Server Error");
+    });
+
+    it("should wrap errors from cache storage when setResponseAndUnlock fails", async () => {
+      const { app, setHonoEnv, storage } = setupApp();
+      vi.spyOn(storage, "setResponseAndUnlock").mockImplementation(() => {
         throw new Error("Connection error");
       });
 
