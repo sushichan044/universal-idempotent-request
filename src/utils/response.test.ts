@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { SerializedResponse } from "./response";
 
-import { deserializeResponse, serializeResponse } from "./response";
+import { cloneAndSerializeResponse, deserializeResponse } from "./response";
 
 describe("serializeResponse", () => {
   it("can serialize a response", async () => {
@@ -14,7 +14,7 @@ describe("serializeResponse", () => {
       status: 200,
     });
 
-    const serialized = await serializeResponse(mockResponse);
+    const serialized = await cloneAndSerializeResponse(mockResponse);
 
     expect(serialized).toStrictEqual({
       body: "Test body",
@@ -35,7 +35,7 @@ describe("serializeResponse", () => {
     });
 
     // serialize the response
-    await serializeResponse(originalResponse);
+    await cloneAndSerializeResponse(originalResponse);
 
     // original response body is not consumed
     // If consumed, this will cause

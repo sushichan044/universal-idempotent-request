@@ -12,7 +12,7 @@ export type SerializedResponse = {
  * @param response - The response to serialize
  * @returns The serialized response
  */
-export const serializeResponse = async (
+export const cloneAndSerializeResponse = async (
   response: Response,
 ): Promise<SerializedResponse> => {
   const responseClone = response.clone();

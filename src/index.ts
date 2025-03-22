@@ -14,7 +14,10 @@ import {
 } from "./error";
 import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import { prepareActivationStrategy } from "./strategy";
-import { deserializeResponse, serializeResponse } from "./utils/response";
+import {
+  cloneAndSerializeResponse,
+  deserializeResponse,
+} from "./utils/response";
 
 export interface IdempotentRequestImplementation {
   /**
@@ -133,7 +136,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       try {
         await impl.storage.setResponseAndUnlock(
           lockedRequest,
-          await serializeResponse(c.res),
+          await cloneAndSerializeResponse(c.res),
         );
       } catch (error) {
         throw new IdempotencyKeyStorageError(
