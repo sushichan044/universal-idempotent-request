@@ -91,7 +91,6 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       );
     }
 
-
     const storeResult = await (async () => {
       try {
         return impl.storage.findOrCreate({
@@ -115,7 +114,7 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       }
 
       if (storeResult.storedRequest.lockedAt != null) {
-        // The request is locked - still being processed
+        // The request is locked - still being processed, or processing succeeded but the response failed to be recorded.
         return createIdempotencyKeyConflictErrorResponse();
       }
 
@@ -124,11 +123,15 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
         // Already processed - return the stored response
         return deserializeResponse(storeResult.storedRequest.response);
       }
+
+      // If you reach this point, the previous request simply failed to acquire a lock.
+      // So just continue to re-try lock and process the request.
     }
 
     // Only for suppressing type error.
     // We can assume that the request is not locked at this point.
-    // because we already threw IdempotencyKeyConflictError if { created: false, storedRequest: LockedIdempotentRequest } .
+    // because we already called createIdempotencyKeyConflictErrorResponse()
+    // if situation like { created: false, storedRequest: LockedIdempotentRequest }
     const nonLockedRequest =
       storeResult.storedRequest as NonLockedIdempotentRequest;
 
