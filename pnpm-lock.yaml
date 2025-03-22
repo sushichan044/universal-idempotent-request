@@ -44,9 +44,6 @@ importers:
       hono:
         specifier: 4.7.4
         version: 4.7.4
-      jiti:
-        specifier: 2.4.2
-        version: 2.4.2
       prettier:
         specifier: 3.5.3
         version: 3.5.3
