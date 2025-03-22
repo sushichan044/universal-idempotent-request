@@ -152,17 +152,19 @@ describe("idempotentRequest middleware", () => {
       const { app, setHonoEnv, storage } = setupApp();
       const idempotencyKey = uuidv4();
       const createOrFindSpy = vi.spyOn(storage, "findOrCreate");
-      const request = new Request("http://127.0.0.1:3000/api/hello", {
-        body: JSON.stringify({ name: "Edison" }),
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": idempotencyKey,
-        },
-        method: "POST",
-      });
+      const createRequest = () => {
+        return new Request("http://127.0.0.1:3000/api/hello", {
+          body: JSON.stringify({ name: "Edison" }),
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": idempotencyKey,
+          },
+          method: "POST",
+        });
+      };
 
       const response = await app.request(
-        request.clone(),
+        createRequest(),
         undefined,
         setHonoEnv(),
       );
@@ -171,12 +173,12 @@ describe("idempotentRequest middleware", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       const cachedResponse = await app.request(
-        request.clone(),
+        createRequest(),
         undefined,
         setHonoEnv(),
       );
 
-      // 2nd request should hit cached response
+      // 2nd request should hit cached, non-locked response
       expect(createOrFindSpy).toHaveLastReturnedWith({
         created: false,
         storedRequest: {
@@ -497,7 +499,8 @@ describe("idempotentRequest middleware", () => {
       expect(response.status).toBe(500);
       expect(await response.json()).toStrictEqual({
         cause: "Connection error",
-        detail: "Failed to save the response of an idempotent request. You should unlock the request manually.",
+        detail:
+          "Failed to save the response of an idempotent request. You should unlock the request manually.",
         title: "Storage Error",
       });
     });
