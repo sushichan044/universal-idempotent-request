@@ -30,6 +30,8 @@ export interface IdempotentRequestServerSpecification {
    *
    * Existence of `Idempotency-Key` header is already guaranteed by the middleware.
    *
+   * YOU MUST INCLUDE THE VALUE OF THE `Idempotency-Key` HEADER IN THE STORAGE KEY.
+   *
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
    *
    * @param request

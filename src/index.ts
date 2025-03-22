@@ -11,6 +11,7 @@ import {
   IdempotencyKeyMissingError,
   IdempotencyKeyPayloadMismatchError,
   IdempotencyKeyStorageError,
+  UnsafeImplementationError,
 } from "./error";
 import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import { prepareActivationStrategy } from "./strategy";
@@ -88,6 +89,12 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       const storageKey = await impl.specification.getStorageKey(
         c.req.raw.clone(),
       );
+      if (!storageKey.includes(idempotencyKey)) {
+        throw new UnsafeImplementationError(
+          "The storage-key must include the value of the `Idempotency-Key` header.",
+        );
+      }
+
       const storeResult = await impl.storage.findOrCreate({
         ...requestIdentifier,
         storageKey,
