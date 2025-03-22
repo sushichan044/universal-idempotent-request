@@ -5,6 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
+import type { IdempotentRequestServerSpecification } from "./server-specification";
+import type { IdempotentRequestStorage } from "./storage";
+
+import { createIdempotentStorageKey } from "./brand";
+import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
 import { idempotentRequest } from "./index";
 import { createInMemoryIdempotentRequestCacheStorage } from "./test/in-memory-storage";
 import { createTestServerSpecification } from "./test/server-specification";
@@ -58,9 +63,14 @@ const racer = createRacer({
   totalDelayOnServer: 1000,
 });
 
-const setupApp = () => {
-  const storage = createInMemoryIdempotentRequestCacheStorage();
-  const specification = createTestServerSpecification();
+type SetupAppArgs = {
+  specification: IdempotentRequestServerSpecification;
+  storage: IdempotentRequestStorage;
+};
+
+const setupApp = ({ specification, storage }: Partial<SetupAppArgs> = {}) => {
+  storage ??= createInMemoryIdempotentRequestCacheStorage();
+  specification ??= createTestServerSpecification();
 
   type HonoEnv = {
     Bindings: {
@@ -108,12 +118,7 @@ const setupApp = () => {
         const { name } = c.req.valid("json");
         return c.json({ message: `Hello, ${name}!` });
       },
-    )
-    .post("/api/trigger-error", () => {
-      throw new HTTPException(500, {
-        message: "Only for testing",
-      });
-    });
+    );
 
   return { app, setHonoEnv, specification, storage };
 };
@@ -192,10 +197,10 @@ describe("idempotentRequest middleware", () => {
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
     });
   });
-});
 
-describe("Negative Scenarios", () => {
-  describe("Error Scenarios", () => {
+  describe("Error Scenarios in Draft", () => {
+    // https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7
+
     it("should return 400 if Idempotency-Key header is missing", async () => {
       const { app, setHonoEnv } = setupApp();
 
@@ -333,6 +338,11 @@ describe("Negative Scenarios", () => {
   describe("Error handling", () => {
     it("should rethrow errors from the route handler", async () => {
       const { app } = setupApp();
+      app.post("/api/trigger-error", () => {
+        throw new HTTPException(500, {
+          message: "Only for testing",
+        });
+      });
 
       const response = await app.request("/api/trigger-error", {
         headers: {
@@ -347,6 +357,29 @@ describe("Negative Scenarios", () => {
 
     it("should wrap errors from cache storage when findOrCreate fails", async () => {
       const { app, setHonoEnv, storage } = setupApp();
+      app.onError((e, c) => {
+        if (e instanceof IdempotencyKeyStorageError) {
+          if (e.cause instanceof Error) {
+            return c.json(
+              {
+                cause: e.cause.message,
+                detail: e.message,
+                title: "Storage Error",
+              },
+              500,
+            );
+          }
+          return c.json(
+            {
+              detail: e.message,
+              title: "Storage Error",
+            },
+            500,
+          );
+        }
+
+        return c.text("Internal Server Error", 500);
+      });
       vi.spyOn(storage, "findOrCreate").mockImplementation(() => {
         throw new Error("Connection error");
       });
@@ -364,11 +397,38 @@ describe("Negative Scenarios", () => {
       );
 
       expect(response.status).toBe(500);
-      expect(await response.text()).toBe("Internal Server Error");
+      expect(await response.json()).toStrictEqual({
+        cause: "Connection error",
+        detail: "Failed to find or create the stored idempotent request",
+        title: "Storage Error",
+      });
     });
 
     it("should wrap errors from cache storage when lock fails", async () => {
       const { app, setHonoEnv, storage } = setupApp();
+      app.onError((e, c) => {
+        if (e instanceof IdempotencyKeyStorageError) {
+          if (e.cause instanceof Error) {
+            return c.json(
+              {
+                cause: e.cause.message,
+                detail: e.message,
+                title: "Storage Error",
+              },
+              500,
+            );
+          }
+          return c.json(
+            {
+              detail: e.message,
+              title: "Storage Error",
+            },
+            500,
+          );
+        }
+
+        return c.text("Internal Server Error", 500);
+      });
       vi.spyOn(storage, "lock").mockImplementation(() => {
         throw new Error("Connection error");
       });
@@ -386,11 +446,38 @@ describe("Negative Scenarios", () => {
       );
 
       expect(response.status).toBe(500);
-      expect(await response.text()).toBe("Internal Server Error");
+      expect(await response.json()).toStrictEqual({
+        cause: "Connection error",
+        detail: "Failed to lock the stored idempotent request",
+        title: "Storage Error",
+      });
     });
 
     it("should wrap errors from cache storage when setResponseAndUnlock fails", async () => {
       const { app, setHonoEnv, storage } = setupApp();
+      app.onError((e, c) => {
+        if (e instanceof IdempotencyKeyStorageError) {
+          if (e.cause instanceof Error) {
+            return c.json(
+              {
+                cause: e.cause.message,
+                detail: e.message,
+                title: "Storage Error",
+              },
+              500,
+            );
+          }
+          return c.json(
+            {
+              detail: e.message,
+              title: "Storage Error",
+            },
+            500,
+          );
+        }
+
+        return c.text("Internal Server Error", 500);
+      });
       vi.spyOn(storage, "setResponseAndUnlock").mockImplementation(() => {
         throw new Error("Connection error");
       });
@@ -408,7 +495,57 @@ describe("Negative Scenarios", () => {
       );
 
       expect(response.status).toBe(500);
-      expect(await response.text()).toBe("Internal Server Error");
+      expect(await response.json()).toStrictEqual({
+        cause: "Connection error",
+        detail: "Failed to save the response of an idempotent request. You should unlock the request manually.",
+        title: "Storage Error",
+      });
+    });
+  });
+
+  describe("Unsafe implementation detection", () => {
+    it("should throw an error if the storage key does not include the Idempotency-Key header", async () => {
+      const { app, setHonoEnv } = setupApp({
+        specification: {
+          getFingerprint: () => null,
+          getStorageKey: (req) => {
+            const path = new URL(req.url).pathname;
+            const method = req.method;
+            return createIdempotentStorageKey(`${method}-${path}`);
+          },
+          satisfiesKeySpec: () => true,
+        },
+      });
+      app.onError((e, c) => {
+        if (e instanceof UnsafeImplementationError) {
+          return c.json(
+            {
+              detail: e.message,
+              title: "Unsafe Implementation",
+            },
+            500,
+          );
+        }
+        return c.text("Internal Server Error", 500);
+      });
+
+      const response = await app.request(
+        "/api/hello",
+        {
+          headers: {
+            "Idempotency-Key": uuidv4(),
+          },
+          method: "POST",
+        },
+        setHonoEnv(),
+      );
+
+      expect(response.status).toBe(500);
+      expect(await response.json()).toStrictEqual({
+        detail:
+          "The storage-key must include the value of the `Idempotency-Key` header.",
+        title: "Unsafe Implementation",
+      });
     });
   });
 });

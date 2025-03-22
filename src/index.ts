@@ -91,10 +91,22 @@ export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
       );
     }
 
-    const storeResult = await impl.storage.findOrCreate({
-      ...requestIdentifier,
-      storageKey,
-    });
+
+    const storeResult = await (async () => {
+      try {
+        return impl.storage.findOrCreate({
+          ...requestIdentifier,
+          storageKey,
+        });
+      } catch (error) {
+        throw new IdempotencyKeyStorageError(
+          "Failed to find or create the stored idempotent request",
+          {
+            cause: error,
+          },
+        );
+      }
+    })();
 
     if (!storeResult.created) {
       // Retried request - compare with the stored request
