@@ -21,22 +21,26 @@ export type StoredIdempotentRequest =
   | LockedIdempotentRequest
   | NonLockedIdempotentRequest;
 
-export type NonLockedIdempotentRequest = IdempotentRequestBase & {
-  /**
-   * Time when the request was locked for processing
-   *
-   * This is used to prevent race conditions when multiple requests are
-   * trying to process the same request concurrently.
-   */
-  lockedAt: null;
-};
+export type NonLockedIdempotentRequest = Readonly<
+  IdempotentRequestBase & {
+    /**
+     * Time when the request was locked for processing
+     *
+     * This is used to prevent race conditions when multiple requests are
+     * trying to process the same request concurrently.
+     */
+    lockedAt: null;
+  }
+>;
 
-export type LockedIdempotentRequest = IdempotentRequestBase & {
-  /**
-   * Time when the request was locked for processing
-   *
-   * This is used to prevent race conditions when multiple requests are
-   * trying to process the same request concurrently.
-   */
-  lockedAt: Date;
-};
+export type LockedIdempotentRequest = Readonly<
+  IdempotentRequestBase & {
+    /**
+     * Time when the request was locked for processing
+     *
+     * This is used to prevent race conditions when multiple requests are
+     * trying to process the same request concurrently.
+     */
+    lockedAt: Date;
+  }
+>;
