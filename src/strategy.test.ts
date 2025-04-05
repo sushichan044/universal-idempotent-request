@@ -22,13 +22,6 @@ describe("prepareActivationStrategy", () => {
     expect(await strategy(request)).toBe(true);
   });
 
-  it("should return a function that always returns true when strategy is not specified", async () => {
-    const strategy = prepareActivationStrategy();
-    const request = createMockRequest();
-
-    expect(await strategy(request)).toBe(true);
-  });
-
   it("should return a function that checks Idempotency-Key header when strategy is 'opt-in'", async () => {
     const strategy = prepareActivationStrategy("opt-in");
 

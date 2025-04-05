@@ -29,10 +29,20 @@ export interface IdempotentRequestImplementation {
    *
    * As a function:
    * - A function that determines whether to apply idempotency processing using custom logic
+   *   - YOU MUST CHECK EXISTENCE OF `Idempotency-Key` HEADER.
    *   - Useful when you are using strategies like feature flags
    *   - Return `true` to apply idempotency processing, `false` otherwise
    *
    * @default "always"
+   *
+   * @example
+   * ```ts
+   * (req) => {
+   *    return (
+   *     typeof req.headers.get("Idempotency-Key") === "string" &&
+   *     req.headers.get("X-Enable-Idempotency") === "true"
+   *   );
+   * };
    */
   activationStrategy?: IdempotencyActivationStrategy;
 
@@ -55,7 +65,7 @@ export interface IdempotentRequestImplementation {
  */
 export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
   const idempotencyStrategyFunction = prepareActivationStrategy(
-    impl.activationStrategy,
+    impl.activationStrategy ?? "always",
   );
 
   return createMiddleware(async (c, next) => {
