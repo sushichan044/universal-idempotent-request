@@ -38,6 +38,8 @@ jobs:
       - name: Setup Node.js and pnpm
         uses: ./.github/workflows/composite/setup
 
+      - run: pnpm run build
+
       - name: Run ESLint
         run: pnpm run lint
 
