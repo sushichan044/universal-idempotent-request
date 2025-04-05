@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@hono/standard-validator':
         specifier: 0.1.2
-        version: 0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.4)
+        version: 0.1.2(@standard-schema/spec@1.0.0)(hono@3.8.0)
       '@oslojs/crypto':
         specifier: 1.0.1
         version: 1.0.1
@@ -42,8 +42,8 @@ importers:
         specifier: 16.0.0
         version: 16.0.0
       hono:
-        specifier: 4.7.4
-        version: 4.7.4
+        specifier: 3.8.0
+        version: 3.8.0
       prettier:
         specifier: 3.5.3
         version: 3.5.3
@@ -1614,6 +1614,10 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
+  hono@3.8.0:
+    resolution: {integrity: sha512-lTkcFzm9abmsYiaX82r707kG7Qo9y/nSuO75VWaI6xRK46yxylMUG10Njy6SS5CcLRAg+0mw8NvPaMPbgV17Gg==}
+    engines: {node: '>=16.0.0'}
+
   hono@4.7.4:
     resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
@@ -3104,10 +3108,10 @@ snapshots:
       '@eslint/core': 0.12.0
       levn: 0.4.1
 
-  '@hono/standard-validator@0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.4)':
+  '@hono/standard-validator@0.1.2(@standard-schema/spec@1.0.0)(hono@3.8.0)':
     dependencies:
       '@standard-schema/spec': 1.0.0
-      hono: 4.7.4
+      hono: 3.8.0
 
   '@humanfs/core@0.19.1': {}
 
@@ -4794,6 +4798,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  hono@3.8.0: {}
 
   hono@4.7.4: {}
 
