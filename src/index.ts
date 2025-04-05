@@ -2,6 +2,7 @@ import type { Env, Input, MiddlewareHandler } from "hono";
 
 import { createMiddleware } from "hono/factory";
 
+import type { Hooks } from "./hooks";
 import type { IdempotentRequestServerSpecification } from "./server-specification";
 import type { IdempotentRequestStorage } from "./storage";
 import type { IdempotencyActivationStrategy } from "./strategy";
@@ -14,6 +15,7 @@ import {
   IdempotencyKeyStorageError,
   UnsafeImplementationError,
 } from "./error";
+import { resolveHooks } from "./hooks";
 import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import { prepareActivationStrategy } from "./strategy";
 import {
@@ -48,6 +50,8 @@ export interface IdempotentRequestImplementation {
    */
   activationStrategy?: IdempotencyActivationStrategy;
 
+  hooks?: Partial<Hooks>;
+
   /**
    * Server specification
    */
@@ -78,6 +82,8 @@ export const idempotentRequest = <
     impl.activationStrategy ?? "always",
   );
 
+  const hooks = resolveHooks(impl.hooks);
+
   return createMiddleware(async (c, next) => {
     const isIdempotencyEnabled = await idempotencyStrategyFunction(
       c.req.raw.clone(),
@@ -92,7 +98,10 @@ export const idempotentRequest = <
       idempotencyKey === undefined ||
       !impl.specification.satisfiesKeySpec(idempotencyKey)
     ) {
-      return createIdempotencyKeyMissingErrorResponse();
+      return await hooks.modifyResponse(
+        createIdempotencyKeyMissingErrorResponse(),
+        "key_missing",
+      );
     }
 
     const requestIdentifier = await createRequestIdentifier(
@@ -130,19 +139,28 @@ export const idempotentRequest = <
     if (!storeResult.created) {
       // Retried request - compare with the stored request
       if (!isIdenticalRequest(storeResult.storedRequest, requestIdentifier)) {
-        return createIdempotencyKeyPayloadMismatchErrorResponse();
+        return await hooks.modifyResponse(
+          createIdempotencyKeyPayloadMismatchErrorResponse(),
+          "key_payload_mismatch",
+        );
       }
 
       if (storeResult.storedRequest.lockedAt != null) {
         // The request is locked - still being processed, or processing succeeded but the response failed to be recorded.
-        return createIdempotencyKeyConflictErrorResponse();
+        return await hooks.modifyResponse(
+          createIdempotencyKeyConflictErrorResponse(),
+          "key_conflict",
+        );
       }
 
       if (storeResult.storedRequest.response) {
         //              ^?
         // TIP: ^? above is called `Two slash query` in TypeScript. see: https://www.typescriptlang.org/dev/twoslash
         // Already processed - return the stored response
-        return deserializeResponse(storeResult.storedRequest.response);
+        return await hooks.modifyResponse(
+          deserializeResponse(storeResult.storedRequest.response),
+          "retrieved_stored_response",
+        );
       }
 
       // If you reach this point, the previous request simply failed to acquire a lock.
@@ -171,6 +189,12 @@ export const idempotentRequest = <
 
     // Execute hono route handler
     await next();
+
+    const modifiedResponse = await hooks.modifyResponse(
+      c.res.clone(),
+      "success",
+    );
+    c.res = modifiedResponse;
 
     // Even if route handler throws an error, this operation will be executed.
     try {

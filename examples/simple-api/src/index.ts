@@ -51,6 +51,12 @@ app.use("/api/*", async (c, next) => {
     },
     specification: simpleSpecification,
     storage: requestStorage,
+    hooks: {
+      modifyResponse: (response, situation) => {
+        response.headers.set("X-Idempotency-Status", situation);
+        return response;
+      },
+    },
   });
 
   // @ts-expect-error - We could not fix it
