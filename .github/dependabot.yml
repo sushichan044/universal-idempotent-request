@@ -1,0 +1,33 @@
+# Dependabot configuration file
+# See: https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # Node.js バージョンの更新設定
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    versioning-strategy: widen
+    labels:
+      - "dependencies"
+    ignore:
+      - dependency-name: "hono"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # GitHub Actions の更新設定
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
