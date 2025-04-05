@@ -2,6 +2,8 @@ import type { IdempotentStorageKey } from "./brand";
 import type { RequestIdentifier } from "./identifier";
 import type { SerializedResponse } from "./utils/response";
 
+export type { SerializedResponse } from "./utils/response";
+
 type IdempotentRequestBase = RequestIdentifier & {
   /**
    * Storage key

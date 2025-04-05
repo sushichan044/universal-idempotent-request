@@ -30,6 +30,10 @@
     "./storage": {
       "types": "./dist/storage/index.d.ts",
       "default": "./dist/storage/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.mjs"
     }
   },
   "keywords": [
