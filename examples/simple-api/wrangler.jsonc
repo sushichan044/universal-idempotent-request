@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hono-idempotent-request-simple-api-example",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    {
+      "binding": "DATABASE_PAYMENT",
+      "id": "01999999999999999999999999999999"
+    },
+    {
+      "binding": "DATABASE_IDEMPOTENT_REQUEST",
+      "id": "01999999999999999999999999999999"
+    }
+  ]
+}

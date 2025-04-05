@@ -1,0 +1,22 @@
+{
+  "name": "@repo/simple-api",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "cf-types": "wrangler types"
+  },
+  "dependencies": {
+    "@hono/swagger-ui": "0.5.1",
+    "@hono/zod-openapi": "0.19.2",
+    "@oslojs/encoding": "1.1.0",
+    "hono": "4.7.0",
+    "hono-idempotent-request": "workspace:*",
+    "sha2": "link:@oslojs/crypto/sha2",
+    "zod": "3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.0",
+    "typescript": "5.8.3",
+    "wrangler": "4.7.2"
+  }
+}
