@@ -8,11 +8,11 @@ import { describe, expect, it, vi } from "vitest";
 import type { IdempotentRequestServerSpecification } from "./server-specification";
 import type { IdempotentRequestStorage } from "./storage";
 
+import { createInMemoryIdempotentRequestCacheStorage } from "../test/in-memory-storage";
+import { createTestServerSpecification } from "../test/server-specification";
 import { createIdempotentStorageKey } from "./brand";
 import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
 import { idempotentRequest } from "./index";
-import { createInMemoryIdempotentRequestCacheStorage } from "./test/in-memory-storage";
-import { createTestServerSpecification } from "./test/server-specification";
 
 /**
  * Utility for simulating race condition

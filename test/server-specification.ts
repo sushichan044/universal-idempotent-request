@@ -2,14 +2,14 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { version as uuidVersion } from "uuid";
 
-import type { IdempotentRequestServerSpecification } from "../server-specification/index";
+import type { IdempotentRequestServerSpecification } from "../src/server-specification";
 
 import {
   createIdempotencyFingerprint,
   createIdempotentStorageKey,
   type IdempotencyFingerprint,
   type IdempotentStorageKey,
-} from "../brand";
+} from "../src/brand";
 
 /**
  * Idempotent request server specification for testing purposes.

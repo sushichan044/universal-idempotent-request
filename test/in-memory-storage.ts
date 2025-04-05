@@ -1,15 +1,15 @@
-import type { IdempotentStorageKey } from "../brand";
+import type { IdempotentStorageKey } from "../src/brand";
 import type {
   FindOrCreateStorageResult,
   IdempotentRequestStorage,
   NewIdempotentRequest,
-} from "../storage";
+} from "../src/storage";
 import type {
   LockedIdempotentRequest,
   NonLockedIdempotentRequest,
   StoredIdempotentRequest,
-} from "../types";
-import type { SerializedResponse } from "../utils/response";
+} from "../src/types";
+import type { SerializedResponse } from "../src/utils/response";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.
