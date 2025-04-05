@@ -49,14 +49,14 @@ app.use("/api/*", async (c, next) => {
         ["PATCH", "POST", "PUT"].includes(request.method)
       );
     },
-    specification: simpleSpecification,
-    storage: requestStorage,
     hooks: {
       modifyResponse: (response, situation) => {
         response.headers.set("X-Idempotency-Status", situation);
         return response;
       },
     },
+    specification: simpleSpecification,
+    storage: requestStorage,
   });
 
   // @ts-expect-error - We could not fix it
