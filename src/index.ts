@@ -1,3 +1,5 @@
+import type { Env, Input, MiddlewareHandler } from "hono";
+
 import { createMiddleware } from "hono/factory";
 
 import type { IdempotentRequestServerSpecification } from "./server-specification";
@@ -63,7 +65,15 @@ export interface IdempotentRequestImplementation {
  * Create a Hono middleware for handling idempotent requests
  * @param impl - Injectable implementation
  */
-export const idempotentRequest = (impl: IdempotentRequestImplementation) => {
+export const idempotentRequest = <
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  E extends Env = any,
+  P extends string = string,
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  I extends Input = {},
+>(
+  impl: IdempotentRequestImplementation,
+): MiddlewareHandler<E, P, I> => {
   const idempotencyStrategyFunction = prepareActivationStrategy(
     impl.activationStrategy ?? "always",
   );
