@@ -10,7 +10,8 @@ This API includes the following endpoints:
 - Deposit processing: `POST /api/account/:id/deposit`
 - Withdrawal processing: `POST /api/account/:id/withdraw`
 
-All API endpoints support the `Idempotency-Key` header, ensuring that requests with the same key will not result in duplicate processing.
+All POST / PATCH / PUT API endpoints support the `Idempotency-Key` header,
+ensuring that requests with the same key will not result in duplicate processing.
 
 ## API Documentation
 
