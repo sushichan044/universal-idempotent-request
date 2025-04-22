@@ -93,6 +93,9 @@ importers:
       '@types/node':
         specifier: 22.14.1
         version: 22.14.1
+      '@virtual-live-lab/tsconfig':
+        specifier: 2.1.20
+        version: 2.1.20(typescript@5.8.3)
       typescript:
         specifier: 5.8.3
         version: 5.8.3

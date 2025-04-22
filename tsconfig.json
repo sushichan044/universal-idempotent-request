@@ -6,5 +6,6 @@
     "lib": ["ES2022"],
     "moduleResolution": "Bundler",
     "types": ["node"]
-  }
+  },
+  "exclude": ["examples", "dist/**", "**/node_modules/**"]
 }
