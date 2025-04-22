@@ -5,11 +5,11 @@ import { sValidator } from "@hono/standard-validator";
 import { createMiddleware } from "@universal-middleware/hono";
 import { Hono } from "hono";
 import {
+  createIdempotentStorageKey,
   IdempotencyKeyStorageError,
   idempotentRequestUniversalMiddleware,
   UnsafeImplementationError,
 } from "hono-idempotent-request";
-import { createIdempotentStorageKey } from "hono-idempotent-request/brand";
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";

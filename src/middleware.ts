@@ -3,8 +3,10 @@
 import type { Get, UniversalMiddleware } from "@universal-middleware/core";
 
 import type { IdempotentRequestServerSpecification } from "./server-specification";
-import type { IdempotentRequestStorage } from "./storage";
-import type { NonLockedIdempotentRequest } from "./types";
+import type {
+  IdempotentRequestStorage,
+  NonLockedIdempotentRequest,
+} from "./storage";
 
 import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
 import { type Hooks, resolveHooks } from "./hooks";

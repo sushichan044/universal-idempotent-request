@@ -1,3 +1,7 @@
+import type {
+  IdempotencyFingerprint,
+  IdempotentStorageKey,
+} from "hono-idempotent-request";
 import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
 
 import { sha256 } from "@oslojs/crypto/sha2";
@@ -5,9 +9,7 @@ import { encodeHexLowerCase } from "@oslojs/encoding";
 import {
   createIdempotencyFingerprint,
   createIdempotentStorageKey,
-  type IdempotencyFingerprint,
-  type IdempotentStorageKey,
-} from "hono-idempotent-request/brand";
+} from "hono-idempotent-request";
 import { version as uuidVersion } from "uuid";
 
 /**
