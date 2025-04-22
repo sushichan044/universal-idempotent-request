@@ -1,18 +1,22 @@
+import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
+import type { IdempotentRequestStorage } from "hono-idempotent-request/storage";
+
 import { sValidator } from "@hono/standard-validator";
+import { createMiddleware } from "@universal-middleware/hono";
 import { Hono } from "hono";
+import {
+  IdempotencyKeyStorageError,
+  idempotentRequestUniversalMiddleware,
+  UnsafeImplementationError,
+} from "hono-idempotent-request";
+import { createIdempotentStorageKey } from "hono-idempotent-request/brand";
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
-import type { IdempotentRequestServerSpecification } from "./server-specification";
-import type { IdempotentRequestStorage } from "./storage";
-
-import { createInMemoryIdempotentRequestCacheStorage } from "../test/in-memory-storage";
-import { createTestServerSpecification } from "../test/server-specification";
-import { createIdempotentStorageKey } from "./brand";
-import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
-import { idempotentRequest } from "./index";
+import { createInMemoryIdempotentRequestCacheStorage } from "./in-memory-storage";
+import { createTestServerSpecification } from "./server-specification";
 
 /**
  * Utility for simulating race condition
@@ -87,6 +91,10 @@ const setupApp = ({ specification, storage }: Partial<SetupAppArgs> = {}) => {
       simulateSlow: slow,
     };
   };
+
+  const idempotentRequest = createMiddleware(
+    idempotentRequestUniversalMiddleware,
+  );
 
   const app = new Hono<HonoEnv>()
     .on(

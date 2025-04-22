@@ -1,15 +1,14 @@
+import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
+
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
-import { version as uuidVersion } from "uuid";
-
-import type { IdempotentRequestServerSpecification } from "../src/server-specification";
-
 import {
   createIdempotencyFingerprint,
   createIdempotentStorageKey,
   type IdempotencyFingerprint,
   type IdempotentStorageKey,
-} from "../src/brand";
+} from "hono-idempotent-request/brand";
+import { version as uuidVersion } from "uuid";
 
 /**
  * Idempotent request server specification for testing purposes.

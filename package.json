@@ -57,10 +57,10 @@
     "typecheck": "tsc --noEmit",
     "check": "pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run && pnpm run build"
   },
+  "dependencies": {
+    "@universal-middleware/core": "0.4.7"
+  },
   "devDependencies": {
-    "@hono/standard-validator": "0.1.2",
-    "@oslojs/crypto": "1.0.1",
-    "@oslojs/encoding": "1.1.0",
     "@types/node": "22.14.1",
     "@virtual-live-lab/eslint-config": "2.2.21",
     "@virtual-live-lab/prettier-config": "2.0.19",
@@ -69,13 +69,10 @@
     "eslint": "9.25.0",
     "eslint-plugin-unicorn": "58.0.0",
     "globals": "16.0.0",
-    "hono": "3.8.0",
     "prettier": "3.5.3",
     "typescript": "5.8.3",
     "typescript-eslint": "8.30.1",
     "unbuild": "3.5.0",
-    "uuid": "11.1.0",
-    "valibot": "1.0.0",
     "vitest": "3.0.9"
   },
   "pnpm": {
