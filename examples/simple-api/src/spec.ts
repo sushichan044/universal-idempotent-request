@@ -5,7 +5,7 @@ import { encodeHexLowerCase } from "@oslojs/encoding";
 import {
   createIdempotencyFingerprint,
   createIdempotentStorageKey,
-} from "hono-idempotent-request/brand";
+} from "hono-idempotent-request";
 import * as v from "valibot";
 
 export const simpleSpecification: IdempotentRequestServerSpecification = {

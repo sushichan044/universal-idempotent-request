@@ -2,7 +2,8 @@ import type { IdempotentRequestStorage } from "hono-idempotent-request/storage";
 
 import { swaggerUI } from "@hono/swagger-ui";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { idempotentRequest } from "hono-idempotent-request";
+import { createMiddleware } from "@universal-middleware/hono";
+import { idempotentRequestUniversalMiddleware } from "hono-idempotent-request";
 
 import type { PaymentStorage } from "./logic";
 
@@ -41,7 +42,11 @@ app.doc("/openapi.json", {
 app.use("/api/*", async (c, next) => {
   const requestStorage = c.get("requestStorage");
 
-  const mw = idempotentRequest({
+  const middlewareFactory = createMiddleware(
+    idempotentRequestUniversalMiddleware,
+  );
+
+  const middleware = middlewareFactory({
     activationStrategy: (request) => {
       const path = new URL(request.url).pathname;
       return (
@@ -59,8 +64,8 @@ app.use("/api/*", async (c, next) => {
     storage: requestStorage,
   });
 
-  // @ts-expect-error - We could not fix it
-  return mw(c, next);
+  // @ts-expect-error - Context type is not match
+  return middleware(c, next);
 });
 
 const getAccountRoute = createRoute({

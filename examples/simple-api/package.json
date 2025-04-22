@@ -8,10 +8,12 @@
   "dependencies": {
     "@hono/swagger-ui": "0.5.1",
     "@hono/zod-openapi": "0.19.5",
+    "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
-    "hono": "4.7.0",
+    "@universal-middleware/hono": "0.4.10",
+    "hono": "4.7.7",
     "hono-idempotent-request": "workspace:*",
-    "sha2": "link:@oslojs/crypto/sha2",
+    "valibot": "1.0.0",
     "zod": "3.24.3"
   },
   "devDependencies": {

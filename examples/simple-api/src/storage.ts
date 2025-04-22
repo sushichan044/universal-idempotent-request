@@ -1,13 +1,11 @@
+import type { SerializedResponse } from "hono-idempotent-request";
 import type {
   IdempotentRequestStorage,
-  NewIdempotentRequest,
-} from "hono-idempotent-request/storage";
-import type {
   LockedIdempotentRequest,
+  NewIdempotentRequest,
   NonLockedIdempotentRequest,
-  SerializedResponse,
   StoredIdempotentRequest,
-} from "hono-idempotent-request/types";
+} from "hono-idempotent-request/storage";
 
 const getExpirationEpoch = (ttl: number) => {
   const nowEpoch = Date.now() / 1000;
