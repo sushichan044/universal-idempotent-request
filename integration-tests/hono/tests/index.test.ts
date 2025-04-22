@@ -15,8 +15,8 @@ import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { describe, expect, it, vi } from "vitest";
 
-import { createInMemoryIdempotentRequestCacheStorage } from "./in-memory-storage";
-import { createTestServerSpecification } from "./server-specification";
+import { createInMemoryIdempotentRequestCacheStorage } from "../src/in-memory-storage";
+import { createTestServerSpecification } from "../src/server-specification";
 
 /**
  * Utility for simulating race condition
