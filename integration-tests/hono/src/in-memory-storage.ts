@@ -1,6 +1,6 @@
 import type {
   IdempotentRequest,
-  IdempotentRequestStorageDriver,
+  IdempotentRequestStorageAdapter,
   StorageKey,
 } from "universal-idempotent-request";
 
@@ -10,7 +10,7 @@ import type {
  * This is a simple implementation that is not suitable for production use.
  * It is only meant to be used for testing purposes.
  */
-export const createInMemoryDriver = (): IdempotentRequestStorageDriver => {
+export const createInMemoryAdapter = (): IdempotentRequestStorageAdapter => {
   const requests = new Map<StorageKey, IdempotentRequest>();
 
   return {

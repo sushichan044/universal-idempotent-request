@@ -7,7 +7,7 @@ import type { PaymentStorage } from "./logic";
 
 import { createPaymentStorage } from "./logic";
 import { simpleSpecification } from "./spec";
-import { createCloudflareKVStorageDriver } from "./storage";
+import { createCloudflareKVStorageAdapter } from "./storage";
 
 type HonoConfig = {
   Bindings: Env;
@@ -33,7 +33,7 @@ app.doc("/openapi.json", {
 });
 
 app.use("/api/*", async (c, next) => {
-  const requestStorage = createCloudflareKVStorageDriver(
+  const cloudflareKVAdapter = createCloudflareKVStorageAdapter(
     c.env.DATABASE_IDEMPOTENT_REQUEST,
   );
 
@@ -59,7 +59,7 @@ app.use("/api/*", async (c, next) => {
       specification: simpleSpecification,
     },
     storage: {
-      driver: requestStorage,
+      adapter: cloudflareKVAdapter,
     },
   });
 

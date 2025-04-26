@@ -10,4 +10,4 @@ export type { IdempotentRequestImplementation } from "./middleware";
 
 export type { SerializedResponse } from "./serializer";
 export type { IdempotentRequestServerSpecification } from "./server/specification";
-export type { IdempotentRequestStorageAdapter as IdempotentRequestStorageDriver } from "./storage/driver";
+export type { IdempotentRequestStorageAdapter } from "./storage/adapter";

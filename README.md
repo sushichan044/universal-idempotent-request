@@ -170,7 +170,7 @@ app.on(
       specification: // Bring your own server specification
     },
     storage: {
-      driver: // Bring your own driver
+      adapter: // Bring your own adapter
     }
   })
 );
