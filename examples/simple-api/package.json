@@ -12,7 +12,7 @@
     "@oslojs/encoding": "1.1.0",
     "@universal-middleware/hono": "0.4.10",
     "hono": "4.7.7",
-    "hono-idempotent-request": "workspace:*",
+    "universal-idempotent-request": "workspace:*",
     "valibot": "1.0.0",
     "zod": "3.24.3"
   },

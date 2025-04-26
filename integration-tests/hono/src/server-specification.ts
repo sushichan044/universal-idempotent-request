@@ -1,4 +1,4 @@
-import type { IdempotentRequestServerSpecification } from "hono-idempotent-request";
+import type { IdempotentRequestServerSpecification } from "universal-idempotent-request";
 
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";

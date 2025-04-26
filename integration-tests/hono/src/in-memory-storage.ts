@@ -2,7 +2,7 @@ import type {
   IdempotentRequest,
   IdempotentRequestStorageDriver,
   StorageKey,
-} from "hono-idempotent-request";
+} from "universal-idempotent-request";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.

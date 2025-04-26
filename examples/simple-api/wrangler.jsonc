@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hono-idempotent-request-simple-api-example",
+  "name": "universal-idempotent-request-simple-api-example",
   "main": "src/index.ts",
   "compatibility_date": "2025-04-05",
   "compatibility_flags": ["nodejs_compat"],

@@ -1,6 +1,6 @@
-# Simple API Sample with hono-idempotent-request
+# Simple API Sample with universal-idempotent-request
 
-This sample provides a simple account management API that implements idempotent requests using hono-idempotent-request.
+This sample provides a simple account management API that implements idempotent requests using universal-idempotent-request.
 
 ## Overview
 
