@@ -6,6 +6,7 @@ import type { Hooks } from "./hooks";
 import type { UnProcessedIdempotentRequest } from "./idempotent-request";
 import type { IdempotentRequestServerSpecification } from "./server/specification";
 import type { IdempotentRequestStorageDriver } from "./storage/driver";
+import type { IdempotencyActivationStrategy } from "./strategy";
 
 import {
   createIdempotencyKeyConflictErrorResponse,
@@ -18,10 +19,7 @@ import { isIdenticalRequest } from "./identifier";
 import { cloneAndSerializeResponse, deserializeResponse } from "./serializer";
 import { createIdempotentRequestServer } from "./server";
 import { createIdempotentRequestStorage } from "./storage";
-import {
-  type IdempotencyActivationStrategy,
-  prepareActivationStrategy,
-} from "./strategy";
+import { prepareActivationStrategy } from "./strategy";
 
 export interface IdempotentRequestImplementation {
   /**

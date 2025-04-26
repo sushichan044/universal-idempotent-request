@@ -1,11 +1,8 @@
+import type { StorageKey } from "../brand";
 import type { RequestIdentifier } from "../identifier";
 import type { IdempotentRequestServerSpecification } from "./specification";
 
-import {
-  createIdempotencyFingerprint,
-  createStorageKey,
-  type StorageKey,
-} from "../brand";
+import { createIdempotencyFingerprint, createStorageKey } from "../brand";
 
 export interface IdempotentRequestServer {
   getRequestIdentifier(source: {
