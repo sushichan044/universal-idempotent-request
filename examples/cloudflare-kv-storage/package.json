@@ -1,5 +1,5 @@
 {
-  "name": "@repo/cloudflare-kv",
+  "name": "@repo/cloudflare-kv-storage",
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
