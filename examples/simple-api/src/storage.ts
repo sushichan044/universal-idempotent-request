@@ -1,4 +1,7 @@
-import type { IdempotentRequestStorageDriver } from "hono-idempotent-request";
+import type {
+  IdempotentRequest,
+  IdempotentRequestStorageDriver,
+} from "hono-idempotent-request";
 
 const getExpirationEpoch = (ttlSeconds: number) => {
   const nowEpoch = Date.now() / 1000;
@@ -13,10 +16,10 @@ export const createCloudflareKVStorageDriver = (
 
   return {
     async get(storageKey) {
-      return kv.get(storageKey, "json");
+      return await kv.get<IdempotentRequest>(storageKey, "json");
     },
     async save(request) {
-      return kv.put(request.storageKey, JSON.stringify(request), {
+      await kv.put(request.storageKey, JSON.stringify(request), {
         expiration: sunset,
       });
     },
