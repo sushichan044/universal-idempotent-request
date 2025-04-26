@@ -35,6 +35,15 @@ export const createTestServerSpecification =
     };
   };
 
+export const createUnsafeServerSpecification =
+  (): IdempotentRequestServerSpecification => {
+    return {
+      getFingerprint: () => null,
+      getStorageKey: () => "",
+      satisfiesKeySpec: () => true,
+    };
+  };
+
 /**
  * Hash function - Generate a hash from the request content
  */
@@ -48,7 +57,6 @@ const generateHash = async (request: Request): Promise<string> => {
 
   const digestBase = {
     body,
-    headers: Object.fromEntries(request.headers.entries()),
     method: request.method,
     url: request.url,
   };

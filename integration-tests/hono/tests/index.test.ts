@@ -1,532 +1,73 @@
 import type {
-  IdempotentRequestServerSpecification,
-  IdempotentRequestStorageAdapter,
-} from "universal-idempotent-request";
+  FrameworkTestAdapter,
+  SetupAppArguments,
+} from "@repo/integration-tests-utils";
 
-import { sValidator } from "@hono/standard-validator";
+import { runFrameworkIntegrationTest } from "@repo/integration-tests-utils";
 import { createMiddleware } from "@universal-middleware/hono";
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
-import {
-  IdempotencyKeyStorageError,
-  idempotentRequestUniversalMiddleware,
-  UnsafeImplementationError,
-} from "universal-idempotent-request";
-import { v4 as uuidv4 } from "uuid";
-import * as v from "valibot";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createInMemoryAdapter } from "../src/in-memory-storage";
-import { createTestServerSpecification } from "../src/server-specification";
+class HonoTestAdapter implements FrameworkTestAdapter {
+  name = "Hono";
 
-/**
- * Utility for simulating race condition
- * @param serverDelay - delay in milliseconds
- * @returns
- */
-const createRacer = (
-  args: Partial<{
-    concurrency: number;
-    totalDelayOnServer: number;
-  }> = {},
-) => {
-  const concurrency = args.concurrency ?? 1;
-  const totalWaitOnServer = args.totalDelayOnServer ?? 1000;
+  // @ts-expect-error Initialized in resetApp
+  #app: Hono;
 
-  const clientDelay = totalWaitOnServer / concurrency;
+  constructor() {
+    this.resetApp();
+  }
 
-  const waitOnClient = async (): Promise<void> =>
-    new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(void 0);
-      }, clientDelay);
+  fetch = async (
+    request: Request,
+    requestInit?: RequestInit,
+  ): Promise<Response> => {
+    // 3rd argument is required by universal-middleware/hono
+    return this.#app.request(request, requestInit, {});
+  };
+
+  resetApp = (): void => {
+    this.#app = new Hono();
+  };
+
+  setupApp = (arguments_: SetupAppArguments): void => {
+    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+      const idempotentRequestMiddleware = createMiddleware(
+        arguments_.universalMiddleware,
+      );
+
+      const middleware = idempotentRequestMiddleware({
+        server: { specification: arguments_.serverSpecification },
+        storage: { adapter: arguments_.storageAdapter },
+      });
+
+      // @ts-expect-error context types is not compatible with universal middleware
+      return await middleware(c, next);
     });
 
-  const waitOnServer = async (): Promise<void> =>
-    new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(void 0);
-      }, totalWaitOnServer);
-    });
-
-  return {
-    /**
-     * Await this promise when you want to make concurrent requests.
-     *
-     * Use this function on second or later request.
-     */
-    waitOnClient,
-    /**
-     * Await this promise when you want to simulate server delay
-     */
-    waitOnServer,
-  };
-};
-
-const racer = createRacer({
-  concurrency: 2,
-  totalDelayOnServer: 1000,
-});
-
-type SetupAppArgs = {
-  adapter: IdempotentRequestStorageAdapter;
-  specification: IdempotentRequestServerSpecification;
-};
-
-const idempotentRequestMiddleware = createMiddleware(
-  idempotentRequestUniversalMiddleware,
-);
-
-const setupApp = ({ adapter, specification }: Partial<SetupAppArgs> = {}) => {
-  adapter ??= createInMemoryAdapter();
-  specification ??= createTestServerSpecification();
-
-  type HonoEnv = {
-    Bindings: {
-      simulateSlow: boolean;
-    };
-  };
-
-  const setHonoEnv = ({
-    simulateSlow,
-  }: Partial<HonoEnv["Bindings"]> = {}): HonoEnv["Bindings"] => {
-    const slow = simulateSlow ?? false;
-
-    return {
-      simulateSlow: slow,
-    };
-  };
-
-  const app = new Hono<HonoEnv>()
-    .on(
-      ["POST", "PATCH"],
-      "/api/*",
-      idempotentRequestMiddleware({
-        // explicitly set to always to make tests simpler
-        activationStrategy: "always",
-        server: {
-          specification,
-        },
-        storage: {
-          adapter,
-        },
-      }),
-    )
-    .post(
-      "/api/hello",
-      sValidator(
-        "json",
-        v.object({
-          name: v.optional(v.string(), () => "World"),
-        }),
-      ),
+    this.#app.post(
+      "/api/test",
       async (c, next) => {
-        // Simulate slow request processing and cause race condition
-        if (c.env.simulateSlow === true) {
-          await racer.waitOnServer();
+        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
+          await arguments_.racer.waitOnServer();
         }
         await next();
       },
       (c) => {
-        const { name } = c.req.valid("json");
-        return c.json({ message: `Hello, ${name}!` });
+        return c.json({ message: "Test passed" });
       },
     );
 
-  return { adapter, app, setHonoEnv, specification };
-};
-
-describe("idempotentRequest middleware", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
-  describe("Happy path", () => {
-    it("should process request successfully with valid Idempotency-Key", async () => {
-      const { app, setHonoEnv } = setupApp();
-      const idempotencyKey = uuidv4();
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          body: JSON.stringify({
-            name: "Gouki",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": idempotencyKey,
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(200);
-      expect(await response.json()).toStrictEqual({ message: "Hello, Gouki!" });
-    });
-
-    it("should return cached response on subsequent requests with same Idempotency-Key", async () => {
-      const { adapter, app, setHonoEnv } = setupApp();
-      const idempotencyKey = uuidv4();
-      const adapterSpy = vi.spyOn(adapter, "get");
-      const createRequest = () => {
-        return new Request("http://127.0.0.1:3000/api/hello", {
-          body: JSON.stringify({ name: "Edison" }),
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": idempotencyKey,
-          },
-          method: "POST",
-        });
-      };
-
-      const response = await app.request(
-        createRequest(),
-        undefined,
-        setHonoEnv(),
-      );
-
-      const cachedResponse = await app.request(
-        createRequest(),
-        undefined,
-        setHonoEnv(),
-      );
-
-      // 2nd request should hit cached, non-locked response
-      expect(adapterSpy).toHaveLastReturnedWith(
-        expect.objectContaining({
-          idempotencyKey,
-          lockedAt: null,
-          requestMethod: "POST",
-          requestPath: "/api/hello",
-        }),
-      );
-      expect(response.status).toEqual(cachedResponse.status);
-      expect(await response.json()).toStrictEqual(await cachedResponse.json());
-    });
-  });
-
-  describe("Error Scenarios in Draft", () => {
-    // https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7
-
-    it("should return 400 if Idempotency-Key header is missing", async () => {
-      const { app, setHonoEnv } = setupApp();
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          body: JSON.stringify({
-            name: "John",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(400);
-      expect(await response.json()).toStrictEqual({
-        detail:
-          "This operation is idempotent and it requires correct usage of Idempotency Key.",
-        title: "Idempotency-Key is missing",
-      });
-    });
-
-    it("should return 400 if Idempotency-Key does not satisfy the server specification", async () => {
-      const { app, setHonoEnv } = setupApp();
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          body: JSON.stringify({
-            name: "John",
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": "invalid-key",
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(400);
-      expect(await response.json()).toStrictEqual({
-        detail:
-          "This operation is idempotent and it requires correct usage of Idempotency Key.",
-        title: "Idempotency-Key is missing",
-      });
-    });
-
-    it("should return 422 if Idempotency-Key is reused with different request payload", async () => {
-      const { app, setHonoEnv } = setupApp();
-      const idempotencyKey = uuidv4();
-
-      const request = new Request("http://127.0.0.1:3000/api/hello", {
-        body: JSON.stringify({
-          name: "Edison",
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": idempotencyKey,
-        },
-        method: "POST",
-      });
-      const abusedRequest = new Request(request.clone(), {
-        body: JSON.stringify({
-          name: "Fake Edison",
-        }),
-        method: "POST",
-      });
-
-      const response = await app.request(request, undefined, setHonoEnv());
-      const abusedResponse = await app.request(
-        abusedRequest,
-        undefined,
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(200);
-      expect(abusedResponse.status).toBe(422);
-      expect(await abusedResponse.json()).toStrictEqual({
-        detail:
-          "This operation is idempotent and it requires correct usage of Idempotency Key. Idempotency Key MUST not be reused across different payloads of this operation.",
-        title: "Idempotency-Key is already used",
-      });
-    });
-
-    it("should handle concurrent requests with same Idempotency-Key", async () => {
-      const { app, setHonoEnv } = setupApp();
-      const idempotencyKey = uuidv4();
-
-      const request = new Request("http://127.0.0.1:3000/api/hello", {
-        body: JSON.stringify({ name: "John" }),
-        headers: {
-          "Content-Type": "application/json",
-          "Idempotency-Key": idempotencyKey,
-        },
-        method: "POST",
-      });
-      const firstSlowRequest = async () => {
-        return app.request(
-          request.clone(),
-          undefined,
-          setHonoEnv({
-            simulateSlow: true,
-          }),
-        );
-      };
-      const secondRequest = async () => {
-        // send second request before first request is stored
-        await racer.waitOnClient();
-        return app.request(request.clone(), undefined, setHonoEnv());
-      };
-
-      const [successRes, conflictRes] = await Promise.all([
-        // run concurrently
-        firstSlowRequest(),
-        secondRequest(),
-      ]);
-
-      expect(successRes.status).toBe(200);
-      expect(conflictRes.status).toBe(409);
-
-      expect(await conflictRes.json()).toStrictEqual({
-        detail:
-          "A request with the same Idempotency-Key for the same operation is being processed or is outstanding.",
-        title: "A request is outstanding for this Idempotency-Key",
-      });
-    });
-  });
-
-  describe("Error handling", () => {
-    it("should store the error response in the cache storage", async () => {
-      const { adapter, app, setHonoEnv } = setupApp();
-      app.post("/api/trigger-error", () => {
-        throw new HTTPException(500, {
-          message: "Only for testing",
-        });
-      });
-      const updateSpy = vi.spyOn(adapter, "update");
-      const idempotencyKey = uuidv4();
-
-      const response = await app.request(
-        "/api/trigger-error",
-        {
-          headers: {
-            "Idempotency-Key": idempotencyKey,
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(updateSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          idempotencyKey,
-          requestMethod: "POST",
-          requestPath: "/api/trigger-error",
-          response: {
-            body: "Only for testing",
-            headers: {
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              "content-type": expect.any(String),
-            },
-            status: 500,
-            statusText: "",
-          },
-        }),
-      );
-      expect(response.status).toBe(500);
-      expect(await response.text()).toBe("Only for testing");
-    });
-
-    it("should wrap errors from cache storage when storage.get fails", async () => {
-      const { adapter, app, setHonoEnv } = setupApp();
-      app.onError((e, c) => {
-        if (e instanceof IdempotencyKeyStorageError) {
-          if (e.cause instanceof Error) {
-            return c.json(
-              {
-                cause: e.cause.message,
-                detail: e.message,
-                title: "Storage Error",
-              },
-              500,
-            );
-          }
-          return c.json(
-            {
-              detail: e.message,
-              title: "Storage Error",
-            },
-            500,
-          );
+    this.#app.post(
+      "/api/error",
+      async (c, next) => {
+        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
+          await arguments_.racer.waitOnServer();
         }
+        await next();
+      },
+      () => new Response("Internal Server Error", { status: 500 }),
+    );
+  };
+}
 
-        return c.text("Internal Server Error", 500);
-      });
-      vi.spyOn(adapter, "get").mockImplementation(() => {
-        throw new Error("Connection error");
-      });
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": uuidv4(),
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual(
-        expect.objectContaining({
-          cause: "Connection error",
-          title: "Storage Error",
-        }),
-      );
-    });
-
-    it("should wrap errors from cache storage when storage.save fails", async () => {
-      const { adapter, app, setHonoEnv } = setupApp();
-      app.onError((e, c) => {
-        if (e instanceof IdempotencyKeyStorageError) {
-          if (e.cause instanceof Error) {
-            return c.json(
-              {
-                cause: e.cause.message,
-                detail: e.message,
-                title: "Storage Error",
-              },
-              500,
-            );
-          }
-          return c.json(
-            {
-              detail: e.message,
-              title: "Storage Error",
-            },
-            500,
-          );
-        }
-
-        return c.text("Internal Server Error", 500);
-      });
-      vi.spyOn(adapter, "save").mockImplementation(() => {
-        throw new Error("Connection error");
-      });
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": uuidv4(),
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual(
-        expect.objectContaining({
-          cause: "Connection error",
-          title: "Storage Error",
-        }),
-      );
-    });
-  });
-
-  describe("Unsafe implementation detection", () => {
-    it("should throw an error if the storage key does not include the Idempotency-Key header", async () => {
-      const { app, setHonoEnv } = setupApp({
-        specification: {
-          getFingerprint: () => null,
-          getStorageKey: ({ request }) => {
-            const path = new URL(request.url).pathname;
-            const method = request.method;
-            return `${method}-${path}`;
-          },
-          satisfiesKeySpec: () => true,
-        },
-      });
-      app.onError((e, c) => {
-        if (e instanceof UnsafeImplementationError) {
-          return c.json(
-            {
-              detail: e.message,
-              title: "Unsafe Implementation",
-            },
-            500,
-          );
-        }
-        return c.text("Internal Server Error", 500);
-      });
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          headers: {
-            "Idempotency-Key": uuidv4(),
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
-      );
-
-      expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual({
-        detail:
-          "The storage-key must include the value of the `Idempotency-Key` header.",
-        title: "Unsafe Implementation",
-      });
-    });
-  });
-});
+runFrameworkIntegrationTest(new HonoTestAdapter());
