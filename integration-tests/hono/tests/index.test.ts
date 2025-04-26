@@ -73,6 +73,10 @@ type SetupAppArgs = {
   specification: IdempotentRequestServerSpecification;
 };
 
+const idempotentRequestMiddleware = createMiddleware(
+  idempotentRequestUniversalMiddleware,
+);
+
 const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
   driver ??= createInMemoryDriver();
   specification ??= createTestServerSpecification();
@@ -93,15 +97,11 @@ const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
     };
   };
 
-  const idempotentRequest = createMiddleware(
-    idempotentRequestUniversalMiddleware,
-  );
-
   const app = new Hono<HonoEnv>()
     .on(
       ["POST", "PUT", "PATCH", "DELETE"],
       "/api/*",
-      idempotentRequest({
+      idempotentRequestMiddleware({
         // explicitly set to always to make tests simpler
         activationStrategy: "always",
         server: {
