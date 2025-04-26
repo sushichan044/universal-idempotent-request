@@ -16,7 +16,7 @@ export const cloneAndSerializeResponse = async (
   response: Response,
 ): Promise<SerializedResponse> => {
   const responseClone = response.clone();
-  // DO NOT REFERENCE ANY PROPERTIES OF THE ORIGINAL RESPONSE OR YOU WILL BE FIRED
+  // DO NOT REFERENCE ANY PROPERTIES OF THE ORIGINAL RESPONSE
 
   return {
     body: await responseClone.text(),
