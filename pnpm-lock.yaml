@@ -52,7 +52,7 @@ importers:
         specifier: 3.0.9
         version: 3.0.9(@types/node@22.14.1)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1)
 
-  examples/cloudflare-kv:
+  examples/cloudflare-kv-storage:
     dependencies:
       '@hono/swagger-ui':
         specifier: 0.5.1
