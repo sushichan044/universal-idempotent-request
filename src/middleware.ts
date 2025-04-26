@@ -3,28 +3,25 @@
 import type { Get, UniversalMiddleware } from "@universal-middleware/core";
 
 import type { Hooks } from "./hooks";
-import type { IdempotentRequestServerSpecification } from "./server-specification";
-import type {
-  IdempotentRequestStorage,
-  NonLockedIdempotentRequest,
-} from "./storage";
+import type { UnProcessedIdempotentRequest } from "./idempotent-request";
+import type { IdempotentRequestServerSpecification } from "./server/specification";
+import type { IdempotentRequestStorageDriver } from "./storage/driver";
 
 import {
   createIdempotencyKeyConflictErrorResponse,
   createIdempotencyKeyMissingErrorResponse,
   createIdempotencyKeyPayloadMismatchErrorResponse,
 } from "./constants/response";
-import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
+import { UnsafeImplementationError } from "./error";
 import { resolveHooks } from "./hooks";
-import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
+import { isIdenticalRequest } from "./identifier";
+import { cloneAndSerializeResponse, deserializeResponse } from "./serializer";
+import { createIdempotentRequestServer } from "./server";
+import { createIdempotentRequestStorage } from "./storage";
 import {
   type IdempotencyActivationStrategy,
   prepareActivationStrategy,
 } from "./strategy";
-import {
-  cloneAndSerializeResponse,
-  deserializeResponse,
-} from "./utils/response";
 
 export interface IdempotentRequestImplementation {
   /**
@@ -56,16 +53,26 @@ export interface IdempotentRequestImplementation {
   hooks?: Partial<Hooks>;
 
   /**
-   * Server specification
+   * Server options
    */
-  specification: IdempotentRequestServerSpecification;
+  server: {
+    /**
+     * Server specification
+     */
+    specification: IdempotentRequestServerSpecification;
+  };
 
   /**
-   * Storage implementation
+   * Storage options
    *
    * You should implement features like TTL, cleanup, etc. at this layer.
    */
-  storage: IdempotentRequestStorage;
+  storage: {
+    /**
+     * Storage driver implementation.
+     */
+    driver: IdempotentRequestStorageDriver;
+  };
 }
 
 export const idempotentRequestUniversalMiddleware = ((impl) =>
@@ -83,97 +90,71 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
       return;
     }
 
+    const server = createIdempotentRequestServer(impl.server.specification);
+    const storage = createIdempotentRequestStorage(impl.storage.driver);
+
     const idempotencyKey = request.headers.get("Idempotency-Key");
-    if (
-      idempotencyKey == null ||
-      !impl.specification.satisfiesKeySpec(idempotencyKey)
-    ) {
+    if (idempotencyKey == null || !server.satisfiesKeySpec(idempotencyKey)) {
       return await hooks.modifyResponse(
         createIdempotencyKeyMissingErrorResponse(),
         "key_missing",
       );
     }
 
-    const requestIdentifier = await createRequestIdentifier(
-      impl.specification,
-      {
-        idempotencyKey,
-        request: request.clone(),
-      },
-    );
-    const storageKey = await impl.specification.getStorageKey(request.clone());
+    const storageKey = await server.getStorageKey({
+      idempotencyKey,
+      request: request.clone(),
+    });
     if (!storageKey.includes(idempotencyKey)) {
       throw new UnsafeImplementationError(
         "The storage-key must include the value of the `Idempotency-Key` header.",
       );
     }
 
-    const storeResult = await (async () => {
-      try {
-        return impl.storage.findOrCreate({
-          ...requestIdentifier,
-          storageKey,
-        });
-      } catch (error) {
-        throw new IdempotencyKeyStorageError(
-          "Failed to find or create the stored idempotent request",
-          {
-            cause: error,
-          },
-        );
-      }
-    })();
+    const requestIdentifier = await server.getRequestIdentifier({
+      idempotencyKey,
+      request: request.clone(),
+    });
 
-    if (!storeResult.created) {
+    const storeResult = await storage.findOrCreate({
+      ...requestIdentifier,
+      storageKey,
+    });
+
+    let unprocessedRequest: UnProcessedIdempotentRequest;
+    if (storeResult.created) {
+      unprocessedRequest = storeResult.request;
+    } else {
       // Retried request - compare with the stored request
-      if (!isIdenticalRequest(storeResult.storedRequest, requestIdentifier)) {
+      if (!isIdenticalRequest(storeResult.request, requestIdentifier)) {
         return await hooks.modifyResponse(
           createIdempotencyKeyPayloadMismatchErrorResponse(),
           "key_payload_mismatch",
         );
       }
 
-      if (storeResult.storedRequest.lockedAt != null) {
-        // The request is locked - still being processed, or processing succeeded but the response failed to be recorded.
+      if (storeResult.request.lockedAt != null) {
         return await hooks.modifyResponse(
           createIdempotencyKeyConflictErrorResponse(),
           "key_conflict",
         );
       }
 
-      if (storeResult.storedRequest.response) {
-        //              ^?
-        // TIP: ^? above is called `Two slash query` in TypeScript. see: https://www.typescriptlang.org/dev/twoslash
-        // Already processed - return the stored response
+      if (storeResult.request.response) {
         return await hooks.modifyResponse(
-          deserializeResponse(storeResult.storedRequest.response),
+          deserializeResponse(storeResult.request.response),
           "retrieved_stored_response",
         );
       }
 
-      // If you reach this point, the previous request simply failed to acquire a lock.
+      // If we reach this point, the previous request failed to acquire a lock.
       // So just continue to re-try lock and process the request.
+      unprocessedRequest = storeResult.request;
     }
 
-    // Only for suppressing type error.
-    // We can assume that the request is not locked at this point.
-    // because we already called createIdempotencyKeyConflictErrorResponse()
-    // if situation like { created: false, storedRequest: LockedIdempotentRequest }
-    const nonLockedRequest =
-      storeResult.storedRequest as NonLockedIdempotentRequest;
+    const lockedRequest = await storage.acquireLock(unprocessedRequest);
 
-    const lockedRequest = await (async () => {
-      try {
-        return impl.storage.lock(nonLockedRequest);
-      } catch (error) {
-        throw new IdempotencyKeyStorageError(
-          "Failed to lock the stored idempotent request",
-          {
-            cause: error,
-          },
-        );
-      }
-    })();
+    // The route handler is executed here.
 
     return async (serverResponse) => {
       const modifiedResponse = await hooks.modifyResponse(
@@ -182,19 +163,10 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
       );
 
       // Even if route handler throws an error, this operation will be executed.
-      try {
-        await impl.storage.setResponseAndUnlock(
-          lockedRequest,
-          await cloneAndSerializeResponse(modifiedResponse),
-        );
-      } catch (error) {
-        throw new IdempotencyKeyStorageError(
-          "Failed to save the response of an idempotent request. You should unlock the request manually.",
-          {
-            cause: error,
-          },
-        );
-      }
+      await storage.setResponseAndUnlock(
+        lockedRequest,
+        await cloneAndSerializeResponse(modifiedResponse),
+      );
 
       return modifiedResponse;
     };
