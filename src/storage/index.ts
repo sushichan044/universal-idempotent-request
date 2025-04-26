@@ -6,7 +6,7 @@ import type {
   UnProcessedIdempotentRequest,
 } from "../idempotent-request";
 import type { SerializedResponse } from "../serializer";
-import type { IdempotentRequestStorageDriver } from "./driver";
+import type { IdempotentRequestStorageAdapter } from "./driver";
 
 import { IdempotencyKeyStorageError } from "../error";
 
@@ -58,7 +58,7 @@ interface IdempotentRequestStorage {
 }
 
 export const createIdempotentRequestStorage = (
-  driver: IdempotentRequestStorageDriver,
+  driver: IdempotentRequestStorageAdapter,
 ): IdempotentRequestStorage => {
   return {
     acquireLock: async (request) => {

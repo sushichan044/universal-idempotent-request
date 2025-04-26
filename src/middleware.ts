@@ -5,7 +5,7 @@ import type { Get, UniversalMiddleware } from "@universal-middleware/core";
 import type { Hooks } from "./hooks";
 import type { UnProcessedIdempotentRequest } from "./idempotent-request";
 import type { IdempotentRequestServerSpecification } from "./server/specification";
-import type { IdempotentRequestStorageDriver } from "./storage/driver";
+import type { IdempotentRequestStorageAdapter } from "./storage/driver";
 import type { IdempotencyActivationStrategy } from "./strategy";
 
 import {
@@ -69,7 +69,7 @@ export interface IdempotentRequestImplementation {
     /**
      * Storage driver implementation.
      */
-    driver: IdempotentRequestStorageDriver;
+    driver: IdempotentRequestStorageAdapter;
   };
 }
 
