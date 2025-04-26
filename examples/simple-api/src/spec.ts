@@ -13,7 +13,7 @@ export const simpleSpecification: IdempotentRequestServerSpecification = {
   getStorageKey: ({ idempotencyKey, request }) => {
     const path = new URL(request.url).pathname;
 
-    return `${path}-${idempotencyKey}`;
+    return `${request.method}-${path}-${idempotencyKey}`;
   },
 
   satisfiesKeySpec(idempotencyKey) {
