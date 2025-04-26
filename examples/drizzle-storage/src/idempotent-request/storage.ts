@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import {
   createIdempotencyFingerprint,
   createStorageKey,
-  type IdempotentRequestStorageDriver,
+  type IdempotentRequestStorageAdapter,
 } from "universal-idempotent-request";
 
 import type { database } from "../db";
@@ -15,9 +15,9 @@ const isOutdatedRequest = (
   return request.created_at.getTime() < Date.now() - 24 * 60 * 60 * 1000;
 };
 
-export const createSqliteDrizzleDriver = (
+export const createSqliteDrizzleAdapter = (
   client: typeof database,
-): IdempotentRequestStorageDriver => {
+): IdempotentRequestStorageAdapter => {
   return {
     async save(request) {
       await client.insert(TB_idempotent_request).values({

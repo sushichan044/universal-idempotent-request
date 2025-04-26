@@ -1,6 +1,6 @@
 import type {
   IdempotentRequest,
-  IdempotentRequestStorageDriver,
+  IdempotentRequestStorageAdapter,
 } from "universal-idempotent-request";
 
 const getExpirationEpoch = (ttlSeconds: number) => {
@@ -8,9 +8,9 @@ const getExpirationEpoch = (ttlSeconds: number) => {
   return nowEpoch + ttlSeconds;
 };
 
-export const createCloudflareKVStorageDriver = (
+export const createCloudflareKVStorageAdapter = (
   kv: KVNamespace,
-): IdempotentRequestStorageDriver => {
+): IdempotentRequestStorageAdapter => {
   const TTL_ONE_HOUR = 60 * 60;
 
   return {

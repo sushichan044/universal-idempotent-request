@@ -6,7 +6,7 @@ import type {
   UnProcessedIdempotentRequest,
 } from "../idempotent-request";
 import type { SerializedResponse } from "../serializer";
-import type { IdempotentRequestStorageAdapter } from "./driver";
+import type { IdempotentRequestStorageAdapter } from "./adapter";
 
 import { IdempotencyKeyStorageError } from "../error";
 
@@ -58,7 +58,7 @@ interface IdempotentRequestStorage {
 }
 
 export const createIdempotentRequestStorage = (
-  driver: IdempotentRequestStorageAdapter,
+  adapter: IdempotentRequestStorageAdapter,
 ): IdempotentRequestStorage => {
   return {
     acquireLock: async (request) => {
@@ -67,7 +67,7 @@ export const createIdempotentRequestStorage = (
           ...request,
           lockedAt: new Date(),
         } satisfies ProcessingIdempotentRequest;
-        await driver.update(lockedRequest);
+        await adapter.update(lockedRequest);
 
         return lockedRequest;
       } catch (error) {
@@ -82,7 +82,7 @@ export const createIdempotentRequestStorage = (
 
     findOrCreate: async (request) => {
       try {
-        const storedRequest = await driver.get(request.storageKey);
+        const storedRequest = await adapter.get(request.storageKey);
         if (storedRequest) {
           return {
             created: false,
@@ -95,7 +95,7 @@ export const createIdempotentRequestStorage = (
           lockedAt: null,
           response: null,
         } satisfies UnProcessedIdempotentRequest;
-        await driver.save(nonLockedRequest);
+        await adapter.save(nonLockedRequest);
 
         return {
           created: true,
@@ -119,7 +119,7 @@ export const createIdempotentRequestStorage = (
           response,
         } satisfies ProcessedIdempotentRequest;
 
-        await driver.update(unlockedRequest);
+        await adapter.update(unlockedRequest);
       } catch (error) {
         throw new IdempotencyKeyStorageError(
           `Failed to save the response of an idempotent request: ${request.storageKey}. You should unlock the request manually.`,

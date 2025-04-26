@@ -5,7 +5,7 @@ import type { Get, UniversalMiddleware } from "@universal-middleware/core";
 import type { Hooks } from "./hooks";
 import type { UnProcessedIdempotentRequest } from "./idempotent-request";
 import type { IdempotentRequestServerSpecification } from "./server/specification";
-import type { IdempotentRequestStorageAdapter } from "./storage/driver";
+import type { IdempotentRequestStorageAdapter } from "./storage/adapter";
 import type { IdempotencyActivationStrategy } from "./strategy";
 
 import {
@@ -67,9 +67,9 @@ export interface IdempotentRequestImplementation {
    */
   storage: {
     /**
-     * Storage driver implementation.
+     * Storage adapter implementation.
      */
-    driver: IdempotentRequestStorageAdapter;
+    adapter: IdempotentRequestStorageAdapter;
   };
 }
 
@@ -89,7 +89,7 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
     }
 
     const server = createIdempotentRequestServer(impl.server.specification);
-    const storage = createIdempotentRequestStorage(impl.storage.driver);
+    const storage = createIdempotentRequestStorage(impl.storage.adapter);
 
     const idempotencyKey = request.headers.get("Idempotency-Key");
     if (idempotencyKey == null || !server.satisfiesKeySpec(idempotencyKey)) {

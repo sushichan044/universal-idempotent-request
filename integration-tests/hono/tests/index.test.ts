@@ -1,6 +1,6 @@
 import type {
   IdempotentRequestServerSpecification,
-  IdempotentRequestStorageDriver,
+  IdempotentRequestStorageAdapter,
 } from "universal-idempotent-request";
 
 import { sValidator } from "@hono/standard-validator";
@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createInMemoryDriver } from "../src/in-memory-storage";
+import { createInMemoryAdapter } from "../src/in-memory-storage";
 import { createTestServerSpecification } from "../src/server-specification";
 
 /**
@@ -69,7 +69,7 @@ const racer = createRacer({
 });
 
 type SetupAppArgs = {
-  driver: IdempotentRequestStorageDriver;
+  adapter: IdempotentRequestStorageAdapter;
   specification: IdempotentRequestServerSpecification;
 };
 
@@ -77,8 +77,8 @@ const idempotentRequestMiddleware = createMiddleware(
   idempotentRequestUniversalMiddleware,
 );
 
-const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
-  driver ??= createInMemoryDriver();
+const setupApp = ({ adapter, specification }: Partial<SetupAppArgs> = {}) => {
+  adapter ??= createInMemoryAdapter();
   specification ??= createTestServerSpecification();
 
   type HonoEnv = {
@@ -108,7 +108,7 @@ const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
           specification,
         },
         storage: {
-          driver,
+          adapter,
         },
       }),
     )
@@ -133,7 +133,7 @@ const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
       },
     );
 
-  return { app, driver, setHonoEnv, specification };
+  return { adapter, app, setHonoEnv, specification };
 };
 
 describe("idempotentRequest middleware", () => {
@@ -166,9 +166,9 @@ describe("idempotentRequest middleware", () => {
     });
 
     it("should return cached response on subsequent requests with same Idempotency-Key", async () => {
-      const { app, driver, setHonoEnv } = setupApp();
+      const { adapter, app, setHonoEnv } = setupApp();
       const idempotencyKey = uuidv4();
-      const driverSpy = vi.spyOn(driver, "get");
+      const adapterSpy = vi.spyOn(adapter, "get");
       const createRequest = () => {
         return new Request("http://127.0.0.1:3000/api/hello", {
           body: JSON.stringify({ name: "Edison" }),
@@ -193,7 +193,7 @@ describe("idempotentRequest middleware", () => {
       );
 
       // 2nd request should hit cached, non-locked response
-      expect(driverSpy).toHaveLastReturnedWith(
+      expect(adapterSpy).toHaveLastReturnedWith(
         expect.objectContaining({
           idempotencyKey,
           lockedAt: null,
@@ -343,13 +343,13 @@ describe("idempotentRequest middleware", () => {
 
   describe("Error handling", () => {
     it("should store the error response in the cache storage", async () => {
-      const { app, driver, setHonoEnv } = setupApp();
+      const { adapter, app, setHonoEnv } = setupApp();
       app.post("/api/trigger-error", () => {
         throw new HTTPException(500, {
           message: "Only for testing",
         });
       });
-      const updateSpy = vi.spyOn(driver, "update");
+      const updateSpy = vi.spyOn(adapter, "update");
       const idempotencyKey = uuidv4();
 
       const response = await app.request(
@@ -383,7 +383,7 @@ describe("idempotentRequest middleware", () => {
     });
 
     it("should wrap errors from cache storage when storage.get fails", async () => {
-      const { app, driver, setHonoEnv } = setupApp();
+      const { adapter, app, setHonoEnv } = setupApp();
       app.onError((e, c) => {
         if (e instanceof IdempotencyKeyStorageError) {
           if (e.cause instanceof Error) {
@@ -407,7 +407,7 @@ describe("idempotentRequest middleware", () => {
 
         return c.text("Internal Server Error", 500);
       });
-      vi.spyOn(driver, "get").mockImplementation(() => {
+      vi.spyOn(adapter, "get").mockImplementation(() => {
         throw new Error("Connection error");
       });
 
@@ -433,7 +433,7 @@ describe("idempotentRequest middleware", () => {
     });
 
     it("should wrap errors from cache storage when storage.save fails", async () => {
-      const { app, driver, setHonoEnv } = setupApp();
+      const { adapter, app, setHonoEnv } = setupApp();
       app.onError((e, c) => {
         if (e instanceof IdempotencyKeyStorageError) {
           if (e.cause instanceof Error) {
@@ -457,7 +457,7 @@ describe("idempotentRequest middleware", () => {
 
         return c.text("Internal Server Error", 500);
       });
-      vi.spyOn(driver, "save").mockImplementation(() => {
+      vi.spyOn(adapter, "save").mockImplementation(() => {
         throw new Error("Connection error");
       });
 

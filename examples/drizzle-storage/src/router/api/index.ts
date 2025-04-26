@@ -4,7 +4,7 @@ import { idempotentRequestUniversalMiddleware } from "universal-idempotent-reque
 
 import type { HonoConfig } from "../../index";
 
-import { createSqliteDrizzleDriver } from "../../idempotent-request/storage";
+import { createSqliteDrizzleAdapter } from "../../idempotent-request/storage";
 import { hashWithSha256 } from "../../utils/hash";
 import { userApiRoutes } from "./user";
 
@@ -37,7 +37,7 @@ apiRouter.on(["POST", "PUT", "PATCH"], "*", async (c, next) => {
       },
     },
     storage: {
-      driver: createSqliteDrizzleDriver(client),
+      adapter: createSqliteDrizzleAdapter(client),
     },
   });
 
