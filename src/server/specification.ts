@@ -1,6 +1,20 @@
 import type { MaybePromise } from "../utils/types";
 
 /**
+ * Parameter object for getStorageKey method.
+ */
+interface GetStorageKeySource {
+  /**
+   * The `Idempotency-Key` header from the request
+   */
+  idempotencyKey: string;
+  /**
+   * Web-standard request object
+   */
+  request: Request;
+}
+
+/**
  * Specification - defines key validation and request digest generation.
  *
  * @see Section 2.2, 2.3, 2.4 of {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2}
@@ -34,17 +48,11 @@ export interface IdempotentRequestServerSpecification {
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
    *
    * @param source
-   * @param source.idempotencyKey
-   * The `Idempotency-Key` header from the request
-   * @param source.request
-   * Web-standard request object
+   * Object containing idempotencyKey and request
    * @returns
    * A key that is used to retrieve the request from the storage.
    */
-  getStorageKey(source: {
-    idempotencyKey: string;
-    request: Request;
-  }): MaybePromise<string>;
+  getStorageKey(source: GetStorageKeySource): MaybePromise<string>;
 
   /**
    * Check if the idempotency key satisfies the server-defined specifications
