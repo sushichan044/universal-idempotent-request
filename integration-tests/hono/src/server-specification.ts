@@ -1,15 +1,7 @@
-import type {
-  IdempotencyFingerprint,
-  IdempotentStorageKey,
-} from "hono-idempotent-request";
-import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
+import type { IdempotentRequestServerSpecification } from "hono-idempotent-request";
 
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
-import {
-  createIdempotencyFingerprint,
-  createIdempotentStorageKey,
-} from "hono-idempotent-request";
 import { version as uuidVersion } from "uuid";
 
 /**
@@ -23,20 +15,17 @@ import { version as uuidVersion } from "uuid";
 export const createTestServerSpecification =
   (): IdempotentRequestServerSpecification => {
     return {
-      getStorageKey(request: Request): IdempotentStorageKey {
+      getStorageKey({ idempotencyKey, request }) {
         const path = new URL(request.url).pathname;
-        const idempotencyKey = request.headers.get("Idempotency-Key");
 
-        return createIdempotentStorageKey(
-          `${request.method}-${path}-${idempotencyKey}`,
-        );
+        return `${request.method}-${path}-${idempotencyKey}`;
       },
 
-      async getFingerprint(request: Request): Promise<IdempotencyFingerprint> {
-        return createIdempotencyFingerprint(await generateHash(request));
+      async getFingerprint(request) {
+        return await generateHash(request);
       },
 
-      satisfiesKeySpec(idempotencyKey: string): boolean {
+      satisfiesKeySpec(idempotencyKey) {
         try {
           return uuidVersion(idempotencyKey) === 4;
         } catch {

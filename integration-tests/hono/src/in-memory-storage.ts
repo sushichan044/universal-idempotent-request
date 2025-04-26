@@ -1,15 +1,8 @@
 import type {
-  IdempotentStorageKey,
-  SerializedResponse,
+  IdempotentRequest,
+  IdempotentRequestStorageDriver,
+  StorageKey,
 } from "hono-idempotent-request";
-import type {
-  FindOrCreateStorageResult,
-  IdempotentRequestStorage,
-  LockedIdempotentRequest,
-  NewIdempotentRequest,
-  NonLockedIdempotentRequest,
-  StoredIdempotentRequest,
-} from "hono-idempotent-request/storage";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.
@@ -17,54 +10,16 @@ import type {
  * This is a simple implementation that is not suitable for production use.
  * It is only meant to be used for testing purposes.
  */
-export const createInMemoryIdempotentRequestCacheStorage =
-  (): IdempotentRequestStorage => {
-    const requests = new Map<IdempotentStorageKey, StoredIdempotentRequest>();
+export const createInMemoryDriver = (): IdempotentRequestStorageDriver => {
+  const requests = new Map<StorageKey, IdempotentRequest>();
 
-    return {
-      findOrCreate(request: NewIdempotentRequest): FindOrCreateStorageResult {
-        const existingRequest = requests.get(request.storageKey) ?? null;
+  return {
+    save(request) {
+      requests.set(request.storageKey, request);
+    },
 
-        if (existingRequest !== null) {
-          return {
-            created: false,
-            storedRequest: existingRequest,
-          };
-        }
-
-        const nonLockedRequest: NonLockedIdempotentRequest = {
-          ...request,
-          lockedAt: null,
-          response: null,
-        };
-        requests.set(request.storageKey, nonLockedRequest);
-        return {
-          created: true,
-          storedRequest: nonLockedRequest,
-        };
-      },
-
-      lock(
-        nonLockedRequest: NonLockedIdempotentRequest,
-      ): LockedIdempotentRequest {
-        const lockedRequest: LockedIdempotentRequest = {
-          ...nonLockedRequest,
-          lockedAt: new Date(),
-        };
-        requests.set(nonLockedRequest.storageKey, lockedRequest);
-
-        return lockedRequest;
-      },
-
-      setResponseAndUnlock(
-        lockedRequest: LockedIdempotentRequest,
-        response: SerializedResponse,
-      ): void {
-        requests.set(lockedRequest.storageKey, {
-          ...lockedRequest,
-          lockedAt: null,
-          response,
-        });
-      },
-    };
+    get(storageKey) {
+      return requests.get(storageKey) ?? null;
+    },
   };
+};
