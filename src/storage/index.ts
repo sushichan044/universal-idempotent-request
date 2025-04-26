@@ -1,5 +1,5 @@
-import type { IdempotentStorageKey } from "../brand";
 import type { RequestIdentifier } from "../identifier";
+import type { IdempotentStorageKey } from "../types";
 import type { SerializedResponse } from "../utils/response";
 import type { MaybePromise } from "../utils/types";
 

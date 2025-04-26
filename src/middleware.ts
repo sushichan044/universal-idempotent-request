@@ -2,20 +2,21 @@
 
 import type { Get, UniversalMiddleware } from "@universal-middleware/core";
 
+import type { Hooks } from "./hooks";
 import type { IdempotentRequestServerSpecification } from "./server-specification";
 import type {
   IdempotentRequestStorage,
   NonLockedIdempotentRequest,
 } from "./storage";
 
-import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
-import { type Hooks, resolveHooks } from "./hooks";
-import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import {
   createIdempotencyKeyConflictErrorResponse,
   createIdempotencyKeyMissingErrorResponse,
   createIdempotencyKeyPayloadMismatchErrorResponse,
-} from "./response";
+} from "./constants/response";
+import { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
+import { resolveHooks } from "./hooks";
+import { createRequestIdentifier, isIdenticalRequest } from "./identifier";
 import {
   type IdempotencyActivationStrategy,
   prepareActivationStrategy,

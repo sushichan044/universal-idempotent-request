@@ -1,4 +1,4 @@
-import type { IdempotencyFingerprint, IdempotentStorageKey } from "../brand";
+import type { IdempotencyFingerprint, IdempotentStorageKey } from "../types";
 import type { MaybePromise } from "../utils/types";
 
 /**
