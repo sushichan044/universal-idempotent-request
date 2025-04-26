@@ -20,6 +20,7 @@ A framework-agnostic library implementing the HTTP Idempotency-Key draft ([draft
 
 ## Core Concepts
 
+- **Framework Agnostic**: powered by [universal-middleware](https://github.com/magne4000/universal-middleware)
 - **Easy Installation**: Integrate into existing applications in a minute.
 - **Bring your own implementation**: Customizable conditions for enabling idempotency, request identity conditions, etc.
 
