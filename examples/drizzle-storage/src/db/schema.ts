@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const TB_idempotent_request = sqliteTable("idempotent_requests", {
@@ -10,6 +10,9 @@ export const TB_idempotent_request = sqliteTable("idempotent_requests", {
   request_method: text().notNull(),
   request_path: text().notNull(),
 
+  created_at: int({ mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
   locked_at: int({ mode: "timestamp" }),
 
   response_body: text(),

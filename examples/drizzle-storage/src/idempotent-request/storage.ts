@@ -9,6 +9,12 @@ import type { database } from "../db";
 
 import { TB_idempotent_request } from "../db/schema";
 
+const isOutdatedRequest = (
+  request: typeof TB_idempotent_request.$inferSelect,
+) => {
+  return request.created_at.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+};
+
 export const createSqliteDrizzleDriver = (
   client: typeof database,
 ): IdempotentRequestStorageDriver => {
@@ -52,6 +58,12 @@ export const createSqliteDrizzleDriver = (
       });
 
       if (result == null) {
+        return null;
+      }
+
+      // return null if created_at is older than 24 hours
+      // You can clean up the old request at here or async in the background job
+      if (isOutdatedRequest(result)) {
         return null;
       }
 
