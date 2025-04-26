@@ -52,6 +52,49 @@ importers:
         specifier: 3.0.9
         version: 3.0.9(@types/node@22.14.1)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1)
 
+  examples/cloudflare-kv:
+    dependencies:
+      '@hono/swagger-ui':
+        specifier: 0.5.1
+        version: 0.5.1(hono@4.7.7)
+      '@hono/zod-openapi':
+        specifier: 0.19.5
+        version: 0.19.5(hono@4.7.7)(zod@3.24.3)
+      '@oslojs/crypto':
+        specifier: 1.0.1
+        version: 1.0.1
+      '@oslojs/encoding':
+        specifier: 1.1.0
+        version: 1.1.0
+      '@universal-middleware/hono':
+        specifier: 0.4.10
+        version: 0.4.10(hono@4.7.7)
+      hono:
+        specifier: 4.7.7
+        version: 4.7.7
+      universal-idempotent-request:
+        specifier: workspace:*
+        version: link:../..
+      valibot:
+        specifier: 1.0.0
+        version: 1.0.0(typescript@5.8.3)
+      zod:
+        specifier: 3.24.3
+        version: 3.24.3
+    devDependencies:
+      '@types/node':
+        specifier: 22.14.1
+        version: 22.14.1
+      '@virtual-live-lab/tsconfig':
+        specifier: 2.1.20
+        version: 2.1.20(typescript@5.8.3)
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      wrangler:
+        specifier: 4.12.0
+        version: 4.12.0
+
   examples/drizzle-storage:
     dependencies:
       '@hono/node-server':
@@ -100,49 +143,6 @@ importers:
       typescript:
         specifier: 5.8.3
         version: 5.8.3
-
-  examples/simple-api:
-    dependencies:
-      '@hono/swagger-ui':
-        specifier: 0.5.1
-        version: 0.5.1(hono@4.7.7)
-      '@hono/zod-openapi':
-        specifier: 0.19.5
-        version: 0.19.5(hono@4.7.7)(zod@3.24.3)
-      '@oslojs/crypto':
-        specifier: 1.0.1
-        version: 1.0.1
-      '@oslojs/encoding':
-        specifier: 1.1.0
-        version: 1.1.0
-      '@universal-middleware/hono':
-        specifier: 0.4.10
-        version: 0.4.10(hono@4.7.7)
-      hono:
-        specifier: 4.7.7
-        version: 4.7.7
-      universal-idempotent-request:
-        specifier: workspace:*
-        version: link:../..
-      valibot:
-        specifier: 1.0.0
-        version: 1.0.0(typescript@5.8.3)
-      zod:
-        specifier: 3.24.3
-        version: 3.24.3
-    devDependencies:
-      '@types/node':
-        specifier: 22.14.1
-        version: 22.14.1
-      '@virtual-live-lab/tsconfig':
-        specifier: 2.1.20
-        version: 2.1.20(typescript@5.8.3)
-      typescript:
-        specifier: 5.8.3
-        version: 5.8.3
-      wrangler:
-        specifier: 4.12.0
-        version: 4.12.0
 
   integration-tests/hono:
     dependencies:
@@ -2709,7 +2709,6 @@ packages:
 
   libsql@0.5.8:
     resolution: {integrity: sha512-+OopMI1wM/NvAJTHf3O3+beHd1YfKLnSVsOGBl3/7UBDZ4ydVadkbBk5Hjjs9d3ALC5rBaftMY59AvwyC8MzPw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@3.1.3:
