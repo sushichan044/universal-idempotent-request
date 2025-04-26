@@ -36,7 +36,7 @@
     "test": "vitest",
     "test:run": "vitest --run",
     "typecheck": "tsc --noEmit",
-    "check": "pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run && pnpm run build"
+    "check": "pnpm run build && pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run"
   },
   "dependencies": {
     "@universal-middleware/core": "0.4.7"
