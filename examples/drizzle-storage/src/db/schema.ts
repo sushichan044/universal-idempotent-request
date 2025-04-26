@@ -26,7 +26,7 @@ export const TB_user_profile = sqliteTable("user_profiles", {
   name: text().notNull(),
   user_id: int()
     .notNull()
-    .references(() => TB_user.id, { onDelete: "cascade" }),
+    .references(() => TB_user.id, { onDelete: "cascade", onUpdate: "cascade" }),
 });
 
 export const REL_user_relations = relations(TB_user, ({ one }) => ({
