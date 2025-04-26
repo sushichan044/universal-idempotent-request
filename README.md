@@ -9,10 +9,13 @@ A framework-agnostic library implementing the HTTP Idempotency-Key draft ([draft
   - [Installation](#installation)
   - [Build your own implementation](#build-your-own-implementation)
     - [IdempotentRequestServerSpecification](#idempotentrequestserverspecification)
+    - [IdempotentRequestStorageDriver](#idempotentrequeststoragedriver)
   - [Guides for each framework](#guides-for-each-framework)
     - [Hono](#hono)
   - [Contribution Guide](#contribution-guide)
 
+<!-- /TOC -->
+<!-- /TOC -->
 <!-- /TOC -->
 
 ## Core Concepts
@@ -40,6 +43,8 @@ yarn add universal-idempotent-request
 ## Build your own implementation
 
 To use this middleware, these interfaces must be implemented.
+
+### IdempotentRequestServerSpecification
 
 ```ts
 /**
@@ -96,7 +101,7 @@ interface IdempotentRequestServerSpecification {
 }
 ```
 
-### IdempotentRequestServerSpecification
+### IdempotentRequestStorageDriver
 
 ```ts
 /**
