@@ -5,10 +5,8 @@ export { IdempotencyKeyStorageError, UnsafeImplementationError } from "./error";
 
 export type { IdempotentRequest } from "./idempotent-request";
 
-export {
-  type IdempotentRequestImplementation,
-  idempotentRequestUniversalMiddleware,
-} from "./middleware";
+export { idempotentRequestUniversalMiddleware } from "./middleware";
+export type { IdempotentRequestImplementation } from "./middleware";
 
 export type { SerializedResponse } from "./serializer";
 export type { IdempotentRequestServerSpecification } from "./server/specification";
