@@ -8,11 +8,13 @@ import type {
 import type { MaybePromise } from "../utils/types";
 
 /**
- * Storage for idempotent request records.
+ * Adapter for storage of idempotent request records.
  *
- * You should implement features like TTL, cleanup, etc. at this layer.
+ * You need to implement read/write process with specific persistence services.
+ *
+ * You can implement persistence policies like TTL at this layer.
  */
-export interface IdempotentRequestStorageDriver {
+export interface IdempotentRequestStorageAdapter {
   /**
    * Get a stored request.
    *

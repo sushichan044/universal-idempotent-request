@@ -11,7 +11,7 @@ See [examples](./examples) for sample implementations.
   - [Installation](#installation)
   - [Build your own implementation](#build-your-own-implementation)
     - [IdempotentRequestServerSpecification](#idempotentrequestserverspecification)
-    - [IdempotentRequestStorageDriver](#idempotentrequeststoragedriver)
+    - [IdempotentRequestStorageAdapter](#idempotentrequeststorageadapter)
   - [Guides for each framework](#guides-for-each-framework)
     - [Hono](#hono)
   - [Contribution Guide](#contribution-guide)
@@ -104,15 +104,17 @@ interface IdempotentRequestServerSpecification {
 }
 ```
 
-### IdempotentRequestStorageDriver
+### IdempotentRequestStorageAdapter
 
 ```ts
 /**
- * Storage for idempotent request records.
+ * Adapter for storage of idempotent request records.
  *
- * You should implement features like TTL, cleanup, etc. at this layer.
+ * You need to implement read/write process with specific persistence services.
+ *
+ * You can implement persistence policies like TTL at this layer.
  */
-interface IdempotentRequestStorageDriver {
+export interface IdempotentRequestStorageAdapter {
   /**
    * Get a stored request.
    *
@@ -122,13 +124,24 @@ interface IdempotentRequestStorageDriver {
    * Stored request or `null` if the request is not found.
    */
   get(storageKey: StorageKey): MaybePromise<IdempotentRequest | null>;
+
   /**
-   * Save a request.
+   * Save a new unprocessed request.
    *
    * @param request
    * The request to save.
    */
-  save(request: IdempotentRequest): MaybePromise<void>;
+  save(request: UnProcessedIdempotentRequest): MaybePromise<void>;
+
+  /**
+   * Update a request.
+   *
+   * @param request
+   * The request to update.
+   */
+  update(
+    request: ProcessedIdempotentRequest | ProcessingIdempotentRequest,
+  ): MaybePromise<void>;
 }
 ```
 
