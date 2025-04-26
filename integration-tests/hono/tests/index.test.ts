@@ -349,7 +349,7 @@ describe("idempotentRequest middleware", () => {
           message: "Only for testing",
         });
       });
-      const saveSpy = vi.spyOn(driver, "save");
+      const saveSpy = vi.spyOn(driver, "update");
       const idempotencyKey = uuidv4();
 
       const response = await app.request(

@@ -23,5 +23,8 @@ export const createCloudflareKVStorageDriver = (
         expiration: sunset,
       });
     },
+    async update(request) {
+      await kv.put(request.storageKey, JSON.stringify(request));
+    },
   };
 };

@@ -18,6 +18,10 @@ export const createInMemoryDriver = (): IdempotentRequestStorageDriver => {
       requests.set(request.storageKey, request);
     },
 
+    update(request) {
+      requests.set(request.storageKey, request);
+    },
+
     get(storageKey) {
       return requests.get(storageKey) ?? null;
     },

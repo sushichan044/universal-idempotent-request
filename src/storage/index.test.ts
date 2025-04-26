@@ -14,6 +14,7 @@ import { createIdempotentRequestStorage } from "./index";
 const fakeDriver = {
   get: vi.fn(),
   save: vi.fn(),
+  update: vi.fn(),
 };
 
 describe("createIdempotentRequestStorage", () => {
@@ -40,7 +41,7 @@ describe("createIdempotentRequestStorage", () => {
   };
 
   describe("acquireLock", () => {
-    it("should acquire a lock and save the processing request", async () => {
+    it("should acquire a lock and update the processing request", async () => {
       const lockedRequest = await storage.acquireLock(baseRequest);
 
       expect(lockedRequest).toStrictEqual({
@@ -49,9 +50,9 @@ describe("createIdempotentRequestStorage", () => {
       });
     });
 
-    it("should throw IdempotencyKeyStorageError if driver.save fails", async () => {
-      const driverError = new Error("Driver save failed");
-      fakeDriver.save.mockRejectedValue(driverError);
+    it("should throw IdempotencyKeyStorageError if driver.update fails", async () => {
+      const driverError = new Error("Driver update failed");
+      fakeDriver.update.mockRejectedValue(driverError);
 
       await expect(storage.acquireLock(baseRequest)).rejects.toThrowError(
         new IdempotencyKeyStorageError(
@@ -59,7 +60,7 @@ describe("createIdempotentRequestStorage", () => {
           { cause: driverError },
         ),
       );
-      expect(fakeDriver.save).toHaveBeenCalledOnce();
+      expect(fakeDriver.update).toHaveBeenCalledOnce();
     });
   });
 
@@ -140,19 +141,19 @@ describe("createIdempotentRequestStorage", () => {
       status: 201,
     };
 
-    it("should set the response, unlock the request, and save", async () => {
+    it("should set the response, unlock the request, and update", async () => {
       await storage.setResponseAndUnlock(processingRequest, response);
 
-      expect(fakeDriver.save).toHaveBeenCalledExactlyOnceWith({
+      expect(fakeDriver.update).toHaveBeenCalledExactlyOnceWith({
         ...processingRequest,
         lockedAt: null,
         response,
       });
     });
 
-    it("should throw IdempotencyKeyStorageError if driver.save fails", async () => {
-      const driverError = new Error("Driver save failed");
-      fakeDriver.save.mockRejectedValue(driverError);
+    it("should throw IdempotencyKeyStorageError if driver.update fails", async () => {
+      const driverError = new Error("Driver update failed");
+      fakeDriver.update.mockRejectedValue(driverError);
 
       await expect(
         storage.setResponseAndUnlock(processingRequest, response),
@@ -162,7 +163,7 @@ describe("createIdempotentRequestStorage", () => {
           { cause: driverError },
         ),
       );
-      expect(fakeDriver.save).toHaveBeenCalledOnce();
+      expect(fakeDriver.update).toHaveBeenCalledOnce();
     });
   });
 });
