@@ -14,14 +14,14 @@ export function createIdempotencyFingerprint(
   return p as IdempotencyFingerprint;
 }
 
-// Idempotent Storage Key
+// Storage Key
 
-const IdempotentStorageKeyBrand = Symbol();
+const StorageKeyBrand = Symbol();
 
-export type IdempotentStorageKey = string & {
-  [IdempotentStorageKeyBrand]: unknown;
+export type StorageKey = string & {
+  [StorageKeyBrand]: unknown;
 };
 
-export function createIdempotentStorageKey(p: string): IdempotentStorageKey {
-  return p as IdempotentStorageKey;
+export function createStorageKey(p: string): StorageKey {
+  return p as StorageKey;
 }
