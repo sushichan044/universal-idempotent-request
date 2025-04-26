@@ -1,5 +1,4 @@
-import type { IdempotentRequestServerSpecification } from "./server-specification";
-import type { IdempotencyFingerprint } from "./types";
+import type { IdempotencyFingerprint } from "./brand";
 
 export type RequestIdentifier = {
   /**
@@ -35,24 +34,4 @@ export const isIdenticalRequest = (
     target.idempotencyKey === candidate.idempotencyKey &&
     target.fingerprint === candidate.fingerprint
   );
-};
-
-type CreateRequestIdentifierInput = {
-  idempotencyKey: string;
-  request: Request;
-};
-
-export const createRequestIdentifier = async (
-  spec: IdempotentRequestServerSpecification,
-  input: CreateRequestIdentifierInput,
-): Promise<RequestIdentifier> => {
-  const fingerprint = await spec.getFingerprint(input.request);
-  const requestPath = new URL(input.request.url).pathname;
-
-  return {
-    fingerprint,
-    idempotencyKey: input.idempotencyKey,
-    requestMethod: input.request.method,
-    requestPath,
-  };
 };
