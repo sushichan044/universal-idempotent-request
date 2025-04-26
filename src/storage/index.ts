@@ -1,110 +1,133 @@
-import type { RequestIdentifier } from "../identifier";
-import type { IdempotentStorageKey } from "../types";
-import type { SerializedResponse } from "../utils/response";
-import type { MaybePromise } from "../utils/types";
+import type {
+  IdempotentRequest,
+  IdempotentRequestBase,
+  ProcessedIdempotentRequest,
+  ProcessingIdempotentRequest,
+  UnProcessedIdempotentRequest,
+} from "../idempotent-request";
+import type { SerializedResponse } from "../serializer";
+import type { IdempotentRequestStorageDriver } from "./driver";
 
-type IdempotentRequestBase = RequestIdentifier & {
+import { IdempotencyKeyStorageError } from "../error";
+
+interface IdempotentRequestStorage {
   /**
-   * Storage key
-   *
-   * This is used to retrieve the request from the storage.
-   */
-  storageKey: IdempotentStorageKey;
-
-  /**
-   * Stored response
-   * (null until server completes processing request)
-   */
-  response: SerializedResponse | null;
-};
-
-export type StoredIdempotentRequest =
-  | LockedIdempotentRequest
-  | NonLockedIdempotentRequest;
-
-export type NonLockedIdempotentRequest = Readonly<
-  IdempotentRequestBase & {
-    /**
-     * Time when the request was locked for processing
-     *
-     * This is used to prevent race conditions when multiple requests are
-     * trying to process the same request concurrently.
-     */
-    lockedAt: null;
-  }
->;
-
-export type LockedIdempotentRequest = Readonly<
-  IdempotentRequestBase & {
-    /**
-     * Time when the request was locked for processing
-     *
-     * This is used to prevent race conditions when multiple requests are
-     * trying to process the same request concurrently.
-     */
-    lockedAt: Date;
-  }
->;
-
-export type NewIdempotentRequest = Pick<
-  NonLockedIdempotentRequest,
-  | "fingerprint"
-  | "idempotencyKey"
-  | "requestMethod"
-  | "requestPath"
-  | "storageKey"
->;
-
-export type FindOrCreateStorageResult =
-  | {
-      created: false;
-      storedRequest: StoredIdempotentRequest;
-    }
-  | {
-      created: true;
-      storedRequest: NonLockedIdempotentRequest;
-    };
-
-/**
- * Storage for idempotent request records.
- *
- * You should implement features like TTL, cleanup, etc. at this layer.
- */
-export interface IdempotentRequestStorage {
-  /**
-   * Find or create a new request.
+   * Acquire a lock for the request.
    *
    * @param request
-   * The request information to store.
+   * The request to acquire a lock for.
    * @returns
-   * The stored, non-locked request information.
-   */
-  findOrCreate(
-    request: NewIdempotentRequest,
-  ): MaybePromise<FindOrCreateStorageResult>;
-
-  /**
-   * Lock a request to begin processing
-   *
-   * @param nonLockedRequest
-   * The non-locked stored request.
-   * @returns
-   * The locked request information.
-   */
-  lock(
-    nonLockedRequest: NonLockedIdempotentRequest,
-  ): MaybePromise<LockedIdempotentRequest>;
-
-  /**
-   * Unlock a request and store the response.
-   *
-   * @param lockedRequest
    * The locked request.
+   */
+  acquireLock(
+    request: UnProcessedIdempotentRequest,
+  ): Promise<ProcessingIdempotentRequest>;
+
+  /**
+   * Find or create a request.
+   *
+   * @param request
+   * The request to find or create.
+   * @returns
+   */
+  findOrCreate(request: IdempotentRequestBase): Promise<
+    | {
+        created: false;
+        request: IdempotentRequest;
+      }
+    | {
+        created: true;
+        request: UnProcessedIdempotentRequest;
+      }
+  >;
+
+  /**
+   * Set the response and unlock the request.
+   *
+   * This method internally clones the response, So you don't need to clone in caller side.
+   *
+   * @param request
+   * The request to set the response and unlock.
    * @param response
-   * The response to store.
+   * The response to set.
    */
   setResponseAndUnlock(
-    lockedRequest: LockedIdempotentRequest,
+    request: ProcessingIdempotentRequest,
     response: SerializedResponse,
-  ): MaybePromise<void>;
+  ): Promise<void>;
 }
+
+export const createIdempotentRequestStorage = (
+  driver: IdempotentRequestStorageDriver,
+): IdempotentRequestStorage => {
+  return {
+    acquireLock: async (request) => {
+      try {
+        const lockedRequest = {
+          ...request,
+          lockedAt: new Date(),
+        } satisfies ProcessingIdempotentRequest;
+        await driver.save(lockedRequest);
+
+        return lockedRequest;
+      } catch (error) {
+        throw new IdempotencyKeyStorageError(
+          `Failed to acquire a lock for the stored idempotent request: ${request.storageKey}`,
+          {
+            cause: error,
+          },
+        );
+      }
+    },
+
+    findOrCreate: async (request) => {
+      try {
+        const storedRequest = await driver.get(request.storageKey);
+        if (storedRequest) {
+          return {
+            created: false,
+            request: storedRequest,
+          };
+        }
+
+        const nonLockedRequest = {
+          ...request,
+          lockedAt: null,
+          response: null,
+        } satisfies UnProcessedIdempotentRequest;
+        await driver.save(nonLockedRequest);
+
+        return {
+          created: true,
+          request: nonLockedRequest,
+        };
+      } catch (error) {
+        throw new IdempotencyKeyStorageError(
+          `Failed to find or create the stored idempotent request: ${request.storageKey}`,
+          {
+            cause: error,
+          },
+        );
+      }
+    },
+
+    setResponseAndUnlock: async (request, response) => {
+      try {
+        const unlockedRequest = {
+          ...request,
+          lockedAt: null,
+          response,
+        } satisfies ProcessedIdempotentRequest;
+
+        await driver.save(unlockedRequest);
+      } catch (error) {
+        throw new IdempotencyKeyStorageError(
+          `Failed to save the response of an idempotent request: ${request.storageKey}. You should unlock the request manually.`,
+          {
+            cause: error,
+          },
+        );
+      }
+    },
+  };
+};

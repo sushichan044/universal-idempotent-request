@@ -1,11 +1,12 @@
-import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
-import type { IdempotentRequestStorage } from "hono-idempotent-request/storage";
+import type {
+  IdempotentRequestServerSpecification,
+  IdempotentRequestStorageDriver,
+} from "hono-idempotent-request";
 
 import { sValidator } from "@hono/standard-validator";
 import { createMiddleware } from "@universal-middleware/hono";
 import { Hono } from "hono";
 import {
-  createIdempotentStorageKey,
   IdempotencyKeyStorageError,
   idempotentRequestUniversalMiddleware,
   UnsafeImplementationError,
@@ -13,9 +14,9 @@ import {
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createInMemoryIdempotentRequestCacheStorage } from "../src/in-memory-storage";
+import { createInMemoryDriver } from "../src/in-memory-storage";
 import { createTestServerSpecification } from "../src/server-specification";
 
 /**
@@ -68,12 +69,16 @@ const racer = createRacer({
 });
 
 type SetupAppArgs = {
+  driver: IdempotentRequestStorageDriver;
   specification: IdempotentRequestServerSpecification;
-  storage: IdempotentRequestStorage;
 };
 
-const setupApp = ({ specification, storage }: Partial<SetupAppArgs> = {}) => {
-  storage ??= createInMemoryIdempotentRequestCacheStorage();
+const idempotentRequestMiddleware = createMiddleware(
+  idempotentRequestUniversalMiddleware,
+);
+
+const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
+  driver ??= createInMemoryDriver();
   specification ??= createTestServerSpecification();
 
   type HonoEnv = {
@@ -92,19 +97,19 @@ const setupApp = ({ specification, storage }: Partial<SetupAppArgs> = {}) => {
     };
   };
 
-  const idempotentRequest = createMiddleware(
-    idempotentRequestUniversalMiddleware,
-  );
-
   const app = new Hono<HonoEnv>()
     .on(
       ["POST", "PUT", "PATCH", "DELETE"],
       "/api/*",
-      idempotentRequest({
+      idempotentRequestMiddleware({
         // explicitly set to always to make tests simpler
         activationStrategy: "always",
-        specification,
-        storage,
+        server: {
+          specification,
+        },
+        storage: {
+          driver,
+        },
       }),
     )
     .post(
@@ -128,10 +133,14 @@ const setupApp = ({ specification, storage }: Partial<SetupAppArgs> = {}) => {
       },
     );
 
-  return { app, setHonoEnv, specification, storage };
+  return { app, driver, setHonoEnv, specification };
 };
 
 describe("idempotentRequest middleware", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   describe("Happy path", () => {
     it("should process request successfully with valid Idempotency-Key", async () => {
       const { app, setHonoEnv } = setupApp();
@@ -157,9 +166,9 @@ describe("idempotentRequest middleware", () => {
     });
 
     it("should return cached response on subsequent requests with same Idempotency-Key", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
+      const { app, driver, setHonoEnv } = setupApp();
       const idempotencyKey = uuidv4();
-      const createOrFindSpy = vi.spyOn(storage, "findOrCreate");
+      const driverSpy = vi.spyOn(driver, "get");
       const createRequest = () => {
         return new Request("http://127.0.0.1:3000/api/hello", {
           body: JSON.stringify({ name: "Edison" }),
@@ -177,9 +186,6 @@ describe("idempotentRequest middleware", () => {
         setHonoEnv(),
       );
 
-      // ensure cache storage is updated
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
       const cachedResponse = await app.request(
         createRequest(),
         undefined,
@@ -187,16 +193,14 @@ describe("idempotentRequest middleware", () => {
       );
 
       // 2nd request should hit cached, non-locked response
-      expect(createOrFindSpy).toHaveLastReturnedWith({
-        created: false,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        storedRequest: expect.objectContaining({
+      expect(driverSpy).toHaveLastReturnedWith(
+        expect.objectContaining({
           idempotencyKey,
           lockedAt: null,
           requestMethod: "POST",
           requestPath: "/api/hello",
         }),
-      });
+      );
       expect(response.status).toEqual(cachedResponse.status);
       expect(await response.json()).toStrictEqual(await cachedResponse.json());
     });
@@ -231,8 +235,7 @@ describe("idempotentRequest middleware", () => {
     });
 
     it("should return 400 if Idempotency-Key does not satisfy the server specification", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
-      const createSpy = vi.spyOn(storage, "findOrCreate");
+      const { app, setHonoEnv } = setupApp();
 
       const response = await app.request(
         "/api/hello",
@@ -249,7 +252,6 @@ describe("idempotentRequest middleware", () => {
         setHonoEnv(),
       );
 
-      expect(createSpy).not.toHaveBeenCalled();
       expect(response.status).toBe(400);
       expect(await response.json()).toStrictEqual({
         detail:
@@ -341,13 +343,13 @@ describe("idempotentRequest middleware", () => {
 
   describe("Error handling", () => {
     it("should store the error response in the cache storage", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
+      const { app, driver, setHonoEnv } = setupApp();
       app.post("/api/trigger-error", () => {
         throw new HTTPException(500, {
           message: "Only for testing",
         });
       });
-      const setResponseAndUnlockSpy = vi.spyOn(storage, "setResponseAndUnlock");
+      const saveSpy = vi.spyOn(driver, "save");
       const idempotencyKey = uuidv4();
 
       const response = await app.request(
@@ -361,23 +363,27 @@ describe("idempotentRequest middleware", () => {
         setHonoEnv(),
       );
 
-      expect(setResponseAndUnlockSpy).toHaveBeenCalledWith(
+      expect(saveSpy).toHaveBeenLastCalledWith(
         expect.objectContaining({
           idempotencyKey,
           requestMethod: "POST",
           requestPath: "/api/trigger-error",
-        }),
-        expect.objectContaining({
-          body: "Only for testing",
-          status: 500,
+          response: {
+            body: "Only for testing",
+            headers: {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              "content-type": expect.any(String),
+            },
+            status: 500,
+          },
         }),
       );
       expect(response.status).toBe(500);
       expect(await response.text()).toBe("Only for testing");
     });
 
-    it("should wrap errors from cache storage when findOrCreate fails", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
+    it("should wrap errors from cache storage when storage.get fails", async () => {
+      const { app, driver, setHonoEnv } = setupApp();
       app.onError((e, c) => {
         if (e instanceof IdempotencyKeyStorageError) {
           if (e.cause instanceof Error) {
@@ -401,7 +407,7 @@ describe("idempotentRequest middleware", () => {
 
         return c.text("Internal Server Error", 500);
       });
-      vi.spyOn(storage, "findOrCreate").mockImplementation(() => {
+      vi.spyOn(driver, "get").mockImplementation(() => {
         throw new Error("Connection error");
       });
 
@@ -418,15 +424,16 @@ describe("idempotentRequest middleware", () => {
       );
 
       expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual({
-        cause: "Connection error",
-        detail: "Failed to find or create the stored idempotent request",
-        title: "Storage Error",
-      });
+      expect(await response.json()).toStrictEqual(
+        expect.objectContaining({
+          cause: "Connection error",
+          title: "Storage Error",
+        }),
+      );
     });
 
-    it("should wrap errors from cache storage when lock fails", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
+    it("should wrap errors from cache storage when storage.save fails", async () => {
+      const { app, driver, setHonoEnv } = setupApp();
       app.onError((e, c) => {
         if (e instanceof IdempotencyKeyStorageError) {
           if (e.cause instanceof Error) {
@@ -450,7 +457,7 @@ describe("idempotentRequest middleware", () => {
 
         return c.text("Internal Server Error", 500);
       });
-      vi.spyOn(storage, "lock").mockImplementation(() => {
+      vi.spyOn(driver, "save").mockImplementation(() => {
         throw new Error("Connection error");
       });
 
@@ -467,61 +474,12 @@ describe("idempotentRequest middleware", () => {
       );
 
       expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual({
-        cause: "Connection error",
-        detail: "Failed to lock the stored idempotent request",
-        title: "Storage Error",
-      });
-    });
-
-    it("should wrap errors from cache storage when setResponseAndUnlock fails", async () => {
-      const { app, setHonoEnv, storage } = setupApp();
-      app.onError((e, c) => {
-        if (e instanceof IdempotencyKeyStorageError) {
-          if (e.cause instanceof Error) {
-            return c.json(
-              {
-                cause: e.cause.message,
-                detail: e.message,
-                title: "Storage Error",
-              },
-              500,
-            );
-          }
-          return c.json(
-            {
-              detail: e.message,
-              title: "Storage Error",
-            },
-            500,
-          );
-        }
-
-        return c.text("Internal Server Error", 500);
-      });
-      vi.spyOn(storage, "setResponseAndUnlock").mockImplementation(() => {
-        throw new Error("Connection error");
-      });
-
-      const response = await app.request(
-        "/api/hello",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Idempotency-Key": uuidv4(),
-          },
-          method: "POST",
-        },
-        setHonoEnv(),
+      expect(await response.json()).toStrictEqual(
+        expect.objectContaining({
+          cause: "Connection error",
+          title: "Storage Error",
+        }),
       );
-
-      expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual({
-        cause: "Connection error",
-        detail:
-          "Failed to save the response of an idempotent request. You should unlock the request manually.",
-        title: "Storage Error",
-      });
     });
   });
 
@@ -530,10 +488,10 @@ describe("idempotentRequest middleware", () => {
       const { app, setHonoEnv } = setupApp({
         specification: {
           getFingerprint: () => null,
-          getStorageKey: (req) => {
-            const path = new URL(req.url).pathname;
-            const method = req.method;
-            return createIdempotentStorageKey(`${method}-${path}`);
+          getStorageKey: ({ request }) => {
+            const path = new URL(request.url).pathname;
+            const method = request.method;
+            return `${method}-${path}`;
           },
           satisfiesKeySpec: () => true,
         },

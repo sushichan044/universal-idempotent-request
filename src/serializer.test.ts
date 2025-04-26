@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import type { SerializedResponse } from "./response";
+import type { SerializedResponse } from "./serializer";
 
-import { cloneAndSerializeResponse, deserializeResponse } from "./response";
+import { cloneAndSerializeResponse, deserializeResponse } from "./serializer";
 
 describe("serializeResponse", () => {
   it("can serialize a response", async () => {

@@ -1,5 +1,3 @@
-import type { IdempotentRequestStorage } from "hono-idempotent-request/storage";
-
 import { swaggerUI } from "@hono/swagger-ui";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createMiddleware } from "@universal-middleware/hono";
@@ -9,23 +7,18 @@ import type { PaymentStorage } from "./logic";
 
 import { createPaymentStorage } from "./logic";
 import { simpleSpecification } from "./spec";
-import { createIdempotentRequestStorage } from "./storage";
+import { createCloudflareKVStorageDriver } from "./storage";
 
 type HonoConfig = {
   Bindings: Env;
   Variables: {
     paymentStorage: PaymentStorage;
-    requestStorage: IdempotentRequestStorage;
   };
 };
 const app = new OpenAPIHono<HonoConfig>();
 
 app.use("*", async (c, next) => {
   c.set("paymentStorage", createPaymentStorage(c.env.DATABASE_PAYMENT));
-  c.set(
-    "requestStorage",
-    createIdempotentRequestStorage(c.env.DATABASE_IDEMPOTENT_REQUEST),
-  );
   await next();
 });
 
@@ -40,7 +33,9 @@ app.doc("/openapi.json", {
 });
 
 app.use("/api/*", async (c, next) => {
-  const requestStorage = c.get("requestStorage");
+  const requestStorage = createCloudflareKVStorageDriver(
+    c.env.DATABASE_IDEMPOTENT_REQUEST,
+  );
 
   const middlewareFactory = createMiddleware(
     idempotentRequestUniversalMiddleware,
@@ -60,8 +55,12 @@ app.use("/api/*", async (c, next) => {
         return response;
       },
     },
-    specification: simpleSpecification,
-    storage: requestStorage,
+    server: {
+      specification: simpleSpecification,
+    },
+    storage: {
+      driver: requestStorage,
+    },
   });
 
   // @ts-expect-error - Context type is not match

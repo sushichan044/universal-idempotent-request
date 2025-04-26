@@ -1,5 +1,18 @@
-import type { IdempotencyFingerprint, IdempotentStorageKey } from "../types";
 import type { MaybePromise } from "../utils/types";
+
+/**
+ * Parameter object for getStorageKey method.
+ */
+interface GetStorageKeySource {
+  /**
+   * The `Idempotency-Key` header from the request
+   */
+  idempotencyKey: string;
+  /**
+   * Web-standard request object
+   */
+  request: Request;
+}
 
 /**
  * Specification - defines key validation and request digest generation.
@@ -20,7 +33,7 @@ export interface IdempotentRequestServerSpecification {
    * A fingerprint string representing the uniqueness of the request.
    * Returning `null` means this server specification does not use fingerprint.
    */
-  getFingerprint(request: Request): MaybePromise<IdempotencyFingerprint | null>;
+  getFingerprint(request: Request): MaybePromise<string | null>;
 
   /**
    * Get a key for searching the request in the storage.
@@ -34,12 +47,12 @@ export interface IdempotentRequestServerSpecification {
    *
    * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-5 Security Considerations}
    *
-   * @param request
-   * Web-standard request object
+   * @param source
+   * Object containing idempotencyKey and request
    * @returns
    * A key that is used to retrieve the request from the storage.
    */
-  getStorageKey(request: Request): MaybePromise<IdempotentStorageKey>;
+  getStorageKey(source: GetStorageKeySource): MaybePromise<string>;
 
   /**
    * Check if the idempotency key satisfies the server-defined specifications

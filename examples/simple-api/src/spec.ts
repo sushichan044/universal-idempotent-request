@@ -1,27 +1,23 @@
-import type { IdempotentRequestServerSpecification } from "hono-idempotent-request/server-specification";
+import type { IdempotentRequestServerSpecification } from "hono-idempotent-request";
 
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
-import {
-  createIdempotencyFingerprint,
-  createIdempotentStorageKey,
-} from "hono-idempotent-request";
 import * as v from "valibot";
 
 export const simpleSpecification: IdempotentRequestServerSpecification = {
   getFingerprint: async (request) => {
     const body = await request.text();
-    return createIdempotencyFingerprint(hashWithSha256(body));
+    return hashWithSha256(body);
   },
-  getStorageKey: (request) => {
-    const path = new URL(request.url).pathname;
-    const key = request.headers.get("Idempotency-Key");
 
-    return createIdempotentStorageKey(`${path}-${key}`);
+  getStorageKey: ({ idempotencyKey, request }) => {
+    const path = new URL(request.url).pathname;
+
+    return `${request.method}-${path}-${idempotencyKey}`;
   },
-  satisfiesKeySpec: (key) => {
-    // require uuid
-    return v.safeParse(v.pipe(v.string(), v.uuid()), key).success;
+
+  satisfiesKeySpec(idempotencyKey) {
+    return v.safeParse(v.pipe(v.string(), v.uuid()), idempotencyKey).success;
   },
 };
 
