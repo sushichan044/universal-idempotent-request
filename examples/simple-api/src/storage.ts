@@ -1,7 +1,7 @@
 import type {
   IdempotentRequest,
   IdempotentRequestStorageDriver,
-} from "hono-idempotent-request";
+} from "universal-idempotent-request";
 
 const getExpirationEpoch = (ttlSeconds: number) => {
   const nowEpoch = Date.now() / 1000;

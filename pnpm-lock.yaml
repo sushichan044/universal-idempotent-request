@@ -72,7 +72,7 @@ importers:
       hono:
         specifier: 4.7.7
         version: 4.7.7
-      hono-idempotent-request:
+      universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
       valibot:
@@ -112,7 +112,7 @@ importers:
       hono:
         specifier: 4.7.7
         version: 4.7.7
-      hono-idempotent-request:
+      universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
       uuid:

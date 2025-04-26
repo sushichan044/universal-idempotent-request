@@ -1,17 +1,17 @@
 import type {
   IdempotentRequestServerSpecification,
   IdempotentRequestStorageDriver,
-} from "hono-idempotent-request";
+} from "universal-idempotent-request";
 
 import { sValidator } from "@hono/standard-validator";
 import { createMiddleware } from "@universal-middleware/hono";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import {
   IdempotencyKeyStorageError,
   idempotentRequestUniversalMiddleware,
   UnsafeImplementationError,
-} from "hono-idempotent-request";
-import { HTTPException } from "hono/http-exception";
+} from "universal-idempotent-request";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
 import { beforeEach, describe, expect, it, vi } from "vitest";

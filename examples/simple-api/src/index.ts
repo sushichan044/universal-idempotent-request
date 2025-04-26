@@ -1,7 +1,7 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createMiddleware } from "@universal-middleware/hono";
-import { idempotentRequestUniversalMiddleware } from "hono-idempotent-request";
+import { idempotentRequestUniversalMiddleware } from "universal-idempotent-request";
 
 import type { PaymentStorage } from "./logic";
 
@@ -26,7 +26,7 @@ app.get("/", swaggerUI({ url: "/openapi.json" }));
 
 app.doc("/openapi.json", {
   info: {
-    title: "Simple API example of hono-idempotent-request",
+    title: "Simple API example of universal-idempotent-request",
     version: "1.0.0",
   },
   openapi: "3.1.0",
