@@ -14,7 +14,7 @@ import {
 import { HTTPException } from "hono/http-exception";
 import { v4 as uuidv4 } from "uuid";
 import * as v from "valibot";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createInMemoryDriver } from "../src/in-memory-storage";
 import { createTestServerSpecification } from "../src/server-specification";
@@ -137,6 +137,10 @@ const setupApp = ({ driver, specification }: Partial<SetupAppArgs> = {}) => {
 };
 
 describe("idempotentRequest middleware", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   describe("Happy path", () => {
     it("should process request successfully with valid Idempotency-Key", async () => {
       const { app, setHonoEnv } = setupApp();
