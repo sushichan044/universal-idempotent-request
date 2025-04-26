@@ -1,5 +1,10 @@
 import type { StorageKey } from "../brand";
-import type { IdempotentRequest } from "../idempotent-request";
+import type {
+  IdempotentRequest,
+  ProcessedIdempotentRequest,
+  ProcessingIdempotentRequest,
+  UnProcessedIdempotentRequest,
+} from "../idempotent-request";
 import type { MaybePromise } from "../utils/types";
 
 /**
@@ -19,10 +24,20 @@ export interface IdempotentRequestStorageDriver {
   get(storageKey: StorageKey): MaybePromise<IdempotentRequest | null>;
 
   /**
-   * Save a request.
+   * Save a new unprocessed request.
    *
    * @param request
    * The request to save.
    */
-  save(request: IdempotentRequest): MaybePromise<void>;
+  save(request: UnProcessedIdempotentRequest): MaybePromise<void>;
+
+  /**
+   * Update a request.
+   *
+   * @param request
+   * The request to update.
+   */
+  update(
+    request: ProcessedIdempotentRequest | ProcessingIdempotentRequest,
+  ): MaybePromise<void>;
 }

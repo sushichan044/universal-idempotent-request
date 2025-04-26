@@ -67,7 +67,7 @@ export const createIdempotentRequestStorage = (
           ...request,
           lockedAt: new Date(),
         } satisfies ProcessingIdempotentRequest;
-        await driver.save(lockedRequest);
+        await driver.update(lockedRequest);
 
         return lockedRequest;
       } catch (error) {
@@ -119,7 +119,7 @@ export const createIdempotentRequestStorage = (
           response,
         } satisfies ProcessedIdempotentRequest;
 
-        await driver.save(unlockedRequest);
+        await driver.update(unlockedRequest);
       } catch (error) {
         throw new IdempotencyKeyStorageError(
           `Failed to save the response of an idempotent request: ${request.storageKey}. You should unlock the request manually.`,

@@ -349,7 +349,7 @@ describe("idempotentRequest middleware", () => {
           message: "Only for testing",
         });
       });
-      const saveSpy = vi.spyOn(driver, "save");
+      const updateSpy = vi.spyOn(driver, "update");
       const idempotencyKey = uuidv4();
 
       const response = await app.request(
@@ -363,7 +363,7 @@ describe("idempotentRequest middleware", () => {
         setHonoEnv(),
       );
 
-      expect(saveSpy).toHaveBeenLastCalledWith(
+      expect(updateSpy).toHaveBeenLastCalledWith(
         expect.objectContaining({
           idempotencyKey,
           requestMethod: "POST",

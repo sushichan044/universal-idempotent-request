@@ -1,0 +1,27 @@
+{
+  "name": "@repo/drizzle-storage",
+  "private": true,
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@hono/node-server": "1.14.1",
+    "@hono/standard-validator": "0.1.2",
+    "@libsql/client": "0.15.4",
+    "@oslojs/crypto": "1.0.1",
+    "@oslojs/encoding": "1.1.0",
+    "@universal-middleware/hono": "0.4.10",
+    "drizzle-orm": "0.43.1",
+    "hono": "4.7.7",
+    "universal-idempotent-request": "workspace:*",
+    "valibot": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "@virtual-live-lab/tsconfig": "2.1.20",
+    "drizzle-kit": "0.31.0",
+    "tsx": "4.19.3",
+    "typescript": "5.8.3"
+  }
+}
