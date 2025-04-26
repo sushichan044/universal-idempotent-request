@@ -28,9 +28,6 @@
   "author": "sushichan044 (https://github.com/sushichan044)",
   "license": "MIT",
   "packageManager": "pnpm@10.6.5",
-  "peerDependencies": {
-    "hono": "^3.8.0 || ^4.0.0"
-  },
   "scripts": {
     "build": "unbuild",
     "lint": "eslint --max-warnings 0",
