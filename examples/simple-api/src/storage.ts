@@ -1,76 +1,24 @@
-import type { SerializedResponse } from "hono-idempotent-request";
-import type {
-  IdempotentRequestStorage,
-  LockedIdempotentRequest,
-  NewIdempotentRequest,
-  NonLockedIdempotentRequest,
-  StoredIdempotentRequest,
-} from "hono-idempotent-request/storage";
+import type { IdempotentRequestStorageDriver } from "hono-idempotent-request";
 
-const getExpirationEpoch = (ttl: number) => {
+const getExpirationEpoch = (ttlSeconds: number) => {
   const nowEpoch = Date.now() / 1000;
-  return nowEpoch + ttl;
+  return nowEpoch + ttlSeconds;
 };
 
-export const createIdempotentRequestStorage = (
+export const createCloudflareKVStorageDriver = (
   kv: KVNamespace,
-): IdempotentRequestStorage => {
+): IdempotentRequestStorageDriver => {
   const TTL_ONE_HOUR = 60 * 60;
+  const sunset = getExpirationEpoch(TTL_ONE_HOUR);
 
   return {
-    findOrCreate: async (request: NewIdempotentRequest) => {
-      const sunset = getExpirationEpoch(TTL_ONE_HOUR);
-
-      const existing = await kv.get<StoredIdempotentRequest>(
-        request.storageKey,
-        "json",
-      );
-
-      if (existing) {
-        return {
-          created: false,
-          storedRequest: existing,
-        };
-      }
-
-      const newRequest: NonLockedIdempotentRequest = {
-        ...request,
-        lockedAt: null,
-        response: null,
-      };
-
-      await kv.put(request.storageKey, JSON.stringify(newRequest), {
+    async get(storageKey) {
+      return kv.get(storageKey, "json");
+    },
+    async save(request) {
+      return kv.put(request.storageKey, JSON.stringify(request), {
         expiration: sunset,
       });
-
-      return {
-        created: true,
-        storedRequest: newRequest,
-      };
-    },
-
-    lock: async (request: NonLockedIdempotentRequest) => {
-      const lockedRequest: LockedIdempotentRequest = {
-        ...request,
-        lockedAt: new Date(),
-      };
-
-      await kv.put(request.storageKey, JSON.stringify(lockedRequest));
-
-      return lockedRequest;
-    },
-
-    setResponseAndUnlock: async (
-      request: LockedIdempotentRequest,
-      response: SerializedResponse,
-    ) => {
-      const unlockedRequest: NonLockedIdempotentRequest = {
-        ...request,
-        lockedAt: null,
-        response,
-      };
-
-      await kv.put(request.storageKey, JSON.stringify(unlockedRequest));
     },
   };
 };
