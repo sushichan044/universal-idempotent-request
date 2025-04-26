@@ -12,6 +12,7 @@ describe("serializeResponse", () => {
         "X-Test-Header": "test-value",
       },
       status: 200,
+      statusText: "OK",
     });
 
     const serialized = await cloneAndSerializeResponse(mockResponse);
@@ -23,6 +24,7 @@ describe("serializeResponse", () => {
         "x-test-header": "test-value",
       },
       status: 200,
+      statusText: "OK",
     });
   });
 
@@ -54,11 +56,13 @@ describe("deserializeResponse", () => {
         "x-test-header": "test-value",
       },
       status: 200,
+      statusText: "OK",
     } satisfies SerializedResponse;
 
     const response = deserializeResponse(serialized);
 
     expect(response.status).toBe(200);
+    expect(response.statusText).toBe("OK");
     // Headers should be case-insensitive
     expect(response.headers.get("Content-Type")).toBe("text/plain");
     expect(response.headers.get("content-type")).toBe("text/plain");

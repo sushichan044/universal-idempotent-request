@@ -29,6 +29,7 @@ export const createSqliteDrizzleAdapter = (
         response_body: null,
         response_headers: null,
         response_status: null,
+        response_status_text: null,
         storage_key: request.storageKey,
       });
     },
@@ -45,6 +46,7 @@ export const createSqliteDrizzleAdapter = (
           response_body: request.response?.body,
           response_headers: request.response?.headers,
           response_status: request.response?.status,
+          response_status_text: request.response?.statusText,
           storage_key: request.storageKey,
         })
         .where(eq(TB_idempotent_request.storage_key, request.storageKey));
@@ -85,6 +87,7 @@ export const createSqliteDrizzleAdapter = (
       if (
         result.response_body == null ||
         result.response_status == null ||
+        result.response_status_text == null ||
         result.response_headers == null
       ) {
         return {
@@ -114,6 +117,7 @@ export const createSqliteDrizzleAdapter = (
           body: result.response_body,
           headers: result.response_headers,
           status: result.response_status,
+          statusText: result.response_status_text,
         },
         storageKey: createStorageKey(result.storage_key),
       };

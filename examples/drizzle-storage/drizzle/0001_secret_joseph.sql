@@ -1,0 +1,1 @@
+ALTER TABLE `idempotent_requests` ADD `response_status_text` text;

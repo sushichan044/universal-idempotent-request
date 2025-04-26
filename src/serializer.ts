@@ -2,6 +2,7 @@ export type SerializedResponse = {
   body: string;
   headers: Record<string, string>;
   status: number;
+  statusText: string;
 };
 
 /**
@@ -22,6 +23,7 @@ export const cloneAndSerializeResponse = async (
     body: await responseClone.text(),
     headers: Object.fromEntries(responseClone.headers.entries()),
     status: responseClone.status,
+    statusText: responseClone.statusText,
   };
 };
 
@@ -35,9 +37,11 @@ export const deserializeResponse = ({
   body,
   headers,
   status,
+  statusText,
 }: SerializedResponse): Response => {
   return new Response(body, {
     headers: new Headers(headers),
     status,
+    statusText,
   });
 };
