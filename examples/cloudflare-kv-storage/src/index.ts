@@ -32,7 +32,7 @@ app.doc("/openapi.json", {
   openapi: "3.1.0",
 });
 
-app.use("/api/*", async (c, next) => {
+app.on(["PATCH", "POST"], "/api/*", async (c, next) => {
   const cloudflareKVAdapter = createCloudflareKVStorageAdapter(
     c.env.DATABASE_IDEMPOTENT_REQUEST,
   );
@@ -42,13 +42,6 @@ app.use("/api/*", async (c, next) => {
   );
 
   const middleware = middlewareFactory({
-    activationStrategy: (request) => {
-      const path = new URL(request.url).pathname;
-      return (
-        path.startsWith("/api") &&
-        ["PATCH", "POST", "PUT"].includes(request.method)
-      );
-    },
     hooks: {
       modifyResponse: (response, situation) => {
         response.headers.set("X-Idempotency-Status", situation);

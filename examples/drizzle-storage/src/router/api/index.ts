@@ -10,7 +10,7 @@ import { userApiRoutes } from "./user";
 
 const apiRouter = new Hono<HonoConfig>();
 
-apiRouter.on(["POST", "PUT", "PATCH"], "*", async (c, next) => {
+apiRouter.on(["POST", "PATCH"], "*", async (c, next) => {
   const client = c.get("db");
 
   const idempotentRequestMiddleware = createMiddleware(

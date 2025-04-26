@@ -99,7 +99,7 @@ const setupApp = ({ adapter, specification }: Partial<SetupAppArgs> = {}) => {
 
   const app = new Hono<HonoEnv>()
     .on(
-      ["POST", "PUT", "PATCH"],
+      ["POST", "PATCH"],
       "/api/*",
       idempotentRequestMiddleware({
         // explicitly set to always to make tests simpler
