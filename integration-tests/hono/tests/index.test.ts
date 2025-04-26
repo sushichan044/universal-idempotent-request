@@ -375,6 +375,7 @@ describe("idempotentRequest middleware", () => {
               "content-type": expect.any(String),
             },
             status: 500,
+            statusText: "",
           },
         }),
       );

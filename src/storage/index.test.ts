@@ -69,6 +69,7 @@ describe("createIdempotentRequestStorage", () => {
       body: '{"id": 123}',
       headers: { location: "/new-resource" },
       status: 201,
+      statusText: "Created",
     };
 
     it("should early return with cached request if already processed", async () => {
@@ -139,6 +140,7 @@ describe("createIdempotentRequestStorage", () => {
       body: '{"id": 123}',
       headers: { location: "/new-resource" },
       status: 201,
+      statusText: "Created",
     };
 
     it("should set the response, unlock the request, and update", async () => {

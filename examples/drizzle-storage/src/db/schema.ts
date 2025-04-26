@@ -18,6 +18,7 @@ export const TB_idempotent_request = sqliteTable("idempotent_requests", {
   response_body: text(),
   response_headers: text({ mode: "json" }).$type<Record<string, string>>(),
   response_status: int(),
+  response_status_text: text(),
 });
 
 export const TB_user = sqliteTable("users", {
