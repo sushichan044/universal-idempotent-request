@@ -1,5 +1,5 @@
-import type { IdempotencyFingerprint } from "./brand";
 import type { IdempotentRequestServerSpecification } from "./server-specification";
+import type { IdempotencyFingerprint } from "./types";
 
 export type RequestIdentifier = {
   /**

@@ -1,15 +1,15 @@
-import type { IdempotentStorageKey } from "../src/brand";
+import type {
+  IdempotentStorageKey,
+  SerializedResponse,
+} from "hono-idempotent-request";
 import type {
   FindOrCreateStorageResult,
   IdempotentRequestStorage,
-  NewIdempotentRequest,
-} from "../src/storage";
-import type {
   LockedIdempotentRequest,
+  NewIdempotentRequest,
   NonLockedIdempotentRequest,
   StoredIdempotentRequest,
-} from "../src/types";
-import type { SerializedResponse } from "../src/utils/response";
+} from "hono-idempotent-request/storage";
 
 /**
  * In-memory implementation of idempotent request cache storage by function.

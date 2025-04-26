@@ -1,48 +1,27 @@
-import type { IdempotentStorageKey } from "./brand";
-import type { RequestIdentifier } from "./identifier";
-import type { SerializedResponse } from "./utils/response";
+// Thanks to: https://branded-type-generator.pages.dev
 
-export type { SerializedResponse } from "./utils/response";
+// Idempotency Fingerprint
 
-type IdempotentRequestBase = RequestIdentifier & {
-  /**
-   * Storage key
-   *
-   * This is used to retrieve the request from the storage.
-   */
-  storageKey: IdempotentStorageKey;
+const IdempotencyFingerprintBrand = Symbol();
 
-  /**
-   * Stored response
-   * (null until server completes processing request)
-   */
-  response: SerializedResponse | null;
+export type IdempotencyFingerprint = string & {
+  [IdempotencyFingerprintBrand]: unknown;
 };
 
-export type StoredIdempotentRequest =
-  | LockedIdempotentRequest
-  | NonLockedIdempotentRequest;
+export function createIdempotencyFingerprint(
+  p: string,
+): IdempotencyFingerprint {
+  return p as IdempotencyFingerprint;
+}
 
-export type NonLockedIdempotentRequest = Readonly<
-  IdempotentRequestBase & {
-    /**
-     * Time when the request was locked for processing
-     *
-     * This is used to prevent race conditions when multiple requests are
-     * trying to process the same request concurrently.
-     */
-    lockedAt: null;
-  }
->;
+// Idempotent Storage Key
 
-export type LockedIdempotentRequest = Readonly<
-  IdempotentRequestBase & {
-    /**
-     * Time when the request was locked for processing
-     *
-     * This is used to prevent race conditions when multiple requests are
-     * trying to process the same request concurrently.
-     */
-    lockedAt: Date;
-  }
->;
+const IdempotentStorageKeyBrand = Symbol();
+
+export type IdempotentStorageKey = string & {
+  [IdempotentStorageKeyBrand]: unknown;
+};
+
+export function createIdempotentStorageKey(p: string): IdempotentStorageKey {
+  return p as IdempotentStorageKey;
+}
