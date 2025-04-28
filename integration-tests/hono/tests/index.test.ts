@@ -27,14 +27,17 @@ class HonoTestAdapter implements FrameworkTestAdapter {
   };
 
   setupApp = (arguments_: SetupAppArguments): void => {
-    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+    this.#app.use("/api/*", async (c, next) => {
       const idempotentRequestMiddleware = createMiddleware(
-        arguments_.universalMiddleware,
+        arguments_.idempotentRequest.middleware,
       );
 
       const middleware = idempotentRequestMiddleware({
-        server: { specification: arguments_.serverSpecification },
-        storage: { adapter: arguments_.storageAdapter },
+        activationStrategy: arguments_.idempotentRequest.strategy,
+        server: {
+          specification: arguments_.idempotentRequest.serverSpecification,
+        },
+        storage: { adapter: arguments_.idempotentRequest.storageAdapter },
       });
 
       // @ts-expect-error context types is not compatible with universal middleware

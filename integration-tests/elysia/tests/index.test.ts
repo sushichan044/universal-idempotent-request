@@ -27,7 +27,7 @@ class ElysiaTestAdapter implements FrameworkTestAdapter {
 
   setupApp = (arguments_: SetupAppArguments): void => {
     const idempotentRequestMiddleware = createMiddleware(
-      arguments_.universalMiddleware,
+      arguments_.idempotentRequest.middleware,
     );
 
     const raceConditionSimulatorMiddleware = createMiddleware(
@@ -37,8 +37,11 @@ class ElysiaTestAdapter implements FrameworkTestAdapter {
     this.#app
       .use(
         idempotentRequestMiddleware({
-          server: { specification: arguments_.serverSpecification },
-          storage: { adapter: arguments_.storageAdapter },
+          activationStrategy: arguments_.idempotentRequest.strategy,
+          server: {
+            specification: arguments_.idempotentRequest.serverSpecification,
+          },
+          storage: { adapter: arguments_.idempotentRequest.storageAdapter },
         }),
       )
       .use(
