@@ -27,41 +27,42 @@ class HonoTestAdapter implements FrameworkTestAdapter {
   };
 
   setupApp = (arguments_: SetupAppArguments): void => {
-    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+    this.#app.use("/api/*", async (c, next) => {
       const idempotentRequestMiddleware = createMiddleware(
-        arguments_.universalMiddleware,
+        arguments_.idempotentRequest.middleware,
       );
 
       const middleware = idempotentRequestMiddleware({
-        server: { specification: arguments_.serverSpecification },
-        storage: { adapter: arguments_.storageAdapter },
+        activationStrategy: arguments_.idempotentRequest.strategy,
+        server: {
+          specification: arguments_.idempotentRequest.serverSpecification,
+        },
+        storage: { adapter: arguments_.idempotentRequest.storageAdapter },
       });
 
       // @ts-expect-error context types is not compatible with universal middleware
       return await middleware(c, next);
     });
 
-    this.#app.post(
-      "/api/test",
-      async (c, next) => {
-        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
-          await arguments_.racer.waitOnServer();
-        }
-        await next();
-      },
-      (c) => {
-        return c.json({ message: "Test passed" });
-      },
-    );
+    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+      const raceConditionSimulatorMiddleware = createMiddleware(
+        arguments_.racer.middleware,
+      );
+
+      const middleware = raceConditionSimulatorMiddleware({
+        ...arguments_.racer.arguments,
+      });
+
+      // @ts-expect-error context types is not compatible with universal middleware
+      return await middleware(c, next);
+    });
+
+    this.#app.post("/api/test", (c) => {
+      return c.json({ message: "Test passed" });
+    });
 
     this.#app.post(
       "/api/error",
-      async (c, next) => {
-        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
-          await arguments_.racer.waitOnServer();
-        }
-        await next();
-      },
       () => new Response("Internal Server Error", { status: 500 }),
     );
   };

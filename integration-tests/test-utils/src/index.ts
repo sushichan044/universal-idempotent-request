@@ -15,10 +15,8 @@ import {
   vi,
 } from "vitest";
 
-import type { Racer } from "./racer";
-
 import { createInMemoryAdapter } from "./in-memory-adapter";
-import { createRacer } from "./racer";
+import { createRacer, racerMiddleware } from "./racer";
 import {
   createTestServerSpecification,
   createUnsafeServerSpecification,
@@ -39,10 +37,17 @@ export interface FrameworkTestAdapter {
 
 export type SetupAppArguments = {
   needSimulateSlow: (request: Request) => boolean;
-  racer: Racer;
-  serverSpecification: IdempotentRequestServerSpecification;
-  storageAdapter: IdempotentRequestStorageAdapter;
-  universalMiddleware: typeof idempotentRequestUniversalMiddleware;
+  racer: {
+    arguments: Parameters<typeof racerMiddleware>[0];
+    middleware: typeof racerMiddleware;
+  };
+
+  idempotentRequest: {
+    middleware: typeof idempotentRequestUniversalMiddleware;
+    serverSpecification: IdempotentRequestServerSpecification;
+    storageAdapter: IdempotentRequestStorageAdapter;
+    strategy: (request: Request) => boolean;
+  };
 };
 
 export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
@@ -68,13 +73,25 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
       storageAdapter ??= memoryAdapter;
 
       framework.setupApp({
+        idempotentRequest: {
+          middleware: idempotentRequestUniversalMiddleware,
+          serverSpecification,
+          storageAdapter,
+          strategy: (request) => {
+            return ["PATCH", "POST"].includes(request.method);
+          },
+        },
         needSimulateSlow(request) {
           return request.headers.get("X-Simulate-Slow") === "true";
         },
-        racer,
-        serverSpecification,
-        storageAdapter,
-        universalMiddleware: idempotentRequestUniversalMiddleware,
+        racer: {
+          arguments: {
+            activation: (request) =>
+              request.headers.get("X-Simulate-Slow") === "true",
+            racer,
+          },
+          middleware: racerMiddleware,
+        },
       });
     };
 
@@ -192,6 +209,9 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
         const idempotencyKey = uuidv4();
 
         const request = new Request("http://127.0.0.1:3000/api/test", {
+          body: JSON.stringify({
+            name: "john",
+          }),
           headers: {
             "Content-Type": "application/json",
             "Idempotency-Key": idempotencyKey,

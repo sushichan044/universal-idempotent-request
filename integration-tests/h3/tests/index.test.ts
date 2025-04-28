@@ -9,13 +9,7 @@ import {
   createMiddleware,
   universalOnBeforeResponse,
 } from "@universal-middleware/h3";
-import {
-  createApp,
-  createRouter,
-  defineEventHandler,
-  toWebHandler,
-  toWebRequest,
-} from "h3";
+import { createApp, createRouter, defineEventHandler, toWebHandler } from "h3";
 
 class H3TestAdapter implements FrameworkTestAdapter {
   name = "h3";
@@ -42,24 +36,28 @@ class H3TestAdapter implements FrameworkTestAdapter {
     const router = createRouter();
 
     const idempotentRequestMiddleware = createMiddleware(
-      arguments_.universalMiddleware,
+      arguments_.idempotentRequest.middleware,
     );
 
     this.#app.use(
       ["/api/test", "/api/error"],
       idempotentRequestMiddleware({
-        server: { specification: arguments_.serverSpecification },
-        storage: { adapter: arguments_.storageAdapter },
+        activationStrategy: arguments_.idempotentRequest.strategy,
+        server: {
+          specification: arguments_.idempotentRequest.serverSpecification,
+        },
+        storage: { adapter: arguments_.idempotentRequest.storageAdapter },
       }),
+    );
+
+    const raceConditionSimulatorMiddleware = createMiddleware(
+      arguments_.racer.middleware,
     );
 
     this.#app.use(
       ["/api/test", "/api/error"],
-      defineEventHandler(async (e) => {
-        const req = toWebRequest(e);
-        if (arguments_.needSimulateSlow(req)) {
-          await arguments_.racer.waitOnServer();
-        }
+      raceConditionSimulatorMiddleware({
+        ...arguments_.racer.arguments,
       }),
     );
 

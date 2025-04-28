@@ -1,0 +1,20 @@
+{
+  "name": "@repo-integration-test/elysia",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@universal-middleware/elysia": "0.4.8",
+    "elysia": "1.2.25",
+    "universal-idempotent-request": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/integration-tests-utils": "workspace:*",
+    "@virtual-live-lab/tsconfig": "2.1.20",
+    "@vitest/coverage-v8": "3.0.9",
+    "typescript": "5.8.3",
+    "vitest": "3.0.9"
+  }
+}

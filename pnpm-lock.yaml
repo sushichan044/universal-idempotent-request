@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@universal-middleware/core':
         specifier: 0.4.7
-        version: 0.4.7(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
     devDependencies:
       '@types/node':
         specifier: 22.14.1
@@ -68,7 +68,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
       hono:
         specifier: 4.7.7
         version: 4.7.7
@@ -114,7 +114,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
       drizzle-orm:
         specifier: 0.43.1
         version: 0.43.1(@libsql/client@0.15.4)
@@ -144,11 +144,39 @@ importers:
         specifier: 5.8.3
         version: 5.8.3
 
+  integration-tests/elysia:
+    dependencies:
+      '@universal-middleware/elysia':
+        specifier: 0.4.8
+        version: 0.4.8(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
+      elysia:
+        specifier: 1.2.25
+        version: 1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3)
+      universal-idempotent-request:
+        specifier: workspace:*
+        version: link:../..
+    devDependencies:
+      '@repo/integration-tests-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@virtual-live-lab/tsconfig':
+        specifier: 2.1.20
+        version: 2.1.20(typescript@5.8.3)
+      '@vitest/coverage-v8':
+        specifier: 3.0.9
+        version: 3.0.9(vitest@3.0.9(@types/node@22.14.1)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1))
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: 3.0.9
+        version: 3.0.9(@types/node@22.14.1)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1)
+
   integration-tests/h3:
     dependencies:
       '@universal-middleware/h3':
         specifier: 0.4.9
-        version: 0.4.9(patch_hash=056899df0070866be1f7c8a5a92506463aa9cacf8add77b869b2597ac612ac61)(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.9(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
       h3:
         specifier: 1.15.2
         version: 1.15.2
@@ -176,7 +204,7 @@ importers:
     dependencies:
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
       hono:
         specifier: 4.7.7
         version: 4.7.7
@@ -210,7 +238,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/core':
         specifier: 0.4.7
-        version: 0.4.7(h3@1.15.2)(hono@4.7.7)
+        version: 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
       universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
@@ -1399,6 +1427,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@sinclair/typebox@0.34.33':
+    resolution: {integrity: sha512-5HAV9exOMcXRUxo+9iYB5n09XxzCXnfy4VTNW4xnDv+FgjzAGY989C28BIdljKqmF+ZltUwujE3aossvcVtq6g==}
+
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
@@ -1549,6 +1580,9 @@ packages:
         optional: true
       hono:
         optional: true
+
+  '@universal-middleware/elysia@0.4.8':
+    resolution: {integrity: sha512-6cDEPq96blz5x17rsNJjRmDqD4o0XrGB+6lFElEThtIBAUn1Y38OqMn1+yf7Ycdc5w45mr4T1uimfH9tAdU2Ug==}
 
   '@universal-middleware/h3@0.4.9':
     resolution: {integrity: sha512-AC/Biq8iBYg5PH0BcchGmGeOksLa6IBPh9m3bH5GPk/MAjsiJI6B1hjWKV0Q+Hnf/yIzoWVq1RqNHo/z06zniQ==}
@@ -1886,6 +1920,10 @@ packages:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
 
+  cookie@1.0.2:
+    resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
+    engines: {node: '>=18'}
+
   core-js-compat@3.41.0:
     resolution: {integrity: sha512-RFsU9LySVue9RTwdDVX/T0e2Y6jRYWXERKElIjpuEOEnxaXffI0X7RUwVzfYLfzuLXSNJDYoRYUAmRUcyln20A==}
 
@@ -2133,6 +2171,18 @@ packages:
 
   electron-to-chromium@1.5.132:
     resolution: {integrity: sha512-QgX9EBvWGmvSRa74zqfnG7+Eno0Ak0vftBll0Pt2/z5b3bEGYL6OUXLgKPtvx73dn3dvwrlyVkjPKRRlhLYTEg==}
+
+  elysia@1.2.25:
+    resolution: {integrity: sha512-WsdQpORJvb4uszzeqYT0lg97knw1iBW1NTzJ1Jm57tiHg+DfAotlWXYbjmvQ039ssV0fYELDHinLLoUazZkEHg==}
+    peerDependencies:
+      '@sinclair/typebox': '>= 0.34.0'
+      openapi-types: '>= 12.0.0'
+      typescript: '>= 5.0.0'
+    peerDependenciesMeta:
+      openapi-types:
+        optional: true
+      typescript:
+        optional: true
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2822,6 +2872,9 @@ packages:
 
   mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
+
+  memoirist@0.3.0:
+    resolution: {integrity: sha512-wR+4chMgVPq+T6OOsk40u9Wlpw1Pjx66NMNiYxCQQ4EUJ7jDs3D9kTCeKdBOkvAiqXlHLVJlvYL01PvIJ1MPNg==}
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -4697,6 +4750,8 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.40.0':
     optional: true
 
+  '@sinclair/typebox@0.34.33': {}
+
   '@standard-schema/spec@1.0.0': {}
 
   '@stylistic/eslint-plugin-ts@4.2.0(eslint@9.25.0(jiti@2.4.2))(typescript@5.8.3)':
@@ -4881,17 +4936,18 @@ snapshots:
       '@typescript-eslint/types': 8.30.1
       eslint-visitor-keys: 4.2.0
 
-  '@universal-middleware/core@0.4.7(h3@1.15.2)(hono@4.7.7)':
+  '@universal-middleware/core@0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)':
     dependencies:
       regexparam: 3.0.0
       tough-cookie: 5.1.2
     optionalDependencies:
+      elysia: 1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3)
       h3: 1.15.2
       hono: 4.7.7
 
-  '@universal-middleware/h3@0.4.9(patch_hash=056899df0070866be1f7c8a5a92506463aa9cacf8add77b869b2597ac612ac61)(h3@1.15.2)(hono@4.7.7)':
+  '@universal-middleware/elysia@0.4.8(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(h3@1.15.2)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
@@ -4901,9 +4957,21 @@ snapshots:
       - h3
       - hono
 
-  '@universal-middleware/hono@0.4.10(h3@1.15.2)(hono@4.7.7)':
+  '@universal-middleware/h3@0.4.9(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(h3@1.15.2)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - '@hattip/core'
+      - '@webroute/route'
+      - elysia
+      - fastify
+      - h3
+      - hono
+
+  '@universal-middleware/hono@0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)':
+    dependencies:
+      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.2)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
@@ -5302,6 +5370,8 @@ snapshots:
 
   cookie@0.7.2: {}
 
+  cookie@1.0.2: {}
+
   core-js-compat@3.41.0:
     dependencies:
       browserslist: 4.24.4
@@ -5493,6 +5563,14 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   electron-to-chromium@1.5.132: {}
+
+  elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3):
+    dependencies:
+      '@sinclair/typebox': 0.34.33
+      cookie: 1.0.2
+      memoirist: 0.3.0
+    optionalDependencies:
+      typescript: 5.8.3
 
   emoji-regex@8.0.0: {}
 
@@ -6407,6 +6485,8 @@ snapshots:
   mdn-data@2.0.28: {}
 
   mdn-data@2.0.30: {}
+
+  memoirist@0.3.0: {}
 
   merge2@1.4.1: {}
 
