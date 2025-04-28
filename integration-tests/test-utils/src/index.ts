@@ -36,7 +36,6 @@ export interface FrameworkTestAdapter {
 }
 
 export type SetupAppArguments = {
-  needSimulateSlow: (request: Request) => boolean;
   racer: {
     arguments: Parameters<typeof racerMiddleware>[0];
     middleware: typeof racerMiddleware;
@@ -80,9 +79,6 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
           strategy: (request) => {
             return ["PATCH", "POST"].includes(request.method);
           },
-        },
-        needSimulateSlow(request) {
-          return request.headers.get("X-Simulate-Slow") === "true";
         },
         racer: {
           arguments: {
