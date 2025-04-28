@@ -192,6 +192,9 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
         const idempotencyKey = uuidv4();
 
         const request = new Request("http://127.0.0.1:3000/api/test", {
+          body: JSON.stringify({
+            name: "john",
+          }),
           headers: {
             "Content-Type": "application/json",
             "Idempotency-Key": idempotencyKey,
