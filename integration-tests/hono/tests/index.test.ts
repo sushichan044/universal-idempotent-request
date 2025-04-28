@@ -41,27 +41,25 @@ class HonoTestAdapter implements FrameworkTestAdapter {
       return await middleware(c, next);
     });
 
-    this.#app.post(
-      "/api/test",
-      async (c, next) => {
-        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
-          await arguments_.racer.waitOnServer();
-        }
-        await next();
-      },
-      (c) => {
-        return c.json({ message: "Test passed" });
-      },
-    );
+    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+      const raceConditionSimulatorMiddleware = createMiddleware(
+        arguments_.racer.middleware,
+      );
+
+      const middleware = raceConditionSimulatorMiddleware({
+        ...arguments_.racer.arguments,
+      });
+
+      // @ts-expect-error context types is not compatible with universal middleware
+      return await middleware(c, next);
+    });
+
+    this.#app.post("/api/test", (c) => {
+      return c.json({ message: "Test passed" });
+    });
 
     this.#app.post(
       "/api/error",
-      async (c, next) => {
-        if (arguments_.needSimulateSlow(c.req.raw.clone())) {
-          await arguments_.racer.waitOnServer();
-        }
-        await next();
-      },
       () => new Response("Internal Server Error", { status: 500 }),
     );
   };

@@ -9,13 +9,7 @@ import {
   createMiddleware,
   universalOnBeforeResponse,
 } from "@universal-middleware/h3";
-import {
-  createApp,
-  createRouter,
-  defineEventHandler,
-  toWebHandler,
-  toWebRequest,
-} from "h3";
+import { createApp, createRouter, defineEventHandler, toWebHandler } from "h3";
 
 class H3TestAdapter implements FrameworkTestAdapter {
   name = "h3";
@@ -53,13 +47,14 @@ class H3TestAdapter implements FrameworkTestAdapter {
       }),
     );
 
+    const raceConditionSimulatorMiddleware = createMiddleware(
+      arguments_.racer.middleware,
+    );
+
     this.#app.use(
       ["/api/test", "/api/error"],
-      defineEventHandler(async (e) => {
-        const req = toWebRequest(e);
-        if (arguments_.needSimulateSlow(req)) {
-          await arguments_.racer.waitOnServer();
-        }
+      raceConditionSimulatorMiddleware({
+        ...arguments_.racer.arguments,
       }),
     );
 

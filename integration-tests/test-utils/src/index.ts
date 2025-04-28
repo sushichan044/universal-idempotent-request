@@ -15,10 +15,8 @@ import {
   vi,
 } from "vitest";
 
-import type { Racer } from "./racer";
-
 import { createInMemoryAdapter } from "./in-memory-adapter";
-import { createRacer } from "./racer";
+import { createRacer, racerMiddleware } from "./racer";
 import {
   createTestServerSpecification,
   createUnsafeServerSpecification,
@@ -39,7 +37,10 @@ export interface FrameworkTestAdapter {
 
 export type SetupAppArguments = {
   needSimulateSlow: (request: Request) => boolean;
-  racer: Racer;
+  racer: {
+    arguments: Parameters<typeof racerMiddleware>[0];
+    middleware: typeof racerMiddleware;
+  };
   serverSpecification: IdempotentRequestServerSpecification;
   storageAdapter: IdempotentRequestStorageAdapter;
   universalMiddleware: typeof idempotentRequestUniversalMiddleware;
@@ -71,7 +72,14 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
         needSimulateSlow(request) {
           return request.headers.get("X-Simulate-Slow") === "true";
         },
-        racer,
+        racer: {
+          arguments: {
+            activation: (request) =>
+              request.headers.get("X-Simulate-Slow") === "true",
+            racer,
+          },
+          middleware: racerMiddleware,
+        },
         serverSpecification,
         storageAdapter,
         universalMiddleware: idempotentRequestUniversalMiddleware,

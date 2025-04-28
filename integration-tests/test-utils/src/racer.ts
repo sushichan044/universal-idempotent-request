@@ -1,3 +1,5 @@
+import type { Get, UniversalMiddleware } from "@universal-middleware/core";
+
 export type Racer = ReturnType<typeof createRacer>;
 
 /**
@@ -43,3 +45,17 @@ export const createRacer = (
     waitOnServer,
   };
 };
+
+type RacerMiddlewareOptions = {
+  activation: (request: Request) => boolean;
+  racer: Racer;
+};
+
+export const racerMiddleware = ((options: RacerMiddlewareOptions) =>
+  async (request) => {
+    if (!options.activation(request.clone())) {
+      return;
+    }
+
+    await options.racer.waitOnClient();
+  }) satisfies Get<[RacerMiddlewareOptions], UniversalMiddleware>;
