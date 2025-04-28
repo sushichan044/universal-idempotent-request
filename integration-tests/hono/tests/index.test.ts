@@ -44,7 +44,7 @@ class HonoTestAdapter implements FrameworkTestAdapter {
       return await middleware(c, next);
     });
 
-    this.#app.on(["POST", "PATCH"], "/api/*", async (c, next) => {
+    this.#app.use(async (c, next) => {
       const raceConditionSimulatorMiddleware = createMiddleware(
         arguments_.racer.middleware,
       );

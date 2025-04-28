@@ -55,7 +55,6 @@ class H3TestAdapter implements FrameworkTestAdapter {
     );
 
     this.#app.use(
-      ["/api/test", "/api/error"],
       raceConditionSimulatorMiddleware({
         ...arguments_.racer.arguments,
       }),
