@@ -1,0 +1,20 @@
+{
+  "name": "@repo-integration-test/h3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@universal-middleware/h3": "0.4.9",
+    "h3": "1.15.2",
+    "universal-idempotent-request": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/integration-tests-utils": "workspace:*",
+    "@virtual-live-lab/tsconfig": "2.1.20",
+    "@vitest/coverage-v8": "3.0.9",
+    "typescript": "5.8.3",
+    "vitest": "3.0.9"
+  }
+}

@@ -14,6 +14,6 @@ export default defineConfig({
       process.env["GITHUB_ACTIONS"] == null
         ? "default"
         : ["default", "github-actions"],
-    workspace: ["./src", "integration-tests/hono"],
+    workspace: ["./src", "integration-tests/*"],
   },
 });
