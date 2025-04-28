@@ -22,6 +22,8 @@ class ElysiaTestAdapter implements FrameworkTestAdapter {
   }
 
   resetApp = (): void => {
+    // Elysia needs some time to perform AOT compilation and some tests will fail.
+    // So we disable AOT compilation.
     this.#app = new Elysia({ aot: false });
   };
 
