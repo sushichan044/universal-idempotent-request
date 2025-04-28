@@ -42,10 +42,8 @@ export type SetupAppArguments = {
   };
 
   idempotentRequest: {
+    arguments: Parameters<typeof idempotentRequestUniversalMiddleware>[0];
     middleware: typeof idempotentRequestUniversalMiddleware;
-    serverSpecification: IdempotentRequestServerSpecification;
-    storageAdapter: IdempotentRequestStorageAdapter;
-    strategy: (request: Request) => boolean;
   };
 };
 
@@ -73,12 +71,18 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
 
       framework.setupApp({
         idempotentRequest: {
-          middleware: idempotentRequestUniversalMiddleware,
-          serverSpecification,
-          storageAdapter,
-          strategy: (request) => {
-            return ["PATCH", "POST"].includes(request.method);
+          arguments: {
+            activationStrategy: (request) => {
+              return ["PATCH", "POST"].includes(request.method);
+            },
+            server: {
+              specification: serverSpecification,
+            },
+            storage: {
+              adapter: storageAdapter,
+            },
           },
+          middleware: idempotentRequestUniversalMiddleware,
         },
         racer: {
           arguments: {
