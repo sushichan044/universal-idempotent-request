@@ -37,20 +37,8 @@ class ElysiaTestAdapter implements FrameworkTestAdapter {
     );
 
     this.#app
-      .use(
-        idempotentRequestMiddleware({
-          activationStrategy: arguments_.idempotentRequest.strategy,
-          server: {
-            specification: arguments_.idempotentRequest.serverSpecification,
-          },
-          storage: { adapter: arguments_.idempotentRequest.storageAdapter },
-        }),
-      )
-      .use(
-        raceConditionSimulatorMiddleware({
-          ...arguments_.racer.arguments,
-        }),
-      )
+      .use(idempotentRequestMiddleware(arguments_.idempotentRequest.arguments))
+      .use(raceConditionSimulatorMiddleware(arguments_.racer.arguments))
       .post("/api/test", () => {
         return new Response(JSON.stringify({ message: "Test passed" }), {
           status: 200,

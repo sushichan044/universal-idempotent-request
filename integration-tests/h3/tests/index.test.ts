@@ -41,25 +41,14 @@ class H3TestAdapter implements FrameworkTestAdapter {
 
     this.#app.use(
       ["/api/test", "/api/error"],
-      idempotentRequestMiddleware({
-        activationStrategy: arguments_.idempotentRequest.strategy,
-        server: {
-          specification: arguments_.idempotentRequest.serverSpecification,
-        },
-        storage: { adapter: arguments_.idempotentRequest.storageAdapter },
-      }),
+      idempotentRequestMiddleware(arguments_.idempotentRequest.arguments),
     );
 
     const raceConditionSimulatorMiddleware = createMiddleware(
       arguments_.racer.middleware,
     );
 
-    this.#app.use(
-      ["/api/test", "/api/error"],
-      raceConditionSimulatorMiddleware({
-        ...arguments_.racer.arguments,
-      }),
-    );
+    this.#app.use(raceConditionSimulatorMiddleware(arguments_.racer.arguments));
 
     router.post(
       "/api/test",

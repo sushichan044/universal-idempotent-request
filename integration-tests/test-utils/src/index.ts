@@ -36,17 +36,14 @@ export interface FrameworkTestAdapter {
 }
 
 export type SetupAppArguments = {
-  needSimulateSlow: (request: Request) => boolean;
   racer: {
     arguments: Parameters<typeof racerMiddleware>[0];
     middleware: typeof racerMiddleware;
   };
 
   idempotentRequest: {
+    arguments: Parameters<typeof idempotentRequestUniversalMiddleware>[0];
     middleware: typeof idempotentRequestUniversalMiddleware;
-    serverSpecification: IdempotentRequestServerSpecification;
-    storageAdapter: IdempotentRequestStorageAdapter;
-    strategy: (request: Request) => boolean;
   };
 };
 
@@ -74,15 +71,18 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
 
       framework.setupApp({
         idempotentRequest: {
-          middleware: idempotentRequestUniversalMiddleware,
-          serverSpecification,
-          storageAdapter,
-          strategy: (request) => {
-            return ["PATCH", "POST"].includes(request.method);
+          arguments: {
+            activationStrategy: (request) => {
+              return ["PATCH", "POST"].includes(request.method);
+            },
+            server: {
+              specification: serverSpecification,
+            },
+            storage: {
+              adapter: storageAdapter,
+            },
           },
-        },
-        needSimulateSlow(request) {
-          return request.headers.get("X-Simulate-Slow") === "true";
+          middleware: idempotentRequestUniversalMiddleware,
         },
         racer: {
           arguments: {
