@@ -8,6 +8,7 @@
   "dependencies": {
     "@universal-middleware/express": "0.4.15",
     "express": "5.1.0",
+    "fetch-to-node": "2.1.0",
     "universal-idempotent-request": "workspace:*"
   },
   "devDependencies": {
