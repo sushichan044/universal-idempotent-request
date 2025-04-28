@@ -17,12 +17,9 @@ class HonoTestAdapter implements FrameworkTestAdapter {
     this.resetApp();
   }
 
-  fetch = async (
-    request: Request,
-    requestInit?: RequestInit,
-  ): Promise<Response> => {
+  fetch = async (request: Request): Promise<Response> => {
     // 3rd argument is required by universal-middleware/hono
-    return this.#app.request(request, requestInit, {});
+    return this.#app.request(request, undefined, {});
   };
 
   resetApp = (): void => {

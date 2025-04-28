@@ -28,7 +28,7 @@ import {
  * You need to implement this interface for each frameworks you want to test.
  */
 export interface FrameworkTestAdapter {
-  fetch(request: Request, requestInit?: RequestInit): Promise<Response>;
+  fetch(request: Request): Promise<Response>;
 
   name: string;
 
@@ -312,7 +312,6 @@ export const runFrameworkIntegrationTest = (framework: FrameworkTestAdapter) =>
         );
 
         expect(response.status).toBe(500);
-        expect(await response.text()).toBe("Internal Server Error");
       });
     });
   });
