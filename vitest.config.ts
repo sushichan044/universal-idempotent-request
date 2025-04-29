@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       all: true,
-      exclude: ["examples/**"],
+      exclude: ["examples/**", "integration-tests/test-utils/src/**"],
       include: ["**/src/**", "**/tests/**"],
       provider: "v8",
       reporter: ["text", "json-summary", "json"],
