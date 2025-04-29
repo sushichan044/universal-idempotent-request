@@ -3,21 +3,31 @@ description:
 globs:
 alwaysApply: true
 ---
-
 # Testing
 
-このファイルが参照されたことを確かめるため、「testing.mdc」を読みましたと出力してください。
+- Always use Vitest for testing.
+- Explicitly import all Vitest APIs from `vitest`.
 
-- 必ず Vitest を使ってください。
-- すべての Vitest API は `vitest` から明示的に import してください
-- テストケースは必ず英語で書いてください
-- テストファイルは実装と同じ階層に置いてください。
-  - 例: `src/index.ts` のテストは `src/index.test.ts` に書きます
+  ```typescript
+  // Correct:
+  import { describe, it, expect, vi } from 'vitest';
+
+  // Incorrect (Avoid relying on globals):
+  // describe(...)
+  // it(...)
+  // expect(...)
+  ```
+
+- Write test case descriptions in English.
+- Place test files in the same directory as the implementation file.
+  - Example: Tests for `src/index.ts` should be in `src/index.test.ts`.
 
 ## Execution
 
-- `pnpm run test:run` を利用してください。
+- Use `pnpm run test:run` to execute tests.
 
-## Matcher
+## Matchers
 
-- オブジェクトや配列の比較には必ず `toStrictEqual` を使ってください
+- Always use `toStrictEqual` for comparing objects and arrays.
+- Use `toBe` for primitive values.
+- Utilize appropriate matchers for mocks, such as `toHaveBeenCalledOnce`, `toHaveBeenCalledWith`, etc.
