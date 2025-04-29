@@ -77,57 +77,74 @@ describe("BodyInit round-trip", () => {
   it("should round-trip string bodies", async () => {
     const response = new Response("Hello");
     const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe("Hello");
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip Blob bodies", async () => {
-    const blob = new Blob(["Hello Blob"], { type: "text/plain" });
-    const serialized = await cloneAndSerializeResponse(new Response(blob));
+    const response = new Response(
+      new Blob(["Hello Blob"], { type: "text/plain" }),
+    );
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe("Hello Blob");
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip ArrayBuffer bodies", async () => {
     const buf = new TextEncoder().encode("Hello AB").buffer;
-    const serialized = await cloneAndSerializeResponse(new Response(buf));
+    const response = new Response(buf);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe("Hello AB");
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip Uint8Array bodies", async () => {
     const uint8 = new TextEncoder().encode("Hello UA");
-    const serialized = await cloneAndSerializeResponse(new Response(uint8));
+    const response = new Response(uint8);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe("Hello UA");
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip URLSearchParams bodies", async () => {
     const usp = new URLSearchParams({ baz: "qux", foo: "bar" });
-    const serialized = await cloneAndSerializeResponse(new Response(usp));
+    const response = new Response(usp);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
-    const text = await deserialized.text();
+    const deserializedBody = await deserialized.text();
 
-    expect(text).toBe(usp.toString());
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip FormData bodies", async () => {
     const fd = new FormData();
     fd.append("key", "value");
-    const serialized = await cloneAndSerializeResponse(new Response(fd));
+    const response = new Response(fd);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe(serialized.body);
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip ReadableStream bodies", async () => {
@@ -137,18 +154,21 @@ describe("BodyInit round-trip", () => {
         controller.close();
       },
     });
-    const serialized = await cloneAndSerializeResponse(new Response(stream));
+    const response = new Response(stream);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
 
     const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
 
-    expect(await deserialized.text()).toBe("Hello Stream");
+    expect(deserializedBody).toBe(actualBody);
   });
 
   it("should round-trip null bodies", async () => {
     const response = new Response(null);
+    const serialized = await cloneAndSerializeResponse(response);
     const actualBody = await response.text();
 
-    const serialized = await cloneAndSerializeResponse(response);
     const deserialized = deserializeResponse(serialized);
     const deserializedBody = await deserialized.text();
 
