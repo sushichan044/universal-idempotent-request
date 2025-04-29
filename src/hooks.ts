@@ -1,6 +1,6 @@
 import type { MaybePromise } from "./utils/types";
 
-type ResponseSituation =
+type ResponseType =
   | "error"
   | "key_conflict"
   | "key_missing"
@@ -11,7 +11,7 @@ type ResponseSituation =
 export type Hooks = {
   modifyResponse: (
     response: Response,
-    situation: ResponseSituation,
+    type: ResponseType,
   ) => MaybePromise<Response>;
 };
 

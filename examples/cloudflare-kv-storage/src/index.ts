@@ -43,8 +43,8 @@ app.on(["PATCH", "POST"], "/api/*", async (c, next) => {
 
   const middleware = middlewareFactory({
     hooks: {
-      modifyResponse: (response, situation) => {
-        response.headers.set("X-Idempotency-Status", situation);
+      modifyResponse: (response, type) => {
+        response.headers.set("X-Idempotency-Status", type);
         return response;
       },
     },
