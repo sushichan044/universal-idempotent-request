@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@universal-middleware/core':
         specifier: 0.4.7
-        version: 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     devDependencies:
       '@types/node':
         specifier: 22.15.3
@@ -68,7 +68,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.10(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       hono:
         specifier: 4.7.7
         version: 4.7.7
@@ -114,7 +114,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.10(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       drizzle-orm:
         specifier: 0.43.1
         version: 0.43.1(@libsql/client@0.15.4)
@@ -148,7 +148,7 @@ importers:
     dependencies:
       '@universal-middleware/elysia':
         specifier: 0.4.8
-        version: 0.4.8(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.8(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       elysia:
         specifier: 1.2.25
         version: 1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3)
@@ -176,10 +176,47 @@ importers:
     dependencies:
       '@universal-middleware/h3':
         specifier: 0.4.9
-        version: 0.4.9(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.9(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       h3:
         specifier: 1.15.3
         version: 1.15.3
+      universal-idempotent-request:
+        specifier: workspace:*
+        version: link:../..
+    devDependencies:
+      '@repo/integration-tests-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@virtual-live-lab/tsconfig':
+        specifier: 2.1.20
+        version: 2.1.20(typescript@5.8.3)
+      '@vitest/coverage-v8':
+        specifier: 3.0.9
+        version: 3.0.9(vitest@3.0.9(@types/node@22.15.3)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1))
+      typescript:
+        specifier: 5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: 3.0.9
+        version: 3.0.9(@types/node@22.15.3)(jiti@2.4.2)(tsx@4.19.3)(yaml@2.7.1)
+
+  integration-tests/hattip:
+    dependencies:
+      '@hattip/adapter-test':
+        specifier: 0.0.49
+        version: 0.0.49
+      '@hattip/compose':
+        specifier: 0.0.49
+        version: 0.0.49
+      '@hattip/core':
+        specifier: 0.0.49
+        version: 0.0.49
+      '@hattip/router':
+        specifier: 0.0.49
+        version: 0.0.49
+      '@universal-middleware/hattip':
+        specifier: 0.4.8
+        version: 0.4.8(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
@@ -204,7 +241,7 @@ importers:
     dependencies:
       '@universal-middleware/hono':
         specifier: 0.4.10
-        version: 0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.10(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       hono:
         specifier: 4.7.7
         version: 4.7.7
@@ -238,7 +275,7 @@ importers:
         version: 1.1.0
       '@universal-middleware/core':
         specifier: 0.4.7
-        version: 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
@@ -1147,6 +1184,21 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
+  '@hattip/adapter-test@0.0.49':
+    resolution: {integrity: sha512-DkWG9zyDd0P+8a7E+p6aH/s5tRWkZ1ZdgGsXMFnGT/6Z7i8/V598t4GvzTFZdGXK5FKtNZIYKS5og1udJ9bL4A==}
+
+  '@hattip/compose@0.0.49':
+    resolution: {integrity: sha512-jEJGi6EdHpLJGxpFMqcF2J6cNYKGhkDyepXtR7Esxthk5rWC37lFQEl19rWsYOqByn4zpwq87W8qGgsl940dWQ==}
+
+  '@hattip/core@0.0.49':
+    resolution: {integrity: sha512-3/ZJtC17cv8m6Sph8+nw4exUp9yhEf2Shi7HK6AHSUSBtaaQXZ9rJBVxTfZj3PGNOR/P49UBXOym/52WYKFTJQ==}
+
+  '@hattip/polyfills@0.0.49':
+    resolution: {integrity: sha512-5g7W5s6Gq+HDxwULGFQ861yAnEx3yd9V8GDwS96HBZ1nM1u93vN+KTuwXvNsV7Z3FJmCrD/pgU8WakvchclYuA==}
+
+  '@hattip/router@0.0.49':
+    resolution: {integrity: sha512-DcPTUdEFHATUK71kBgjuz4kNpvGqsIIvp391t5fiERbsR0oAKUSRzpI6rVQGJo3WwX64sFd9eHr7P/h4UgxGYg==}
+
   '@hono/node-server@1.14.1':
     resolution: {integrity: sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==}
     engines: {node: '>=18.14.1'}
@@ -1330,6 +1382,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@kamilkisiela/fast-url-parser@1.1.4':
+    resolution: {integrity: sha512-gbkePEBupNydxCelHCESvFSFM8XPh1Zs/OAVRW/rKpEqPAl5PbOM90Si8mv9bvnR53uPD2s/FiRxdvSejpRJew==}
 
   '@libsql/client@0.15.4':
     resolution: {integrity: sha512-m8a7giWlhLdfKVIZFd3UlBptWTS+H0toSOL09BxbqzBeFHwuVC+5ewyi4LMBxoy2TLNQGE4lO8cwpsTWmu695w==}
@@ -1740,6 +1795,9 @@ packages:
   '@universal-middleware/h3@0.4.9':
     resolution: {integrity: sha512-AC/Biq8iBYg5PH0BcchGmGeOksLa6IBPh9m3bH5GPk/MAjsiJI6B1hjWKV0Q+Hnf/yIzoWVq1RqNHo/z06zniQ==}
 
+  '@universal-middleware/hattip@0.4.8':
+    resolution: {integrity: sha512-+U1fvAYnvRtnHhMb4Ww6k1sP08zthY07PtUM4HQnQtCTFc1wc56GzAug2n1JgOkjj7onPmSokoA/ikUPq6rK9g==}
+
   '@universal-middleware/hono@0.4.10':
     resolution: {integrity: sha512-1JVDs9Nwn02gNK2m0pvoRHVYcP9FzjbndZS5zTkyt21t+g02Gqz2R2QSTDvKMNpriV1J3NSGpw0asIHMBKtH4w==}
 
@@ -1803,6 +1861,14 @@ packages:
 
   '@vitest/utils@3.0.9':
     resolution: {integrity: sha512-ilHM5fHhZ89MCp5aAaM9uhfl1c2JdxVxl3McqsdVyVNN6JffnEen8UMCdRTzOhGXNQGo5GNL9QugHrz727Wnng==}
+
+  '@whatwg-node/fetch@0.9.23':
+    resolution: {integrity: sha512-7xlqWel9JsmxahJnYVUj/LLxWcnA93DR4c9xlw3U814jWTiYalryiH1qToik1hOxweKKRLi4haXHM5ycRksPBA==}
+    engines: {node: '>=18.0.0'}
+
+  '@whatwg-node/node-fetch@0.6.0':
+    resolution: {integrity: sha512-tcZAhrpx6oVlkEsRngeTEEE7I5/QdLjeEz4IlekabGaESP7+Dkm/6a9KcF1KdCBB7mO9PXtBkwCuTCt8+UPg8Q==}
+    engines: {node: '>=18.0.0'}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1964,6 +2030,10 @@ packages:
   builtin-modules@5.0.0:
     resolution: {integrity: sha512-bkXY9WsVpY7CvMhKSR6pZilZu9Ln5WDrKVBUXf2S443etkmEO4V58heTecXcUIsNsi4Rx8JUO4NfX1IcQl4deg==}
     engines: {node: '>=18.20'}
+
+  busboy@1.6.0:
+    resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
+    engines: {node: '>=10.16.0'}
 
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
@@ -2554,6 +2624,9 @@ packages:
   exsolve@1.0.5:
     resolution: {integrity: sha512-pz5dvkYYKQ1AHVrgOzBKWeP4u4FRb3a6DNK2ucr0OoNwYIU4QWsJ+NM36LLzORT+z845MzKHHhpXiUF5nvQoJg==}
 
+  fast-decode-uri-component@1.0.1:
+    resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
+
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -2566,6 +2639,9 @@ packages:
 
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
+
+  fast-querystring@1.1.2:
+    resolution: {integrity: sha512-g6KuKWmFXc0fID8WWH0jit4g0AGBoJhCkJMb1RmbsSEUNvQ+ZC8D6CUZ+GtF8nMzSPXnhiePyyqqipzNNEnHjg==}
 
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
@@ -2971,7 +3047,6 @@ packages:
 
   libsql@0.5.8:
     resolution: {integrity: sha512-+OopMI1wM/NvAJTHf3O3+beHd1YfKLnSVsOGBl3/7UBDZ4ydVadkbBk5Hjjs9d3ALC5rBaftMY59AvwyC8MzPw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lilconfig@3.1.3:
@@ -3107,6 +3182,9 @@ packages:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
     deprecated: Use your platform's native DOMException instead
+
+  node-fetch-native@1.6.6:
+    resolution: {integrity: sha512-8Mc2HhqPdlIfedsuZoc3yioPuzp6b+L5jRCRY1QzuWZh2EGJVQrGppC6V6cF0bLdbW0+O2YpqCA25aF/1lvipQ==}
 
   node-fetch@3.3.2:
     resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
@@ -3663,6 +3741,10 @@ packages:
     resolution: {integrity: sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==}
     engines: {node: '>=4', npm: '>=6'}
 
+  streamsearch@1.1.0:
+    resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
+    engines: {node: '>=10.0.0'}
+
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -3911,6 +3993,9 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  urlpattern-polyfill@10.0.0:
+    resolution: {integrity: sha512-H/A06tKD7sS1O1X2SshBVeA5FLycRpjqiBeqGKmBwBDBy28EnRjORxTNe269KSSr5un5qyWi1iL61wLxpd+ZOg==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -4589,6 +4674,28 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
+  '@hattip/adapter-test@0.0.49':
+    dependencies:
+      '@hattip/core': 0.0.49
+      '@hattip/polyfills': 0.0.49
+
+  '@hattip/compose@0.0.49':
+    dependencies:
+      '@hattip/core': 0.0.49
+
+  '@hattip/core@0.0.49': {}
+
+  '@hattip/polyfills@0.0.49':
+    dependencies:
+      '@hattip/core': 0.0.49
+      '@whatwg-node/fetch': 0.9.23
+      node-fetch-native: 1.6.6
+
+  '@hattip/router@0.0.49':
+    dependencies:
+      '@hattip/compose': 0.0.49
+      '@hattip/core': 0.0.49
+
   '@hono/node-server@1.14.1(hono@4.7.7)':
     dependencies:
       hono: 4.7.7
@@ -4734,6 +4841,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@kamilkisiela/fast-url-parser@1.1.4': {}
 
   '@libsql/client@0.15.4':
     dependencies:
@@ -5126,18 +5235,19 @@ snapshots:
       '@typescript-eslint/types': 8.31.1
       eslint-visitor-keys: 4.2.0
 
-  '@universal-middleware/core@0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/core@0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
       regexparam: 3.0.0
       tough-cookie: 5.1.2
     optionalDependencies:
+      '@hattip/core': 0.0.49
       elysia: 1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3)
       h3: 1.15.3
       hono: 4.7.7
 
-  '@universal-middleware/elysia@0.4.8(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/elysia@0.4.8(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
@@ -5147,9 +5257,9 @@ snapshots:
       - h3
       - hono
 
-  '@universal-middleware/h3@0.4.9(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/h3@0.4.9(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
@@ -5159,9 +5269,21 @@ snapshots:
       - h3
       - hono
 
-  '@universal-middleware/hono@0.4.10(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/hattip@0.4.8(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - '@hattip/core'
+      - '@webroute/route'
+      - elysia
+      - fastify
+      - h3
+      - hono
+
+  '@universal-middleware/hono@0.4.10(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+    dependencies:
+      '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.2.25(@sinclair/typebox@0.34.33)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
@@ -5273,6 +5395,18 @@ snapshots:
       '@vitest/pretty-format': 3.0.9
       loupe: 3.1.3
       tinyrainbow: 2.0.0
+
+  '@whatwg-node/fetch@0.9.23':
+    dependencies:
+      '@whatwg-node/node-fetch': 0.6.0
+      urlpattern-polyfill: 10.0.0
+
+  '@whatwg-node/node-fetch@0.6.0':
+    dependencies:
+      '@kamilkisiela/fast-url-parser': 1.1.4
+      busboy: 1.6.0
+      fast-querystring: 1.1.2
+      tslib: 2.8.1
 
   acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
@@ -5450,6 +5584,10 @@ snapshots:
   buffer-from@1.1.2: {}
 
   builtin-modules@5.0.0: {}
+
+  busboy@1.6.0:
+    dependencies:
+      streamsearch: 1.1.0
 
   cac@6.7.14: {}
 
@@ -6217,6 +6355,8 @@ snapshots:
 
   exsolve@1.0.5: {}
 
+  fast-decode-uri-component@1.0.1: {}
+
   fast-deep-equal@3.1.3: {}
 
   fast-glob@3.3.3:
@@ -6230,6 +6370,10 @@ snapshots:
   fast-json-stable-stringify@2.1.0: {}
 
   fast-levenshtein@2.0.6: {}
+
+  fast-querystring@1.1.2:
+    dependencies:
+      fast-decode-uri-component: 1.0.1
 
   fastq@1.19.1:
     dependencies:
@@ -6780,6 +6924,8 @@ snapshots:
   natural-orderby@5.0.0: {}
 
   node-domexception@1.0.0: {}
+
+  node-fetch-native@1.6.6: {}
 
   node-fetch@3.3.2:
     dependencies:
@@ -7370,6 +7516,8 @@ snapshots:
 
   stoppable@1.1.0: {}
 
+  streamsearch@1.1.0: {}
+
   string-width@4.2.3:
     dependencies:
       emoji-regex: 8.0.0
@@ -7715,6 +7863,8 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  urlpattern-polyfill@10.0.0: {}
 
   util-deprecate@1.0.2: {}
 
