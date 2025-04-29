@@ -28,6 +28,7 @@ class H3TestAdapter implements FrameworkTestAdapter {
 
   resetApp = (): void => {
     this.#app = createApp({
+      // THIS IS REQUIRED BY UNIVERSAL MIDDLEWARE
       onBeforeResponse: universalOnBeforeResponse,
     });
   };
