@@ -50,6 +50,37 @@ Framework support status:
 - [ ] express (WIP)
 - [ ] fastify (WIP)
 
+As an example, you can start using this middleware in Hono like this:
+
+```ts
+import { createMiddleware } from "@universal-middleware/hono";
+import { Hono } from "hono";
+import { idempotentRequestUniversalMiddleware } from "universal-idempotent-request";
+
+const app = new Hono();
+
+const idempotentRequestMiddleware = createMiddleware(
+  idempotentRequestUniversalMiddleware,
+);
+
+app.on(["POST", "PATCH"], "/api/*", idempotentRequestMiddleware(
+  activationStrategy: "always", // Default behavior
+  server: {
+    specification: // Bring your own specification
+  },
+  storage: {
+    adapter: // Bring your own specification
+  }
+  // Hooks are optional. Useful for customizing response.
+  hooks: {
+    modifyResponse: (response, type) => {
+      response.headers.set("X-Idempotency-Status", type);
+      return response;
+    },
+  }
+))
+```
+
 ## Important Point
 
 ### Endpoint implementations that should not use this middleware
