@@ -10,16 +10,16 @@
     "@hono/zod-openapi": "0.19.6",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
-    "@universal-middleware/hono": "0.4.10",
+    "@universal-middleware/hono": "catalog:universal-middleware",
     "hono": "4.7.7",
     "universal-idempotent-request": "workspace:*",
     "valibot": "1.0.0",
     "zod": "3.24.3"
   },
   "devDependencies": {
-    "@types/node": "22.15.3",
-    "@virtual-live-lab/tsconfig": "2.1.20",
-    "typescript": "5.8.3",
+    "@types/node": "catalog:dev",
+    "@virtual-live-lab/tsconfig": "catalog:dev",
+    "typescript": "catalog:dev",
     "wrangler": "4.13.2"
   }
 }

@@ -6,15 +6,15 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@universal-middleware/hono": "0.4.10",
+    "@universal-middleware/hono": "catalog:universal-middleware",
     "hono": "4.7.7",
     "universal-idempotent-request": "workspace:*"
   },
   "devDependencies": {
     "@repo/integration-tests-utils": "workspace:*",
-    "@virtual-live-lab/tsconfig": "2.1.20",
-    "@vitest/coverage-v8": "3.0.9",
-    "typescript": "5.8.3",
-    "vitest": "3.0.9"
+    "@virtual-live-lab/tsconfig": "catalog:dev",
+    "@vitest/coverage-v8": "catalog:test",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test"
   }
 }

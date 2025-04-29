@@ -39,22 +39,22 @@
     "check": "pnpm run build && pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run"
   },
   "dependencies": {
-    "@universal-middleware/core": "0.4.7"
+    "@universal-middleware/core": "catalog:universal-middleware"
   },
   "devDependencies": {
-    "@types/node": "22.15.3",
-    "@virtual-live-lab/eslint-config": "2.2.21",
-    "@virtual-live-lab/prettier-config": "2.0.19",
-    "@virtual-live-lab/tsconfig": "2.1.20",
-    "@vitest/coverage-v8": "3.0.9",
-    "eslint": "9.25.1",
-    "eslint-plugin-unicorn": "59.0.0",
-    "globals": "16.0.0",
-    "prettier": "3.5.3",
-    "typescript": "5.8.3",
-    "typescript-eslint": "8.31.1",
+    "@types/node": "catalog:dev",
+    "@virtual-live-lab/eslint-config": "catalog:dev",
+    "@virtual-live-lab/prettier-config": "catalog:dev",
+    "@virtual-live-lab/tsconfig": "catalog:dev",
+    "@vitest/coverage-v8": "catalog:test",
+    "eslint": "catalog:dev",
+    "eslint-plugin-unicorn": "catalog:dev",
+    "globals": "catalog:dev",
+    "prettier": "catalog:dev",
+    "typescript": "catalog:dev",
+    "typescript-eslint": "catalog:dev",
     "unbuild": "3.5.0",
-    "vitest": "3.0.9"
+    "vitest": "catalog:test"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

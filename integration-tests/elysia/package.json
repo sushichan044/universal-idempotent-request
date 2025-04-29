@@ -6,15 +6,15 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@universal-middleware/elysia": "0.4.8",
+    "@universal-middleware/elysia": "catalog:universal-middleware",
     "elysia": "1.2.25",
     "universal-idempotent-request": "workspace:*"
   },
   "devDependencies": {
     "@repo/integration-tests-utils": "workspace:*",
-    "@virtual-live-lab/tsconfig": "2.1.20",
-    "@vitest/coverage-v8": "3.0.9",
-    "typescript": "5.8.3",
-    "vitest": "3.0.9"
+    "@virtual-live-lab/tsconfig": "catalog:dev",
+    "@vitest/coverage-v8": "catalog:test",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test"
   }
 }
