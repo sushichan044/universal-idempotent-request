@@ -1,0 +1,22 @@
+{
+  "name": "@repo-integration-test/express",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@universal-middleware/express": "0.4.15",
+    "express": "5.1.0",
+    "fetch-to-node": "2.1.0",
+    "universal-idempotent-request": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/integration-tests-utils": "workspace:*",
+    "@types/express": "5.0.1",
+    "@virtual-live-lab/tsconfig": "2.1.20",
+    "@vitest/coverage-v8": "3.0.9",
+    "typescript": "5.8.3",
+    "vitest": "3.0.9"
+  }
+}
