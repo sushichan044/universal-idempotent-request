@@ -143,4 +143,15 @@ describe("BodyInit round-trip", () => {
 
     expect(await deserialized.text()).toBe("Hello Stream");
   });
+
+  it("should round-trip null bodies", async () => {
+    const response = new Response(null);
+    const actualBody = await response.text();
+
+    const serialized = await cloneAndSerializeResponse(response);
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
 });
