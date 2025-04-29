@@ -72,3 +72,106 @@ describe("deserializeResponse", () => {
     expect(await response.text()).toBe("Test body");
   });
 });
+
+describe("BodyInit round-trip", () => {
+  it("should round-trip string bodies", async () => {
+    const response = new Response("Hello");
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip Blob bodies", async () => {
+    const response = new Response(
+      new Blob(["Hello Blob"], { type: "text/plain" }),
+    );
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip ArrayBuffer bodies", async () => {
+    const buf = new TextEncoder().encode("Hello AB").buffer;
+    const response = new Response(buf);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip Uint8Array bodies", async () => {
+    const uint8 = new TextEncoder().encode("Hello UA");
+    const response = new Response(uint8);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip URLSearchParams bodies", async () => {
+    const usp = new URLSearchParams({ baz: "qux", foo: "bar" });
+    const response = new Response(usp);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip FormData bodies", async () => {
+    const fd = new FormData();
+    fd.append("key", "value");
+    const response = new Response(fd);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip ReadableStream bodies", async () => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("Hello Stream"));
+        controller.close();
+      },
+    });
+    const response = new Response(stream);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+
+  it("should round-trip null bodies", async () => {
+    const response = new Response(null);
+    const serialized = await cloneAndSerializeResponse(response);
+    const actualBody = await response.text();
+
+    const deserialized = deserializeResponse(serialized);
+    const deserializedBody = await deserialized.text();
+
+    expect(deserializedBody).toBe(actualBody);
+  });
+});
