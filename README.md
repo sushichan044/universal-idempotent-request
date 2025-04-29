@@ -47,8 +47,8 @@ Framework support status:
 - [x] h3 (only v1 support)
 - [x] elysia
 - [x] hattip
-- [ ] express (WIP)
-- [ ] fastify (WIP)
+- [ ] express (May work, but unverified)
+- [ ] fastify (May work, but unverified)
 
 As an example, you can start using this middleware in Hono like this:
 
