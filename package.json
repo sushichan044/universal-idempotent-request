@@ -42,7 +42,7 @@
     "@universal-middleware/core": "0.4.7"
   },
   "devDependencies": {
-    "@types/node": "22.14.1",
+    "@types/node": "22.15.3",
     "@virtual-live-lab/eslint-config": "2.2.21",
     "@virtual-live-lab/prettier-config": "2.0.19",
     "@virtual-live-lab/tsconfig": "2.1.20",

@@ -17,7 +17,7 @@
     "zod": "3.24.3"
   },
   "devDependencies": {
-    "@types/node": "22.14.1",
+    "@types/node": "22.15.3",
     "@virtual-live-lab/tsconfig": "2.1.20",
     "typescript": "5.8.3",
     "wrangler": "4.12.0"
