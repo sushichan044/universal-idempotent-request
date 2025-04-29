@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@universal-middleware/h3": "0.4.9",
-    "h3": "1.15.2",
+    "h3": "1.15.3",
     "universal-idempotent-request": "workspace:*"
   },
   "devDependencies": {
