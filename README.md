@@ -163,7 +163,7 @@ const app = new Hono();
 const idempotentRequestMiddleware = createMiddleware(idempotentRequestUniversalMiddleware)
 
 app.on(
-  ["POST", "PUT", "PATCH"],
+  ["POST", "PATCH"],
   "/api/*",
   idempotentRequestMiddleware({
     server: {
