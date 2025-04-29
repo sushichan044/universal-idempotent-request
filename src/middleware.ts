@@ -9,9 +9,9 @@ import type { IdempotentRequestStorageAdapter } from "./storage/adapter";
 import type { IdempotencyActivationStrategy } from "./strategy";
 
 import {
-  createIdempotencyKeyConflictErrorResponse,
-  createIdempotencyKeyMissingErrorResponse,
-  createIdempotencyKeyPayloadMismatchErrorResponse,
+  IDEMPOTENCY_KEY_CONFLICT_ERROR_RESPONSE,
+  IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE,
+  IDEMPOTENCY_KEY_PAYLOAD_MISMATCH_ERROR_RESPONSE,
 } from "./constants/response";
 import { UnsafeImplementationError } from "./error";
 import { resolveHooks } from "./hooks";
@@ -94,7 +94,7 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
     const idempotencyKey = request.headers.get("Idempotency-Key");
     if (idempotencyKey == null || !server.satisfiesKeySpec(idempotencyKey)) {
       return await hooks.modifyResponse(
-        createIdempotencyKeyMissingErrorResponse(),
+        deserializeResponse(IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE),
         "key_missing",
       );
     }
@@ -126,14 +126,14 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
       // Retried request - compare with the stored request
       if (!isIdenticalRequest(storeResult.request, requestIdentifier)) {
         return await hooks.modifyResponse(
-          createIdempotencyKeyPayloadMismatchErrorResponse(),
+          deserializeResponse(IDEMPOTENCY_KEY_PAYLOAD_MISMATCH_ERROR_RESPONSE),
           "key_payload_mismatch",
         );
       }
 
       if (storeResult.request.lockedAt != null) {
         return await hooks.modifyResponse(
-          createIdempotencyKeyConflictErrorResponse(),
+          deserializeResponse(IDEMPOTENCY_KEY_CONFLICT_ERROR_RESPONSE),
           "key_conflict",
         );
       }
