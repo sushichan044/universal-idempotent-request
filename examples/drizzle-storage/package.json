@@ -22,7 +22,7 @@
     "@types/node": "catalog:dev",
     "@virtual-live-lab/tsconfig": "catalog:dev",
     "drizzle-kit": "0.31.1",
-    "tsx": "4.19.3",
+    "tsx": "4.19.4",
     "typescript": "catalog:dev"
   }
 }
