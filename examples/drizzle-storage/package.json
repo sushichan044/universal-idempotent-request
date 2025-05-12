@@ -9,7 +9,7 @@
   "dependencies": {
     "@hono/node-server": "1.14.1",
     "@hono/standard-validator": "0.1.2",
-    "@libsql/client": "0.15.4",
+    "@libsql/client": "0.15.5",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
     "@universal-middleware/hono": "catalog:universal-middleware",
