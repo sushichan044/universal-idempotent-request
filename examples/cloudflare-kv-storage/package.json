@@ -13,7 +13,7 @@
     "@universal-middleware/hono": "catalog:universal-middleware",
     "hono": "4.7.7",
     "universal-idempotent-request": "workspace:*",
-    "valibot": "1.0.0",
+    "valibot": "1.1.0",
     "zod": "3.24.4"
   },
   "devDependencies": {
