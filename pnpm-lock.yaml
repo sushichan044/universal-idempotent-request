@@ -51,8 +51,8 @@ catalogs:
       specifier: 0.5.0
       version: 0.5.0
     '@universal-middleware/h3':
-      specifier: 0.4.9
-      version: 0.4.9
+      specifier: 0.4.10
+      version: 0.4.10
     '@universal-middleware/hattip':
       specifier: 0.4.8
       version: 0.4.8
@@ -232,7 +232,7 @@ importers:
     dependencies:
       '@universal-middleware/h3':
         specifier: catalog:universal-middleware
-        version: 0.4.9(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.10(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       h3:
         specifier: 1.15.3
         version: 1.15.3
@@ -1992,8 +1992,8 @@ packages:
   '@universal-middleware/elysia@0.5.0':
     resolution: {integrity: sha512-13UAEkpgO0TwFswV+KIXNT0oI2jIww6t79lDbVORSzkDLCE2vp6shrRyKTEIG/gERRGlq2cva9SSi3qcgfZReg==}
 
-  '@universal-middleware/h3@0.4.9':
-    resolution: {integrity: sha512-AC/Biq8iBYg5PH0BcchGmGeOksLa6IBPh9m3bH5GPk/MAjsiJI6B1hjWKV0Q+Hnf/yIzoWVq1RqNHo/z06zniQ==}
+  '@universal-middleware/h3@0.4.10':
+    resolution: {integrity: sha512-tG+5hfIYrLKrX3kGTMRCWx44Q2mV2DJMda+Rjryk+vgEWWaQVCtUGkAa2IqrM8m0L/sVf9ypQNK/ucQGy7naeA==}
 
   '@universal-middleware/hattip@0.4.8':
     resolution: {integrity: sha512-+U1fvAYnvRtnHhMb4Ww6k1sP08zthY07PtUM4HQnQtCTFc1wc56GzAug2n1JgOkjj7onPmSokoA/ikUPq6rK9g==}
@@ -5644,7 +5644,7 @@ snapshots:
       - h3
       - hono
 
-  '@universal-middleware/h3@0.4.9(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/h3@0.4.10(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
       '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     transitivePeerDependencies:
