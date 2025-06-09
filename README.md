@@ -1,5 +1,7 @@
 # universal-idempotent-request
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sushichan044/universal-idempotent-request)
+
 A framework-agnostic library implementing the HTTP Idempotency-Key draft ([draft-ietf-httpapi-idempotency-key-header-06](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06)) for server-side request handling.
 
 See [examples](./examples) for sample implementations.
