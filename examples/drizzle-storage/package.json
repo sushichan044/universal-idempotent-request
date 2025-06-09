@@ -13,7 +13,7 @@
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
     "@universal-middleware/hono": "catalog:universal-middleware",
-    "drizzle-orm": "0.43.1",
+    "drizzle-orm": "0.44.2",
     "hono": "4.7.7",
     "universal-idempotent-request": "workspace:*",
     "valibot": "1.1.0"
