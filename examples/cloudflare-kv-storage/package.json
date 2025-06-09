@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@hono/swagger-ui": "0.5.1",
-    "@hono/zod-openapi": "0.19.6",
+    "@hono/zod-openapi": "0.19.8",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
     "@universal-middleware/hono": "catalog:universal-middleware",
