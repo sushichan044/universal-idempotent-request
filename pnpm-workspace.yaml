@@ -22,4 +22,4 @@ catalogs:
     '@universal-middleware/elysia': 0.5.0
     '@universal-middleware/h3': 0.4.9
     '@universal-middleware/hattip': 0.4.8
-    '@universal-middleware/hono': 0.4.10
+    '@universal-middleware/hono': 0.4.14
