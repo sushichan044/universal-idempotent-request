@@ -19,7 +19,7 @@ catalogs:
     vitest: 3.1.4
   universal-middleware:
     '@universal-middleware/core': 0.4.7
-    '@universal-middleware/elysia': 0.5.0
+    '@universal-middleware/elysia': 0.5.2
     '@universal-middleware/h3': 0.4.9
     '@universal-middleware/hattip': 0.4.8
     '@universal-middleware/hono': 0.4.14
