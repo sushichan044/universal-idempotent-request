@@ -6,7 +6,7 @@
     "cf-types": "wrangler types"
   },
   "dependencies": {
-    "@hono/swagger-ui": "0.5.1",
+    "@hono/swagger-ui": "0.5.2",
     "@hono/zod-openapi": "0.19.8",
     "@oslojs/crypto": "1.0.1",
     "@oslojs/encoding": "1.1.0",
