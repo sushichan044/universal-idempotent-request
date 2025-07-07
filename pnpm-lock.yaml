@@ -54,8 +54,8 @@ catalogs:
       specifier: 0.4.9
       version: 0.4.10
     '@universal-middleware/hattip':
-      specifier: 0.4.8
-      version: 0.4.8
+      specifier: 0.4.10
+      version: 0.4.10
     '@universal-middleware/hono':
       specifier: 0.4.14
       version: 0.4.14
@@ -272,7 +272,7 @@ importers:
         version: 0.0.49
       '@universal-middleware/hattip':
         specifier: catalog:universal-middleware
-        version: 0.4.8(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+        version: 0.4.10(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
       universal-idempotent-request:
         specifier: workspace:*
         version: link:../..
@@ -2192,8 +2192,8 @@ packages:
   '@universal-middleware/h3@0.4.10':
     resolution: {integrity: sha512-tG+5hfIYrLKrX3kGTMRCWx44Q2mV2DJMda+Rjryk+vgEWWaQVCtUGkAa2IqrM8m0L/sVf9ypQNK/ucQGy7naeA==}
 
-  '@universal-middleware/hattip@0.4.8':
-    resolution: {integrity: sha512-+U1fvAYnvRtnHhMb4Ww6k1sP08zthY07PtUM4HQnQtCTFc1wc56GzAug2n1JgOkjj7onPmSokoA/ikUPq6rK9g==}
+  '@universal-middleware/hattip@0.4.10':
+    resolution: {integrity: sha512-uANsOphYNxy0Ed0cL41q86gKYJqaxa83HmRRONfdVDB3v7yFQYgeYVFg9/fdC2oj9vNB9REp1eKlsjPi2Kce9A==}
 
   '@universal-middleware/hono@0.4.14':
     resolution: {integrity: sha512-xkQdvSp+Q8n6vihpEQsfZ7mZHIpqtVb33rZxKr8MXRdZoPjLbuZkwTwQ2RE8IeRlPvJDz0yv1ENYYFKKYbI12Q==}
@@ -5972,9 +5972,9 @@ snapshots:
       - h3
       - hono
 
-  '@universal-middleware/hattip@0.4.8(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
+  '@universal-middleware/hattip@0.4.10(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)':
     dependencies:
-      '@universal-middleware/core': 0.4.7(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
+      '@universal-middleware/core': 0.4.8(@hattip/core@0.0.49)(elysia@1.3.1(exact-mirror@0.1.2(@sinclair/typebox@0.34.33))(file-type@20.5.0)(typescript@5.8.3))(h3@1.15.3)(hono@4.7.7)
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
       - '@hattip/core'
