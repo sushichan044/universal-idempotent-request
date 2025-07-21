@@ -157,8 +157,8 @@ importers:
         specifier: 1.14.4
         version: 1.14.4(hono@4.7.7)
       '@hono/standard-validator':
-        specifier: 0.1.2
-        version: 0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.7)
+        specifier: 0.1.4
+        version: 0.1.4(@standard-schema/spec@1.0.0)(hono@4.7.7)
       '@libsql/client':
         specifier: 0.15.9
         version: 0.15.9
@@ -1425,8 +1425,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/standard-validator@0.1.2':
-    resolution: {integrity: sha512-mVyv2fpx/o0MNAEhjXhvuVbW3BWTGnf8F4w8ZifztE+TWXjUAKr7KAOZfcDhVrurgVhKw7RbTnEog2beZM6QtQ==}
+  '@hono/standard-validator@0.1.4':
+    resolution: {integrity: sha512-NPxSO9/Z1FFaJ34/0WJA0JoFRrVrJOG5P/i+PBJu7jCw9v0u8WmGiJu0zv+bTk1pjplBjjczAd59x2X50spRmQ==}
     peerDependencies:
       '@standard-schema/spec': 1.0.0
       hono: '>=3.9.0'
@@ -4243,8 +4243,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  strtok3@10.3.1:
-    resolution: {integrity: sha512-3JWEZM6mfix/GCJBBUrkA8p2Id2pBkyTkVCJKto55w080QBKZ+8R171fGrbiSp+yMO/u6F8/yUh7K4V9K+YCnw==}
+  strtok3@10.3.2:
+    resolution: {integrity: sha512-or9w505RhhY66+uoe5YOC5QO/bRuATaoim3XTh+pGKx5VMWi/HDhMKuCjDLsLJouU2zg9Hf1nLPcNW7IHv80kQ==}
     engines: {node: '>=18'}
 
   stylehacks@7.0.4:
@@ -5264,7 +5264,7 @@ snapshots:
     dependencies:
       hono: 4.7.7
 
-  '@hono/standard-validator@0.1.2(@standard-schema/spec@1.0.0)(hono@4.7.7)':
+  '@hono/standard-validator@0.1.4(@standard-schema/spec@1.0.0)(hono@4.7.7)':
     dependencies:
       '@standard-schema/spec': 1.0.0
       hono: 4.7.7
@@ -7138,7 +7138,7 @@ snapshots:
   file-type@20.5.0:
     dependencies:
       '@tokenizer/inflate': 0.2.7
-      strtok3: 10.3.1
+      strtok3: 10.3.2
       token-types: 6.0.3
       uint8array-extras: 1.4.0
     transitivePeerDependencies:
@@ -8383,7 +8383,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  strtok3@10.3.1:
+  strtok3@10.3.2:
     dependencies:
       '@tokenizer/token': 0.3.0
 
