@@ -16,8 +16,8 @@ catalogs:
       specifier: 2.0.19
       version: 2.0.19
     '@virtual-live-lab/tsconfig':
-      specifier: 2.1.20
-      version: 2.1.20
+      specifier: 2.1.21
+      version: 2.1.21
     eslint:
       specifier: 9.27.0
       version: 9.27.0
@@ -79,7 +79,7 @@ importers:
         version: 2.0.19(prettier@3.5.3)
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       '@vitest/coverage-v8':
         specifier: catalog:test
         version: 3.1.4(vitest@3.1.4(@types/node@22.15.30)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))
@@ -143,7 +143,7 @@ importers:
         version: 22.15.30
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       typescript:
         specifier: catalog:dev
         version: 5.8.3
@@ -189,7 +189,7 @@ importers:
         version: 22.15.30
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       drizzle-kit:
         specifier: 0.31.1
         version: 0.31.1
@@ -217,7 +217,7 @@ importers:
         version: link:../test-utils
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       '@vitest/coverage-v8':
         specifier: catalog:test
         version: 3.1.4(vitest@3.1.4(@types/node@22.15.30)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))
@@ -245,7 +245,7 @@ importers:
         version: link:../test-utils
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       '@vitest/coverage-v8':
         specifier: catalog:test
         version: 3.1.4(vitest@3.1.4(@types/node@22.15.30)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))
@@ -282,7 +282,7 @@ importers:
         version: link:../test-utils
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       '@vitest/coverage-v8':
         specifier: catalog:test
         version: 3.1.4(vitest@3.1.4(@types/node@22.15.30)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))
@@ -310,7 +310,7 @@ importers:
         version: link:../test-utils
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       '@vitest/coverage-v8':
         specifier: catalog:test
         version: 3.1.4(vitest@3.1.4(@types/node@22.15.30)(jiti@2.4.2)(tsx@4.19.4)(yaml@2.8.0))
@@ -344,7 +344,7 @@ importers:
         version: 22.15.30
       '@virtual-live-lab/tsconfig':
         specifier: catalog:dev
-        version: 2.1.20(typescript@5.8.3)
+        version: 2.1.21(typescript@5.8.3)
       typescript:
         specifier: catalog:dev
         version: 5.8.3
@@ -2213,8 +2213,8 @@ packages:
       prettier-plugin-astro:
         optional: true
 
-  '@virtual-live-lab/tsconfig@2.1.20':
-    resolution: {integrity: sha512-hACjT2pdyNgvqpQIhWJzKrTI+SQQzwTZJirob2r0ctnwOialUyE6cqk+nvw/vFs96nnxY0K3BtNwc93dtnBC6A==}
+  '@virtual-live-lab/tsconfig@2.1.21':
+    resolution: {integrity: sha512-AV4Am2jyqpUHoxtYZQ39/dinekkB1X5M5u35xI7dA8lYpmSculhf5JLKeuxAiGCWAPGoeoYkvZEbujNNrbZKzw==}
     peerDependencies:
       typescript: ^5.0.0
 
@@ -6033,7 +6033,7 @@ snapshots:
       defu: 6.1.4
       prettier: 3.5.3
 
-  '@virtual-live-lab/tsconfig@2.1.20(typescript@5.8.3)':
+  '@virtual-live-lab/tsconfig@2.1.21(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
 
