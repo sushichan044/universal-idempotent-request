@@ -115,7 +115,7 @@ importers:
         version: 0.5.1(hono@4.7.7)
       '@hono/zod-openapi':
         specifier: 0.19.8
-        version: 0.19.8(hono@4.7.7)(zod@3.25.56)
+        version: 0.19.8(hono@4.7.7)(zod@4.0.14)
       '@oslojs/crypto':
         specifier: 1.0.1
         version: 1.0.1
@@ -135,8 +135,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0(typescript@5.8.3)
       zod:
-        specifier: 3.25.56
-        version: 3.25.56
+        specifier: 4.0.14
+        version: 4.0.14
     devDependencies:
       '@types/node':
         specifier: catalog:dev
@@ -4243,8 +4243,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  strtok3@10.3.1:
-    resolution: {integrity: sha512-3JWEZM6mfix/GCJBBUrkA8p2Id2pBkyTkVCJKto55w080QBKZ+8R171fGrbiSp+yMO/u6F8/yUh7K4V9K+YCnw==}
+  strtok3@10.3.4:
+    resolution: {integrity: sha512-KIy5nylvC5le1OdaaoCJ07L+8iQzJHGH6pWDuzS+d07Cu7n1MZ2x26P8ZKIWfbK02+XIL8Mp4RkWeqdUCrDMfg==}
     engines: {node: '>=18'}
 
   stylehacks@7.0.4:
@@ -4328,8 +4328,8 @@ packages:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
 
-  token-types@6.0.3:
-    resolution: {integrity: sha512-IKJ6EzuPPWtKtEIEPpIdXv9j5j2LGJEYk0CKY2efgKoYKLBiZdh6iQkLVBow/CB3phyWAWCyk+bZeaimJn6uRQ==}
+  token-types@6.0.4:
+    resolution: {integrity: sha512-MD9MjpVNhVyH4fyd5rKphjvt/1qj+PtQUz65aFqAZA6XniWAuSFRjLk3e2VALEFlh9OwBpXUN7rfeqSnT/Fmkw==}
     engines: {node: '>=14.16'}
 
   tough-cookie@5.1.2:
@@ -4644,8 +4644,8 @@ packages:
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
-  zod@3.25.56:
-    resolution: {integrity: sha512-rd6eEF3BTNvQnR2e2wwolfTmUTnp70aUTqr0oaGbHifzC3BKJsoV+Gat8vxUMR1hwOKBs6El+qWehrHbCpW6SQ==}
+  zod@4.0.14:
+    resolution: {integrity: sha512-nGFJTnJN6cM2v9kXL+SOBq3AtjQby3Mv5ySGFof5UGRHrRioSJ5iG680cYNjE/yWk671nROcpPj4hAS8nyLhSw==}
 
 snapshots:
 
@@ -4656,10 +4656,10 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@asteasolutions/zod-to-openapi@7.3.3(zod@3.25.56)':
+  '@asteasolutions/zod-to-openapi@7.3.3(zod@4.0.14)':
     dependencies:
       openapi3-ts: 4.4.0
-      zod: 3.25.56
+      zod: 4.0.14
 
   '@astrojs/compiler@2.11.0': {}
 
@@ -5273,17 +5273,17 @@ snapshots:
     dependencies:
       hono: 4.7.7
 
-  '@hono/zod-openapi@0.19.8(hono@4.7.7)(zod@3.25.56)':
+  '@hono/zod-openapi@0.19.8(hono@4.7.7)(zod@4.0.14)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 7.3.3(zod@3.25.56)
-      '@hono/zod-validator': 0.7.0(hono@4.7.7)(zod@3.25.56)
+      '@asteasolutions/zod-to-openapi': 7.3.3(zod@4.0.14)
+      '@hono/zod-validator': 0.7.0(hono@4.7.7)(zod@4.0.14)
       hono: 4.7.7
-      zod: 3.25.56
+      zod: 4.0.14
 
-  '@hono/zod-validator@0.7.0(hono@4.7.7)(zod@3.25.56)':
+  '@hono/zod-validator@0.7.0(hono@4.7.7)(zod@4.0.14)':
     dependencies:
       hono: 4.7.7
-      zod: 3.25.56
+      zod: 4.0.14
 
   '@humanfs/core@0.19.1': {}
 
@@ -5700,7 +5700,7 @@ snapshots:
     dependencies:
       debug: 4.4.1
       fflate: 0.8.2
-      token-types: 6.0.3
+      token-types: 6.0.4
     transitivePeerDependencies:
       - supports-color
 
@@ -7138,8 +7138,8 @@ snapshots:
   file-type@20.5.0:
     dependencies:
       '@tokenizer/inflate': 0.2.7
-      strtok3: 10.3.1
-      token-types: 6.0.3
+      strtok3: 10.3.4
+      token-types: 6.0.4
       uint8array-extras: 1.4.0
     transitivePeerDependencies:
       - supports-color
@@ -8383,7 +8383,7 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  strtok3@10.3.1:
+  strtok3@10.3.4:
     dependencies:
       '@tokenizer/token': 0.3.0
 
@@ -8495,7 +8495,7 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
-  token-types@6.0.3:
+  token-types@6.0.4:
     dependencies:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
@@ -8855,4 +8855,4 @@ snapshots:
 
   zod@3.22.3: {}
 
-  zod@3.25.56: {}
+  zod@4.0.14: {}
