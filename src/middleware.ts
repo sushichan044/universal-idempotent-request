@@ -20,6 +20,7 @@ import { cloneAndSerializeResponse, deserializeResponse } from "./serializer";
 import { createIdempotentRequestServer } from "./server";
 import { createIdempotentRequestStorage } from "./storage";
 import { prepareActivationStrategy } from "./strategy";
+import { extractIdempotencyKey } from "./utils/rfc8941";
 
 export interface IdempotentRequestImplementation {
   /**
@@ -91,7 +92,11 @@ export const idempotentRequestUniversalMiddleware = ((impl) =>
     const server = createIdempotentRequestServer(impl.server.specification);
     const storage = createIdempotentRequestStorage(impl.storage.adapter);
 
-    const idempotencyKey = request.headers.get("Idempotency-Key");
+    const rawIdempotencyKey = request.headers.get("Idempotency-Key");
+    const idempotencyKey =
+      rawIdempotencyKey === null
+        ? null
+        : extractIdempotencyKey(rawIdempotencyKey);
     if (idempotencyKey == null || !server.satisfiesKeySpec(idempotencyKey)) {
       return await hooks.modifyResponse(
         deserializeResponse(IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE),

@@ -2,7 +2,58 @@
  * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7}
  */
 
+import type {
+  DocumentationConfig,
+  DocumentationSections,
+} from "../config/documentation";
 import type { SerializedResponse } from "../serializer";
+
+import {
+  createDocumentationConfig,
+  getDocumentationUrl,
+} from "../config/documentation";
+
+/**
+ * Default documentation configuration
+ */
+const DEFAULT_DOCUMENTATION_CONFIG = createDocumentationConfig();
+
+/**
+ * Creates an enhanced error response with RFC7807 Problem Details compliance
+ * and documentation links
+ *
+ * @param config - Documentation configuration
+ * @param errorType - Type of error for documentation linking
+ * @param status - HTTP status code
+ * @param statusText - HTTP status text
+ * @param title - Error title
+ * @param detail - Error detail description
+ * @returns Enhanced error response with type field and Link header
+ */
+export function createEnhancedErrorResponse(
+  config: DocumentationConfig,
+  errorType: keyof DocumentationSections,
+  status: number,
+  statusText: string,
+  title: string,
+  detail: string,
+): SerializedResponse {
+  const documentationUrl = getDocumentationUrl(config, errorType);
+
+  return {
+    body: JSON.stringify({
+      detail,
+      title,
+      type: documentationUrl,
+    }),
+    headers: {
+      "Content-Type": "application/problem+json",
+      "Link": `<${documentationUrl}>; rel="help"`,
+    },
+    status,
+    statusText,
+  } as const satisfies SerializedResponse;
+}
 
 /**
  * If the Idempotency-Key request header is missing for a documented
@@ -12,18 +63,15 @@ import type { SerializedResponse } from "../serializer";
  *
  * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7}
  */
-export const IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE = {
-  body: JSON.stringify({
-    detail:
-      "This operation is idempotent and it requires correct usage of Idempotency Key.",
-    title: "Idempotency-Key is missing",
-  }),
-  headers: {
-    "Content-Type": "application/problem+json",
-  },
-  status: 400,
-  statusText: "Bad Request",
-} as const satisfies SerializedResponse;
+export const IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE =
+  createEnhancedErrorResponse(
+    DEFAULT_DOCUMENTATION_CONFIG,
+    "keyMissing",
+    400,
+    "Bad Request",
+    "Idempotency-Key is missing",
+    "This operation is idempotent and it requires correct usage of Idempotency Key.",
+  );
 
 /**
  * If the request is retried, while the original request is still being
@@ -32,18 +80,15 @@ export const IDEMPOTENCY_KEY_MISSING_ERROR_RESPONSE = {
  *
  * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7}
  */
-export const IDEMPOTENCY_KEY_CONFLICT_ERROR_RESPONSE = {
-  body: JSON.stringify({
-    detail:
-      "A request with the same Idempotency-Key for the same operation is being processed or is outstanding.",
-    title: "A request is outstanding for this Idempotency-Key",
-  }),
-  headers: {
-    "Content-Type": "application/problem+json",
-  },
-  status: 409,
-  statusText: "Conflict",
-} as const satisfies SerializedResponse;
+export const IDEMPOTENCY_KEY_CONFLICT_ERROR_RESPONSE =
+  createEnhancedErrorResponse(
+    DEFAULT_DOCUMENTATION_CONFIG,
+    "keyConflict",
+    409,
+    "Conflict",
+    "A request is outstanding for this Idempotency-Key",
+    "A request with the same Idempotency-Key for the same operation is being processed or is outstanding.",
+  );
 
 /**
  * If there is an attempt to reuse an idempotency key with a different
@@ -52,15 +97,12 @@ export const IDEMPOTENCY_KEY_CONFLICT_ERROR_RESPONSE = {
  *
  * @see {@link https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-06#section-2.7}
  */
-export const IDEMPOTENCY_KEY_PAYLOAD_MISMATCH_ERROR_RESPONSE = {
-  body: JSON.stringify({
-    detail:
-      "This operation is idempotent and it requires correct usage of Idempotency Key. Idempotency Key MUST not be reused across different payloads of this operation.",
-    title: "Idempotency-Key is already used",
-  }),
-  headers: {
-    "Content-Type": "application/problem+json",
-  },
-  status: 422,
-  statusText: "Unprocessable Content",
-} as const satisfies SerializedResponse;
+export const IDEMPOTENCY_KEY_PAYLOAD_MISMATCH_ERROR_RESPONSE =
+  createEnhancedErrorResponse(
+    DEFAULT_DOCUMENTATION_CONFIG,
+    "keyMismatch",
+    422,
+    "Unprocessable Content",
+    "Idempotency-Key is already used",
+    "This operation is idempotent and it requires correct usage of Idempotency Key. Idempotency Key MUST not be reused across different payloads of this operation.",
+  );

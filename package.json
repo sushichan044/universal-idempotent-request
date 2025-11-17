@@ -39,7 +39,8 @@
     "check": "pnpm run build && pnpm run lint && pnpm run format:ci && pnpm run typecheck && pnpm run test:run"
   },
   "dependencies": {
-    "@universal-middleware/core": "catalog:universal-middleware"
+    "@universal-middleware/core": "catalog:universal-middleware",
+    "structured-headers": "2.0.1"
   },
   "devDependencies": {
     "@types/node": "catalog:dev",
